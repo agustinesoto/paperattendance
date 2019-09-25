@@ -73,7 +73,7 @@ if(is_siteadmin() || has_capability('local/paperattendance:adminacademic', $cont
 				INNER JOIN {role_assignments} ra ON (ra.userid = u.id)
 				INNER JOIN {context} ct ON (ct.id = ra.contextid)
 				INNER JOIN {course} c ON (c.id = ct.instanceid)
-				INNER JOIN {role} r ON (r.id = ra.roleid AND r.id IN ( 3, 4))
+				INNER JOIN {role} r ON (r.id = ra.roleid AND r.id IN ( $CFG->paperattendance_profesoreditorrole, $CFG->paperattendance_profesornoeditorrole))
 				INNER JOIN {course_categories} as cat ON (cat.id = c.category)
 				WHERE c.idnumber > 0
 				GROUP BY c.id
@@ -112,7 +112,7 @@ else{
 	}else{
 		print_error(get_string('notallowedprint', 'local_paperattendance'));
 	}
-	$sqlcoursesparam = array('50', 3);
+	$sqlcoursesparam = array('50', $CFG->paperattendance_profesoreditorrole);
 	$sqlcourses= "SELECT c.id,
 	c.fullname,
 	cat.name,

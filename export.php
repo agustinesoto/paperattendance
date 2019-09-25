@@ -97,7 +97,7 @@ if( $isteacher || is_siteadmin($USER) || has_capability('local/paperattendance:p
 							FROM {user_enrolments} ue
 							INNER JOIN {enrol} e ON (e.id = ue.enrolid AND e.courseid = ?)
 							INNER JOIN {context} c ON (c.contextlevel = 50 AND c.instanceid = e.courseid)
-							INNER JOIN {role_assignments} ra ON (ra.contextid = c.id AND ra.roleid = 5 AND ra.userid = ue.userid)
+							INNER JOIN {role_assignments} ra ON (ra.contextid = c.id AND ra.roleid = $CFG->paperattendance_studentrole AND ra.userid = ue.userid)
 							INNER JOIN {user} u ON (ue.userid = u.id)
 							WHERE e.enrol $enrolmethod
 							GROUP BY u.id
