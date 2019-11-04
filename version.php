@@ -26,6 +26,6 @@
 */
 
 $plugin->component = 'local_paperattendance';
-$plugin->version   = 2019092501;
+$plugin->version   = 2019110400;
 $plugin->requires = 2015111600;
 
