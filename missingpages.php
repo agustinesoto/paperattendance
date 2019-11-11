@@ -288,6 +288,11 @@ if ($action == "edit") {
 					"src" => $url,
 					"style" => "height:116vh; width:40vw; float:left"
 			));
+
+			$viewerpdftres = html_writer::nonempty_tag("embed", " ", array(
+				"src" => $url,
+				"style" => "height:100%; width:100%;"
+			));
 				
 				
 			unlink($attendancepdffile);
@@ -483,7 +488,7 @@ $( "#confirm" ).on( "click", function() {
 	var module = $('#module');
 	var begin = $('#begin');
 	var sesspageid = '<?php echo $sesspageid; ?>';
-	var pdfviewer = '<?php echo $viewerpdfdos; ?>';
+	var pdfviewer = '<?php echo $viewerpdftres; ?>';
 	var backbutton = '<?php echo preg_replace("/[\r\n|\n|\r]+/", " ", $viewbackbutton); ?>';
 	//Validate the four fields in the form
 	if (!course.val() || !date.val() || !module.val() || !begin.val() || (parseFloat(begin.val())-1+26)%26 != 0 || date.val() === date.val().split('-')[0] || module.val() === module.val().split(':')[0]) {
@@ -533,13 +538,23 @@ $( "#confirm" ).on( "click", function() {
 			        	        //now we create the table with the students		        	        
 			        	        else{
 			        	        	console.log(537);	
-			        	        	$("#backbutton").empty();		    			        
+			        	        	$("#backbutton").empty();
+
+                                    $(".form-group").addClass('row');
+
 			    					$("#inputs").empty();
 			    					$("#inputs").removeClass("row");
+                                    $("#inputs").removeClass('col-sm-12');
+                                    $("#inputs").addClass('col-md-6');
+                                    $("#inputs").insertAfter("#pdfviewer");
+
 			    					$("#pdfviewer").empty();
+                                    $("#pdfviewer").removeClass('col-md-12');
+                                    $("#pdfviewer").addClass('col-md-6');
 			    					$("#pdfviewer").append(pdfviewer);
+
 			    					//Create the table with all the students and checkboxs
-			    				    var table = '<table class="table table-hover table-condensed table-responsive table-striped" style="float:right; width:40%"><thead><tr><th>#</th><th><input type="checkbox" id="checkAll"></th><th>Seleccionar Todo</th></tr></thead><tbody id="appendtrs">';
+			    				    var table = '<table class="table table-hover table-condensed table-responsive table-striped"><thead><tr><th>#</th><th><input type="checkbox" id="checkAll"></th><th>Seleccionar Todo</th></tr></thead><tbody id="appendtrs">';
 			    				    $("#inputs").append(table);
 			    				    
 			    			        $.each(response["alumnos"], function(i, field){
@@ -547,8 +562,10 @@ $( "#confirm" ).on( "click", function() {
 			    				    	var appendcheckbox = '<tr class="usercheckbox"><td>'+counter+'</td><td><input type="checkbox" class="usercheck" value="'+field["studentid"]+'"></td><td>'+field["username"]+'</td></tr>';
 			    			        	$("#appendtrs").append(appendcheckbox);
 			    			        });
+
 			    			        $("#inputs").append("</tbody></table>");
-			    		    		$(".form-group").append('<div align="center" id="savebutton"><button class="btn btn-info savestudentsattendance" style=" width:30%; margin-bottom:5%; margin-top:5%;">Guardar Asistencia</button></div>');
+                                    $(".form-group").append('<div class="col-md-12" align="center" id="savebutton"><button class="btn btn-info savestudentsattendance" style="margin-bottom:5%; margin-top:5%;">Guardar Asistencia</button></div>');
+
 			    		    		$("#backbutton").append(backbutton);
 
 
@@ -631,11 +648,11 @@ function RefreshSomeEventListener() {
 		/*Shows students attendace and sessinfo in JSON format:
 		alert(JSON.stringify(studentsattendance));
 		console.log(JSON.stringify(studentsattendance));
-		console.log(JSON.stringify(sessinfo));
-		*/
+		console.log(JSON.stringify(sessinfo));*/
 		$("#inputs").empty();
 		$("#pdfviewer").empty();
-		$("#savebutton").empty();
+        $("#savebutton").remove();
+        $(".savestudentsattendance").remove();
 		$("#inputs").append("<div id='loader'><img src='img/loading.gif'></div>");
 		//AJAX to save the student attendance in database
 		$.ajax({
@@ -659,12 +676,13 @@ function RefreshSomeEventListener() {
 				var error8 = response["idsesion"];
 				var error9 = response["arregloinicialalumnos"];*/
 				var moodleurl = "<?php echo $CFG->wwwroot;?>";
-				$('#loader').hide();
-				$("#alerthelp").hide();
-				$("#inputs").html('<div class="alert alert-success" role="alert" style="float:left; margin-top:5%;">'+error3+error5+'</div>');
-				//console.log(error+error2+error3+error4+error5+error6+error7+error8+error9);
-				//$("#inputs").append('<a href="'+moodleurl+'/local/paperattendance/missingpages.php" class="btn btn-info" role="button" style="float:left; margin-right:70%;">Volver</button>');
-				
+                $('#loader').hide();
+                $("#alerthelp").hide();
+                $("#savebutton").remove();
+                $(".savestudentsattendance").remove();
+                $("#inputs").removeClass('col-sm-12');
+                $("#inputs").addClass('col-md-8');
+                $("#inputs").html('<div class="alert alert-success" role="alert" style="margin-top:5%;">'+error3+error5+'</div>');
 		    },
 		    complete: function (index){
 				console.log(index);
