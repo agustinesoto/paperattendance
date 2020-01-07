@@ -244,15 +244,10 @@ function paperattendance_draw_student_list($pdf, $logofilepath, $course, $studen
 	$current = 1;
 	$pdf->SetFillColor(228, 228, 228);
 	$studentlist = array();
+	$fill = 0;
 	foreach($studentinfo as $stlist) {
 		
 		$pdf->SetXY($left, $top);
-		// Cell color
-		if($current%2 == 0){
-			$fill = 1;
-		}else{
-			$fill = 0;
-		}
 		// Number
 		$pdf->Cell(8, 8, $current, 0, 0, 'L', $fill);
 		// ID student
@@ -1703,9 +1698,16 @@ function paperattendance_read_csv($file, $path, $pdffilename, $uploaderobj){
 		while(! feof($handle))
   		{
 			$data = fgetcsv($handle, 1000, ";");
-			$numero = count($data);
-			mtrace( $numero." datoss en la línea ".$fila);
-			print_r($data);
+
+			//avoid complaints from count by checking if $data is an array
+			//apparently this function does 3 passes, on the last pass there is no data
+			$numero = false;
+			if(is_array($data))
+			{
+				$numero = count($data);
+				mtrace("data in row $fila: $numero");
+				print_r($data);
+			}
 			$stop = true;
 			
 			if($fila> 1 && $numero > 26){
@@ -1729,18 +1731,18 @@ function paperattendance_read_csv($file, $path, $pdffilename, $uploaderobj){
 				}
 				else{
 					$jpgfilenamecsv = $data[0];
-					mtrace("el nombre del jpg recien sacado es: ". $jpgfilenamecsv);
+					mtrace("PDF name: ". $jpgfilenamecsv);
 					$oldpdfpagenumber= explode("-",$jpgfilenamecsv);
 					$oldpdfpagenumber = $oldpdfpagenumber[1];
 					mtrace("el explode es: ".$oldpdfpagenumber);
 					$realpagenum = explode(".", $oldpdfpagenumber);
 					$realpagenum = $realpagenum[0];
-					mtrace("el numero de pagina correspondiente a este pdf es: ".$realpagenum);
+					mtrace("PDF page number: $realpagenum");
 				}
 				
 				if($stop){
 					//If stop is not false, it means that we could read one qr
-					mtrace("qr correctly found");
+					mtrace("qr found");
 					$qrinfo = explode("*",$qrcode);
 					//var_dump($qrinfo);
 					if(count($qrinfo) == 7){
@@ -1784,17 +1786,16 @@ function paperattendance_read_csv($file, $path, $pdffilename, $uploaderobj){
 							
 						}
 						else{
-							mtrace("session ya eexiste");
 							$sessid = $sessdoesntexist; //if session exist, then $sessdoesntexist contains the session id
 							//Check if the page already was processed
 							if($DB->record_exists('paperattendance_sessionpages', array('sessionid'=>$sessid,'qrpage'=>$page))){
-								mtrace("session ya existe y esta hoja ya fue subida y procesada");
+								mtrace("Session exists, list already uploaded");
 								$return++;
 								$stop = false;
 							}
 							else{
 								paperattendance_save_current_pdf_page_to_session($realpagenum, $sessid, $page, $pdffilename, 1, $uploaderobj->id, time());
-								mtrace("session ya existe pero esta hoja no habia sido subida ni procesada");
+								mtrace("Session exists, but list hasn't been uploaded (attendance checked online?)");
 								$stop = true;
 							}
 						}
@@ -1993,7 +1994,7 @@ function paperattendance_runcsvproccessing($path, $filename, $uploaderobj){
 		
 		//now run the exec command
 		//$command = 'timeout 30 java -jar /Datos/formscanner/formscanner-1.1.3-bin/lib/formscanner-main-1.1.3.jar /Datos/formscanner/template.xtmpl /data/data/moodledata/temp/local/paperattendance/unread/jpgs/processing/';	
-		$command = "timeout 30 java -jar ".$CFG->paperattendance_formscannerjarlocation." ".$CFG->paperattendance_formscannertemplatelocation." ".$CFG->paperattendance_formscannerfolderlocation;
+		$command = "java -jar ".$CFG->paperattendance_formscannerjarlocation." ".$CFG->paperattendance_formscannertemplatelocation." ".$CFG->paperattendance_formscannerfolderlocation;
 		
 		$lastline = exec($command, $output, $return_var);
 		mtrace($command);
