@@ -1,0 +1,23 @@
+Scanning:
+-Pages scanned correctly fail to process and end up in lost pages
+-Pages scanned and processed correctly mark everyone as abscent
+
+Other:
+-Failure to sync with Omega
+-Online attendance duplicates entries
+-When recovering lost pages assistance is not stored
+
+Extra functionality:
+-Count lost pages
+-Popup for printing??
+
+Funcionality of paper:
+-Check if course is from Omega
+-Create lists for each course
+-Scan lists
+-Pass assistance Online
+-Sync assistance with Omega
+
+Other:
+-Remove discussion, if someone wants to talk about their assitance have them mail the teacher
+-Beware, a session can only have one teacher

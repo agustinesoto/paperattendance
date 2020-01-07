@@ -1,0 +1,40 @@
+This document quickly documents how Paperattendance syncs with Omega
+
+Most syncronization is done in the ajaxquerys.php file, this file is loaded (through ajax) with an action chosen and it runs an specific function, it ends by encoding the answer in a JSON and echoing it for usage wherever you want. This allows for async usage of data from omega
+
+Some extra syncronization is done in the CLI through the omegasync and syncomegaattendance files, this communication is sync instead of async like the one done by ajax.
+
+1: Get Modulos horarios (curlgetmoduloshorario), called from print.php for some kind of date comparison?
+This functions pulls the time modules from omega
+
+2: Get courses (getcourses), used in printsearch
+This function doesnt even read any data from omega, it just reads from the DB
+It returns the courses available to the user?
+I think this is for the separate printing that is done in production
+
+3: Cart List (cartlist), used in printsearch
+This one actually communicates with Omega, I dont really care why though.
+By the name it looks like its to be able to select multiple courses to print at once
+
+4: Get list of Students in page (getliststudentspage), used in missingpages to get the students in a page
+It reads the DB to see which page it is and returns all the students in it so that the teacher can manually mark presence.
+
+5: Change Student Presence (changestudentpresence), used in history.php to change the presence of a single student
+it updates the db and omega at the same time
+this is probably one of the most important functions
+
+6: Save students attendance (savestudentsattendance), used in missingpages to save multiple students presence.
+at first glance it only updates the DB but its so wildly complicated that it probably does something else
+
+7: Check progress page (checkprocesspage), used in missingpages.php for something?
+I think this reads the db to see if a page was processed or not, regarldess its not very important
+
+8: Change all presence (changeallpresence), used in history.php for changing multiple students at once and syncing with Omega
+
+9: Save insert student (saveinsertstudent), used in history.php 
+It saves an array of students to the db and then syncs them to omega
+
+CLI:
+omegasync.php
+
+syncomegaattendance.php

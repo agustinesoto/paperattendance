@@ -166,7 +166,7 @@ if ($hassiteconfig) {
 					'paperattendance_formscannerjarlocation',
 					get_string('formscannerjarlocation', 'local_paperattendance'),
 					get_string('formscannerjarlocationtext', 'local_paperattendance'),
-					'/Datos/formscanner/formscanner-1.1.3-bin/lib/formscanner-main-1.1.3.jar',
+					'/Datos/formscanner/formscanner-1.1.4-bin/lib/formscanner-main-1.1.4.jar',
 					PARAM_TEXT
 					)
 			);

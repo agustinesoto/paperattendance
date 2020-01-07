@@ -38,6 +38,7 @@ class paperattendance_print_form extends moodleform {
 				50,
 				$courseid,
 				'%profesoreditor%',
+				'%editingteacher%' //fix to get teachers to show up when site is in english
 		);
 		$param = array_merge($param1,$param2);
 		$teachersquery = "SELECT u.id, 
@@ -49,7 +50,7 @@ class paperattendance_print_form extends moodleform {
 							INNER JOIN {context} ct ON (ct.id = ra.contextid)
 							INNER JOIN {course} c ON (c.id = ct.instanceid AND e.courseid = c.id)
 							INNER JOIN {role} r ON (r.id = ra.roleid)
-							WHERE e.enrol $sqlin AND ct.contextlevel = ? AND c.id = ? AND
+							WHERE e.enrol $sqlin AND ct.contextlevel = ? AND (c.id = ? OR c.id = ?) AND
 							".$DB->sql_like('r.shortname', '?', $casesensitive = false, $accentsensitive = false, $notlike = false)."
 							ORDER BY r.id ASC";
 		

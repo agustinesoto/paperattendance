@@ -89,7 +89,7 @@ switch ($action) {
 		$result = curl_exec ($curl);
 		curl_close ($curl);
 
-		echo  json_encode($result);
+		echo json_encode($result);
 		break;
 	//This case returns courses that match with the searched word on printsearch, it could be by teacher or course name
 	case 'getcourses' :
@@ -195,7 +195,7 @@ switch ($action) {
 	case 'cartlist':
 		require_once($CFG->dirroot . '/local/paperattendance/locallib.php');
 		$return = array();
-		$course = $DB->get_record("course", array("id" => $courseid)); //Get the course by id
+		$course = $DB->get_record("course", array("id" => $courseid)); //Get the course by id, the id comes in an optional var
 		if($teacherid!=1){
 			$return['courseid'] = $courseid;
 			$return['course'] = $course->fullname;
@@ -302,7 +302,7 @@ switch ($action) {
 				$record->id = $presenceid;
 				$record->lastmodified = time();
 				$record->status = $setstudentpresence;
-				$omegaid = $attendance -> omegaid;
+				$omegaid = $attendance->omegaid;
 				$DB->update_record("paperattendance_presence", $record);
 				
 				if(paperattendance_checktoken($CFG->paperattendance_omegatoken)){
@@ -349,7 +349,6 @@ switch ($action) {
 					
 			require_once($CFG->dirroot . '/local/paperattendance/locallib.php');
 			
-
 			//$return["arregloinicialalumnos"] = print_r($studentsattendance, true);
 	
 			$sesspageid = $sessinfo[0] -> sesspageid;
@@ -447,8 +446,9 @@ switch ($action) {
 					$stop = true;
 				}
 			}
-			if($stop){
-				
+
+			if($stop)
+			{
 				$arrayalumnos = array();
 				$init = ($numberpage-1)*26+1; 
 				$end = $numberpage*26;  
@@ -549,7 +549,8 @@ switch ($action) {
 			}
 			echo json_encode($return);
 			break;
-			//This case is to change all student attendance with ajax
+
+		//This case is to change all student attendance with ajax
 		case 'changeallpresence':
 			require_once($CFG->dirroot . '/local/paperattendance/locallib.php');
 			$sessinfo = $_REQUEST['sessinfo'];
