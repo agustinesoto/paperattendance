@@ -147,7 +147,7 @@ if( $isteacher || is_siteadmin($USER) || has_capability('local/paperattendance:p
                 get_string('student', 'local_paperattendance'),
                 get_string('mail', 'local_paperattendance'),
                 $changeallattendance.$tableheadattendance,
-                get_string('setting', 'local_paperattendance'),
+                get_string('changepresence', 'local_paperattendance'),
                 get_string('omegasync', 'local_paperattendance')
             );
             

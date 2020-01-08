@@ -49,7 +49,7 @@ $string['hashtag']="#";
 $string['student']="Student";
 $string['mail']="Mail";
 $string['attendance']="Attendance";
-$string['setting']="Settings";
+$string['changepresence']="Change presence";
 $string['nonselectedstudent']="Non selected student";
 $string['nonexiststudent']="Non exist student";
 $string['date']="Date";
@@ -257,6 +257,8 @@ $string['categoryid']="Category Id";
 $string['categoryidtext']="Pregrado's category value: 1 for Webcursos-d / 406 for Webcursos Production";
 $string['minutesdelay']="Minutes of digital delay";
 $string['minutesdelaytext']="Maximum of extra minutes to be able to take digital assistance after completing the module. (0 - 19)";
+$string['student']="Student";
+$string['currentassistance']="Current Assistance";
 
 // Task
 $string['taskprocesspdf']="Process PDFs";

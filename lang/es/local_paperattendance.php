@@ -49,7 +49,7 @@ $string['hashtag']="#";
 $string['student']="Alumno";
 $string['mail']="Correo";
 $string['attendance']="Asistencia";
-$string['setting']="Ajustes";
+$string['changepresence']="Cambiar asistencia";
 $string['nonselectedstudent']="Estudiante no seleccionado";
 $string['nonexiststudent']="Estudiante no existe";
 $string['date']="Fecha";
@@ -257,6 +257,8 @@ $string['categoryid']="Id de Catergoría";
 $string['categoryidtext']="Valor categoría de pregrado: 1 para Webcursos-d / 406 para Webcursos Producción";
 $string['minutesdelay']="Minutos de retraso digital";
 $string['minutesdelaytext']="Máximo de minutos extras para poder tomar asistencia digital luego de terminar el módulo. (0 - 19)";
+$string['student']="Alumno";
+$string['currentassistance']="Asistencia Actual";
 
 // Task
 $string['taskprocesspdf']="Procesar PDFs";

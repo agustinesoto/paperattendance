@@ -21,15 +21,18 @@
  * @copyright  2019 Matías Queirolo (mqueirolo@alumnos.uai.cl)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-//Pertenece al plugin PaperAttendance
+
+//Online attendance
+
 require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
 require_once($CFG->dirroot . '/local/paperattendance/locallib.php');
-require_once ($CFG->dirroot . "/repository/lib.php");
-require_once ($CFG->libdir . '/pdflib.php');
-require_once ($CFG->dirroot . '/mod/assign/feedback/editpdf/fpdi/fpdi.php');
-require_once ($CFG->dirroot . "/mod/assign/feedback/editpdf/fpdi/fpdi_bridge.php");
-require_once ($CFG->dirroot . "/mod/assign/feedback/editpdf/fpdi/fpdi.php");
-require_once ($CFG->dirroot . "/local/paperattendance/forms/attendance_form.php");
+require_once($CFG->dirroot . "/repository/lib.php");
+require_once($CFG->libdir . '/pdflib.php');
+require_once($CFG->dirroot . '/mod/assign/feedback/editpdf/fpdi/fpdi.php');
+require_once($CFG->dirroot . "/mod/assign/feedback/editpdf/fpdi/fpdi_bridge.php");
+require_once($CFG->dirroot . "/mod/assign/feedback/editpdf/fpdi/fpdi.php");
+require_once($CFG->dirroot . "/local/paperattendance/forms/attendance_form.php");
+
 global $CFG, $DB, $OUTPUT, $USER, $PAGE;
 // User must be logged in.
 require_login();
@@ -125,8 +128,8 @@ if($action == "view"){
 		$module1A = false;
 		$module4A = false;
 		
-		if(count($omegamodules) != 0){ // then exist omegamodules from omega
-			//var_dump("hay modulos omega");
+		if(is_array($omegamodules)) //then exist omegamodules from omega
+		{ 
 			foreach ($omegamodules as $module){
 				
 				$modinicial = $module->horaInicio;
@@ -159,7 +162,7 @@ if($action == "view"){
 				}
 			}
 		}
-		if (count($omegamodules) == 0 || $noexistmodule){ //no exist actual omegamodules from omega today
+		if (is_array($omegamodules) || $noexistmodule){ //no exist actual omegamodules from omega today
 			//geting all modules from moodle
 			//var_dump("no hay modulos omega o no existe actual en omga");
 			$getmodules = "SELECT *
@@ -368,7 +371,7 @@ if($action == "save"){
 	));
 	$viewbackbutton = html_writer::nonempty_tag(
 			"div",
-			$OUTPUT->single_button($backurl, "Ver Historial"),
+			$OUTPUT->single_button($backurl, get_string("paperattendance:history", "local_paperattendance")),
 			array("align" => "left"
 			));
 }

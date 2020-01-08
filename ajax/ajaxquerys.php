@@ -53,8 +53,6 @@ switch ($action) {
 	//This case response returns the omega modules of a class
 	case 'curlgetmoduloshorario' :
 		require_once($CFG->dirroot . '/local/paperattendance/locallib.php');
-		$token = $CFG->paperattendance_omegatoken;
-		$url = $CFG->paperattendance_omegagetmoduloshorariosurl;
 		if($courseid > 1){
 			if($course = $DB->get_record("course", array("id" => $courseid)) ){
 				if($course->idnumber != NULL){
@@ -73,7 +71,9 @@ switch ($action) {
 		if(!has_capability("local/paperattendance:printsecre", $context) && !$isteacher && !is_siteadmin($USER) && !has_capability("local/paperattendance:print", $context)){
 			print_error(get_string('notallowedprint', 'local_paperattendance'));
 		}
-		$curl = curl_init();
+
+		$token = $CFG->paperattendance_omegatoken;
+		$url = $CFG->paperattendance_omegagetmoduloshorariosurl;
 
 		$fields = array (
 				"diaSemana" => $diasemana,
@@ -81,6 +81,7 @@ switch ($action) {
 				"token" => $token
 		);
 
+		$curl = curl_init();
 		curl_setopt($curl, CURLOPT_URL, $url);
 		curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
 		curl_setopt($curl, CURLOPT_POST, TRUE);

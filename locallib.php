@@ -1054,12 +1054,12 @@ function paperattendance_omegacreateattendance($courseid, $arrayalumnos, $sessid
 						INNER JOIN {paperattendance_module} AS module ON (sessmodule.moduleid = module.id AND sessmodule.sessionid = ?)";
 		$datemodule = $DB->get_record_sql($sqldatemodule, array($sessid));
 		//var_dump($datemodule);
-		$fecha = $datemodule -> sessdate;
-		$modulo = $datemodule -> sesstime;
-	    $initialtime = time();
+		$fecha = $datemodule->sessdate;
+		$modulo = $datemodule->sesstime;
+		$initialtime = time();
+		
 		//CURL CREATE ATTENDANCE OMEGA
 		$curl = curl_init();
-
 		$url =  $CFG->paperattendance_omegacreateattendanceurl;
 		$token =  $CFG->paperattendance_omegatoken;
 		//mtrace("SESSIONID: " .$datemodule->id. "## Formato de fecha: " . $fecha . " Modulo " . $modulo);
@@ -1077,28 +1077,35 @@ function paperattendance_omegacreateattendance($courseid, $arrayalumnos, $sessid
 		curl_setopt($curl, CURLOPT_HTTPHEADER, array("Content-Type: application/json"));
 		$result = curl_exec ($curl);
 		curl_close ($curl);
-        $executiontime = time() - $initialtime;
-        $cron = paperattendance_cronlog($url, $result, time(), $executiontime);
-		$alumnos = new stdClass();
-		$alumnos = json_decode($result)->alumnos;
-		
-		$return = false;
-		// FOR EACH STUDENT ON THE RESULT, SAVE HIS SYNC WITH OMEGA (true or false)
-		for ($i = 0 ; $i < count($alumnos); $i++){
-			if($alumnos[$i]->resultado == true){
-				$return = true;
-				// el estado es 0 por default, asi que solo update en caso de ser verdadero el resultado
-					
-				// get student id from its username
-				$username = $alumnos[$i]->emailAlumno;
-				if($studentid = $DB->get_record("user", array("username" => $username))){
-					$studentid = $studentid -> id;
+
+		if($result == null) //if no id was returned
+		{
+
+		}
+		else 
+		{
+        	$executiontime = time() - $initialtime;
+        	$cron = paperattendance_cronlog($url, $result, time(), $executiontime);
+			$alumnos = new stdClass();
+			$alumnos = json_decode($result)->alumnos;
+
+			$return = false;
+			// FOR EACH STUDENT ON THE RESULT, SAVE HIS SYNC WITH OMEGA (true or false)
+			for ($i = 0 ; $i < count($alumnos); $i++){
+				if($alumnos[$i]->resultado == true){
+					$return = true;
+					// el estado es 0 por default, asi que solo update en caso de ser verdadero el resultado
+					// get student id from its username
+					$username = $alumnos[$i]->emailAlumno;
+					if($studentid = $DB->get_record("user", array("username" => $username))){
+						$studentid = $studentid -> id;
 						
-					$omegasessionid = $alumnos[$i]->asistenciaId;
-					//save student sync
-					$sqlsyncstate = "UPDATE {paperattendance_presence} SET omegasync = ?, omegaid = ? WHERE sessionid  = ? AND userid = ?";
-					$studentid = $DB->execute($sqlsyncstate, array('1', $omegasessionid, $sessid, $studentid));
-				}else{
+						$omegasessionid = $alumnos[$i]->asistenciaId;
+						//save student sync
+						$sqlsyncstate = "UPDATE {paperattendance_presence} SET omegasync = ?, omegaid = ? WHERE sessionid  = ? AND userid = ?";
+						$studentid = $DB->execute($sqlsyncstate, array('1', $omegasessionid, $sessid, $studentid));
+					}else{
+					}
 				}
 			}
 		}
@@ -1676,6 +1683,7 @@ function paperattendance_exporttoexcel($title, $header, $filename, $data, $descr
 
 /**
  * Processes the CSV, saves session and presences and sync with omega
+ * The CSV is created by formscanner when running the CLI processpdfcsv.php
  *
  * @param resource $file
  *            Csv resource
@@ -1689,7 +1697,6 @@ function paperattendance_exporttoexcel($title, $header, $filename, $data, $descr
 function paperattendance_read_csv($file, $path, $pdffilename, $uploaderobj){
 	global $DB, $CFG, $USER;
 
-	$omegafailures = array(); //Is not in use
 	$fila = 1;
 	$return = 0;
 	
@@ -1994,7 +2001,14 @@ function paperattendance_runcsvproccessing($path, $filename, $uploaderobj){
 		
 		//now run the exec command
 		//$command = 'timeout 30 java -jar /Datos/formscanner/formscanner-1.1.3-bin/lib/formscanner-main-1.1.3.jar /Datos/formscanner/template.xtmpl /data/data/moodledata/temp/local/paperattendance/unread/jpgs/processing/';	
-		$command = "java -jar ".$CFG->paperattendance_formscannerjarlocation." ".$CFG->paperattendance_formscannertemplatelocation." ".$CFG->paperattendance_formscannerfolderlocation;
+		$command = "";
+		if($CFG->paperattendance_categoryid == 406) //if production enable timeout
+		{
+			$command = "timeout 30 java -jar ".$CFG->paperattendance_formscannerjarlocation." ".$CFG->paperattendance_formscannertemplatelocation." ".$CFG->paperattendance_formscannerfolderlocation;
+		}
+		else {
+			$command = "java -jar ".$CFG->paperattendance_formscannerjarlocation." ".$CFG->paperattendance_formscannertemplatelocation." ".$CFG->paperattendance_formscannerfolderlocation;
+		}
 		
 		$lastline = exec($command, $output, $return_var);
 		mtrace($command);
