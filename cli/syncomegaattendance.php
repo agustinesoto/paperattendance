@@ -108,8 +108,9 @@ if(paperattendance_checktoken($CFG->paperattendance_omegatoken)){
             if(paperattendance_checktoken($CFG->paperattendance_omegatoken)){
                 $sessid = $session->id;
                 $courseid = $session->courseid;
+                //this omegaid refers to the COURSE id, not the presence omegaid!!
                 $omegaid = $DB->get_record("course", array("id" => $courseid));
-                $omegaid = $omegaid -> idnumber;
+                $omegaid = $omegaid->idnumber;
                 
                 //GET FECHA & MODULE FROM SESS ID $fecha, $modulo,
                 $sqldatemodule = "SELECT sessmodule.id, FROM_UNIXTIME(sessmodule.date,'%Y-%m-%d') AS sessdate, module.initialtime AS sesstime
@@ -146,8 +147,10 @@ if(paperattendance_checktoken($CFG->paperattendance_omegatoken)){
                 $alumnos = json_decode($result)->alumnos;
                 $return = false;
                 // FOR EACH STUDENT ON THE RESULT, SAVE HIS SYNC WITH OMEGA (true or false)
-                for ($i = 0 ; $i < count($alumnos); $i++){
-                    if($alumnos[$i]->resultado == true){
+                for ($i = 0 ; $i < count($alumnos); $i++)
+                {
+                    if($alumnos[$i]->resultado == true)
+                    {
                         $return = true;
                         // el estado es 0 por default, asi que solo update en caso de ser verdadero el resultado
                         
@@ -160,23 +163,30 @@ if(paperattendance_checktoken($CFG->paperattendance_omegatoken)){
                             //save student sync
                             $sqlsyncstate = "UPDATE {paperattendance_presence} SET omegasync = ?, omegaid = ? WHERE sessionid  = ? AND userid = ?";
                             $studentid = $DB->execute($sqlsyncstate, array('1', $omegasessionid, $sessid, $studentid));
-                        }else{
+                        }
+                        else
+                        {
                             mtrace("el usuario: $username, no existe query:$studentid");
                         }
                     }
                 }
                 
-                if($return){
+                if($return)
+                {
                     $update = new stdClass();
                     $update->id = $sessid;
                         $update->status = 2;
                     $DB->update_record("paperattendance_session", $update);
                     $syncedsessions++;
                     $syncedstudents += $count;
-                }else{
+                }
+                else
+                {
                     echo "omega sync failed... check php code \n";
                 }
-            }else{
+            }
+            else
+            {
                 echo "Omega api disconected... trying next session \n";
             }
         }
@@ -184,44 +194,14 @@ if(paperattendance_checktoken($CFG->paperattendance_omegatoken)){
         echo "synced sessions: $syncedsessions \n";
         echo "total students: $countstudents \n";
         echo "synced students: $syncedstudents \n";
-    }else{
+    }
+    else
+    {
         echo "No sessions for this dates \n";
     }
-
-   /* $attendancesql = "Select * from {paperattendance_presence} where lastmodified > ? AND lastmodified < ?";
-    $attendance = $DB->get_records_sql($attendancesql,array($options['initialdate'],$options['enddate']));
-    
-    $url =  $CFG->paperattendance_omegaupdateattendanceurl;
-    $token =  $CFG->paperattendance_omegatoken;
-    $updates = 0;
-    $errors = 0;
-    foreach($attendance as $precense){
-        $curl = curl_init();
-        $fields = array(
-            "token" => $token,
-            "asistenciaId" => $precense->omegaid,
-            "asistencia" => $precense->status
-        );
-        curl_setopt($curl, CURLOPT_URL, $url);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
-        curl_setopt($curl, CURLOPT_POST, TRUE);
-        curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($fields));
-        curl_setopt($curl, CURLOPT_HTTPHEADER, array("Content-Type: application/json"));
-        $result = json_decode(curl_exec ($curl));
-        curl_close ($curl);
-        if($result->resultadoStr == 'ERROR: asistenciaId=0'){
-            $errors++;
-            echo "Precense $precense->id failed to update";
-        }else{
-            $updates++;
-            echo "precense $precense->id correctly updated with omega id: $precense->omegaid and status: $precense->status";
-        }
-        echo $result->resultadoStr."\n";
-        
-    }
-    echo "updated $updates precenses \n";
-    echo "$errors precenses failed to update\n";*/
-}else{
+}
+else
+{
 	echo "No Omega webapi connected \n";
 }
 $finaltime = time();

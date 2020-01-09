@@ -259,6 +259,7 @@ $string['minutesdelay']="Minutes of digital delay";
 $string['minutesdelaytext']="Maximum of extra minutes to be able to take digital assistance after completing the module. (0 - 19)";
 $string['student']="Student";
 $string['currentassistance']="Current Assistance";
+$string['setting']="Settings";
 
 // Task
 $string['taskprocesspdf']="Process PDFs";

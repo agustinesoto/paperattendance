@@ -298,7 +298,6 @@ switch ($action) {
 			require_once($CFG->dirroot . '/local/paperattendance/locallib.php');
 			
 			if($attendance = $DB->get_record("paperattendance_presence", array("id" => $presenceid)) ){
-				
 				$record = new stdClass();
 				$record->id = $presenceid;
 				$record->lastmodified = time();
@@ -306,9 +305,8 @@ switch ($action) {
 				$omegaid = $attendance->omegaid;
 				$DB->update_record("paperattendance_presence", $record);
 				
-				if(paperattendance_checktoken($CFG->paperattendance_omegatoken)){
-				
-					$modifieduserid = $attendance -> userid;
+				//dont try to update if there is no omegaid
+				if(paperattendance_checktoken($CFG->paperattendance_omegatoken) && $omegaid){
 					$initialtime = time();
 					$curl = curl_init();
 					

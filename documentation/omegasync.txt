@@ -4,6 +4,8 @@ First beware: understand the difference between sessions, modules and attendance
 A session is a single class, a class can span through multiple modules.
 An attendance (or presence) is a single student going (or not) to a single module of a single session. Each attendance gets an OmegaID when synced which is used to update the attendance later if needed.
 
+===================================
+
 All syncronization with omega can be resumed into 3 functions:
 -Create attendance, which creates a session and sends the attendances of all the students in multiple modules, then returns an id per attendance
 (this function is mostly the paperattendance_omegacreateattendance in locallib.php)
@@ -45,9 +47,3 @@ I think this reads the db to see if a page was processed or not, regarldess its 
 
 9: Save insert student (saveinsertstudent), used in history.php 
 It saves an array of students to the db and then syncs them to omega
-
-CLI:
-omegasync.php
-syncomegaattendance.php
-
-???
