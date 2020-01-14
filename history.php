@@ -357,10 +357,7 @@ if( $isteacher || is_siteadmin($USER) || has_capability('local/paperattendance:p
                     $modifieduserid = $attendance -> userid;
                     $omegaid = $attendance -> omegaid;
                     
-                    $curl = curl_init();
-                    
                     $url =  $CFG->paperattendance_omegaupdateattendanceurl;
-                    $token =  $CFG->paperattendance_omegatoken;
                     if($data->status == 1){
                         $status = "true";
                     }
@@ -369,18 +366,11 @@ if( $isteacher || is_siteadmin($USER) || has_capability('local/paperattendance:p
                     }
                     
                     $fields = array (
-                        "token" => $token,
                         "asistenciaId" => $omegaid,
                         "asistencia" => $status
                     );
-                    
-                    curl_setopt($curl, CURLOPT_URL, $url);
-                    curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
-                    curl_setopt($curl, CURLOPT_POST, TRUE);
-                    curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($fields));
-                    curl_setopt($curl, CURLOPT_HTTPHEADER, array("Content-Type: application/json"));
-                    $result = curl_exec ($curl);
-                    curl_close ($curl);
+
+                    curl($url, $fields);
                     
                     $backurl = new moodle_url("/local/paperattendance/history.php", array(
                         "action" => "studentsattendance",
@@ -1004,9 +994,8 @@ $( document ).ready(function() {
 		}
 		$.ajax({
 		    type: 'GET',
-		    url: 'ajax/ajaxquerys.php',
+		    url: 'ajax/changestudentpresence.php',
 		    data: {
-			      'action' : 'changestudentpresence',
 			      'setstudentpresence' : studentpresence,
 			      'presenceid' : presenceid
 		    	},
@@ -1047,9 +1036,8 @@ $( document ).ready(function() {
 		//ajax to ajaxquerys with 2 arrays, one with the info session and the other with every studen presence id an email
 		$.ajax({
 		    type: 'POST',
-		    url: 'ajax/ajaxquerys.php',
+		    url: 'ajax/changeallpresence.php',
 		    data: {
-			      'action' : 'changeallpresence',
 			      'sessinfo' : JSON.stringify(sessinfo),
 			      'studentspresenceinfo' : JSON.stringify(studentspresenceinfo)
 		    	},
@@ -1117,9 +1105,8 @@ $( document ).ready(function() {
 			//ajax to ajaxquerys with 2 arrays, one with the info session and the other with every studentid an email
 			$.ajax({
 			    type: 'POST',
-			    url: 'ajax/ajaxquerys.php',
+			    url: 'ajax/saveinsertstudent.php',
 			    data: {
-				      'action' : 'saveinsertstudent',
 				      'sessinfo' : JSON.stringify(sessinfo),
 				      'studentsattendance' : JSON.stringify(studentsattendance)
 			    	},

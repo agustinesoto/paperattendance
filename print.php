@@ -332,9 +332,8 @@ function omegamodulescheck(datetwo, when){
 	 $( "form input:checkbox" ).prop( "checked", false);
 	$.ajax({
 	    type: 'POST',
-	    url: 'ajax/ajaxquerys.php',
+	    url: 'ajax/getmodules.php',
 	    data: {
-		      'action' : 'curlgetmoduloshorario',
 		      'omegaid' : '<?php echo ($course -> idnumber); ?>',	
 	    	  'diasemana': dayofweek,
 	    	  'courseid' : <?php echo $courseid; ?>,

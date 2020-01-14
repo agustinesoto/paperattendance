@@ -238,9 +238,8 @@ if( $isteacher || is_siteadmin($USER)) {
 				$attendance->status = 1;
 				$attendance->lastmodified = time();
 				$DB->update_record("paperattendance_presence",$attendance);
-				if(paperattendance_checktoken($CFG->paperattendance_omegatoken)){
-					paperattendance_omegaupdateattendance(1, $presence->omegaid);
-				}
+				
+				paperattendance_omegaupdateattendance(1, $presence->omegaid);
 			}
 			
 			$goback = new moodle_url("/local/paperattendance/discussion.php", array(

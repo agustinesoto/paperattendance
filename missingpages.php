@@ -511,9 +511,8 @@ $( "#confirm" ).on( "click", function() {
 		//AJAX to get the students list
 		$.ajax({
 			    type: 'GET',
-			    url: 'ajax/ajaxquerys.php',
+			    url: 'ajax/getliststudentspage.php',
 			    data: {
-				      'action' : 'getliststudentspage',
 				      'result' : course.val(),
 				      'begin' : parseFloat(begin.val()),
 				      'module' : module.val(),
@@ -533,9 +532,8 @@ $( "#confirm" ).on( "click", function() {
 						//AJAX to check if the page was processed
 			        	$.ajax({
 			        	    type: 'POST',
-			        	    url: 'ajax/ajaxquerys.php',
+			        	    url: 'ajax/checkprocesspage.php',
 			        	    data: {
-			        		      'action' : 'checkprocesspage',
 			        		      'sessinfo' : JSON.stringify(sessinfo)
 			        	    	},
 			        	    success: function (responsetwo) {
@@ -671,9 +669,8 @@ function RefreshSomeEventListener() {
 		$.ajax({
 		    type: 'GET',
 		    dataType:'JSON',
-		    url: 'ajax/ajaxquerys.php',
+		    url: 'ajax/savestudentsattendance.php',
 		    data: {
-			      'action' : 'savestudentsattendance',
 			      'sessinfo' : JSON.stringify(sessinfo),
 			      'studentsattendance' : JSON.stringify(studentsattendance)
 		    	},

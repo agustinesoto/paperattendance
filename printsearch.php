@@ -320,9 +320,8 @@ $( document ).ready(function() {
 		    //Get data to print
 			$.ajax({
 			    type: 'GET',
-			    url: 'ajax/ajaxquerys.php',
+			    url: 'ajax/cartlist.php',
 			    data: {
-				      'action' : 'cartlist',
 				      'courseid' : courseid,
 				      'teacherid' : that.closest("tr").find(".teacher").attr("teacherid"),
 				      'diasemana' : day
@@ -458,9 +457,8 @@ $( document ).ready(function() {
 		$(".loader").show();
 		$.ajax({
 		    type: 'GET',
-		    url: 'ajax/ajaxquerys.php',
+		    url: 'ajax/getcourses.php',
 		    data: {
-			      'action' : 'getcourses',
 			      'result' : data,
 			      'path' : path,
 			      'category' : categoryid
@@ -495,9 +493,8 @@ $( document ).ready(function() {
 		modulesoptions.prop( "selected", false);
 		$.ajax({
 		    type: 'POST',
-		    url: 'ajax/ajaxquerys.php',
+		    url: 'ajax/cartlist.php',
 		    data: {
-			      'action' : 'cartlist',
 			      'courseid' : courseid,	
 		    	  'diasemana': dayofweek
 		    	},

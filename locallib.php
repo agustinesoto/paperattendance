@@ -505,10 +505,8 @@ function paperattendance_readpdf($path, $filename, $course){
 		$factor++;
 	}
 	
-	if(paperattendance_checktoken($CFG->paperattendance_omegatoken)){
-		if(paperattendance_omegacreateattendance($course, $arrayalumnos, $sessid)){
-			$return["synced"] = "true";
-		}
+	if(paperattendance_omegacreateattendance($course, $arrayalumnos, $sessid)){
+		$return["synced"] = "true";
 	}
 	
 	return $return;
@@ -1031,89 +1029,6 @@ function paperattendance_getstudentfromcourse($courseid, $userid){
 }
 
 /**
- * Function to send a curl to omega to create a session
- *
- * @param int $courseid
- *            Id of a Course
- * @param int $arrayalumnos
- *            Array containinng the user email and its attendance to the session
- * @param int $sessid
- *            Session id
- */
-function paperattendance_omegacreateattendance($courseid, $arrayalumnos, $sessid){
-	global $DB,$CFG;
-	
-	if(paperattendance_checktoken($CFG->paperattendance_omegatoken)){
-		//GET OMEGA COURSE ID FROM WEBCURSOS COURSE ID
-		$omegaid = $DB->get_record("course", array("id" => $courseid));
-		$omegaid = $omegaid -> idnumber;
-		
-		//GET FECHA & MODULE FROM SESS ID $fecha, $modulo,
-		$sqldatemodule = "SELECT sessmodule.id, FROM_UNIXTIME(sessmodule.date,'%Y-%m-%d') AS sessdate, module.initialtime AS sesstime
-						FROM {paperattendance_sessmodule} AS sessmodule
-						INNER JOIN {paperattendance_module} AS module ON (sessmodule.moduleid = module.id AND sessmodule.sessionid = ?)";
-		$datemodule = $DB->get_record_sql($sqldatemodule, array($sessid));
-		//var_dump($datemodule);
-		$fecha = $datemodule->sessdate;
-		$modulo = $datemodule->sesstime;
-		$initialtime = time();
-		
-		//CURL CREATE ATTENDANCE OMEGA
-		$curl = curl_init();
-		$url =  $CFG->paperattendance_omegacreateattendanceurl;
-		$token =  $CFG->paperattendance_omegatoken;
-		//mtrace("SESSIONID: " .$datemodule->id. "## Formato de fecha: " . $fecha . " Modulo " . $modulo);
-		$fields = array (
-				"token" => $token,
-				"seccionId" => $omegaid,
-				"diaSemana" => $fecha,
-				"modulos" => array( array("hora" => $modulo) ),
-				"alumnos" => $arrayalumnos
-		);
-		curl_setopt($curl, CURLOPT_URL, $url);
-		curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
-		curl_setopt($curl, CURLOPT_POST, TRUE);
-		curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($fields));
-		curl_setopt($curl, CURLOPT_HTTPHEADER, array("Content-Type: application/json"));
-		$result = curl_exec ($curl);
-		curl_close ($curl);
-
-		if($result == null) //if no id was returned
-		{
-
-		}
-		else 
-		{
-        	$executiontime = time() - $initialtime;
-        	$cron = paperattendance_cronlog($url, $result, time(), $executiontime);
-			$alumnos = new stdClass();
-			$alumnos = json_decode($result)->alumnos;
-
-			$return = false;
-			// FOR EACH STUDENT ON THE RESULT, SAVE HIS SYNC WITH OMEGA (true or false)
-			for ($i = 0 ; $i < count($alumnos); $i++){
-				if($alumnos[$i]->resultado == true){
-					$return = true;
-					// el estado es 0 por default, asi que solo update en caso de ser verdadero el resultado
-					// get student id from its username
-					$username = $alumnos[$i]->emailAlumno;
-					if($studentid = $DB->get_record("user", array("username" => $username))){
-						$studentid = $studentid -> id;
-						
-						$omegasessionid = $alumnos[$i]->asistenciaId;
-						//save student sync
-						$sqlsyncstate = "UPDATE {paperattendance_presence} SET omegasync = ?, omegaid = ? WHERE sessionid  = ? AND userid = ?";
-						$studentid = $DB->execute($sqlsyncstate, array('1', $omegasessionid, $sessid, $studentid));
-					}else{
-					}
-				}
-			}
-		}
-	}
-	return $return;
-}
-
-/**
  * Function to get a username from its userid
  *
  * @param int $userid
@@ -1124,64 +1039,6 @@ function paperattendance_getusername($userid){
 	$username = $DB->get_record("user", array("id" => $userid));
 	$username = $username -> username;
 	return $username;
-}
-
-/**
- * Function to send a curl to omega to update an attendance
- *
- * @param boolean $update
- *            1 if he attended the session, 0 if not
- * @param int $omegaid
- *            Id omega gives for the students attendance of that session
- */
-function paperattendance_omegaupdateattendance($update, $omegaid){
-	global $CFG, $DB;
-	
-	if (paperattendance_checktoken($CFG->paperattendance_omegatoken)){
-		//CURL UPDATE ATTENDANCE OMEGA
-	
-		$url =  $CFG->paperattendance_omegaupdateattendanceurl;
-		$token =  $CFG->paperattendance_omegatoken;
-	
-		if($update == 1){
-			$update = "true";
-		}
-		else{
-			$update = "false";
-		}
-	
-		$fields = array (
-				"token" => $token,
-				"asistenciaId" => $omegaid,
-				"asistencia" => $update
-		);
-	   $initialtime = time();
-		$curl = curl_init();
-		curl_setopt($curl, CURLOPT_URL, $url);
-		curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
-		curl_setopt($curl, CURLOPT_POST, TRUE);
-		curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($fields));
-		curl_setopt($curl, CURLOPT_HTTPHEADER, array("Content-Type: application/json"));
-		$result = curl_exec ($curl);
-		curl_close ($curl);
-		$executiontime = time() - $initialtime;
-		paperattendance_cronlog($url, $result, time(), $executiontime);
-	}
-}
-
-/**
- * Function to check if the config token exists
- *
- * @param varchar $token
- *            Token to access omega
- */
-function paperattendance_checktoken($token){
-	if (!isset($token) || empty($token) || $token == "" || $token == null || $token == " ") {
-		return false;
-	}
-	else{
-		return true;
-	}
 }
 
 /**
@@ -1522,7 +1379,7 @@ function paperattendance_synctask($courseid, $sessionid){
 			$arrayalumnos[] = $line;
 		}
 	
-		if(paperattendance_omegacreateattendance($courseid, $arrayalumnos, $sessionid)){
+		if(paperattendance_omegacreateattendance($courseid, $arrayalumnos, $sessionid, false)){
 			$return = true;
 		}
 	}
@@ -1835,10 +1692,8 @@ function paperattendance_read_csv($file, $path, $pdffilename, $uploaderobj){
 							}
 							
 							$omegasync = false;
-							if(paperattendance_checktoken($CFG->paperattendance_omegatoken)){
-								if(paperattendance_omegacreateattendance($course, $arrayalumnos, $sessid)){
-									$omegasync = true;
-								}
+							if(paperattendance_omegacreateattendance($course, $arrayalumnos, $sessid)){
+								$omegasync = true;
 							}
 							
 							$update = new stdClass();
@@ -2163,4 +2018,163 @@ function paperattendance_get_printed_students_missingpages($moduleid,$courseid,$
 		$studentinfo[$student->id] = $studentobj;
 	}
 	return $studentinfo;
+}
+
+/**
+ * Function to send a curl to omega to create a session
+ *
+ * @param int $courseid
+ *            Id of a Course
+ * @param int $arrayalumnos
+ *            Array containinng the user email and its attendance to the session
+ * @param int $sessid
+ *            Session id
+ * @param bool $log
+ * 			   For enabling and disabling logging, true by default
+ */
+function paperattendance_omegacreateattendance($courseid, $arrayalumnos, $sessid, $log = true)
+{
+    global $DB, $CFG;
+
+    //GET OMEGA COURSE ID FROM WEBCURSOS COURSE ID
+    $omegaid = $DB->get_record("course", array("id" => $courseid));
+    $omegaid = $omegaid->idnumber;
+
+    //GET FECHA & MODULE FROM SESS ID $fecha, $modulo,
+    $sqldatemodule =
+        "SELECT sessmodule.id, FROM_UNIXTIME(sessmodule.date,'%Y-%m-%d') AS sessdate, module.initialtime AS sesstime
+		FROM {paperattendance_sessmodule} AS sessmodule
+        INNER JOIN {paperattendance_module} AS module ON (sessmodule.moduleid = module.id AND sessmodule.sessionid = ?)";
+
+    $datemodule = $DB->get_record_sql($sqldatemodule, array($sessid));
+
+    $fecha = $datemodule->sessdate;
+    $modulo = $datemodule->sesstime;
+
+    $fields = array(
+        "seccionId" => $omegaid,
+        "diaSemana" => $fecha,
+        "modulos" => array(array("hora" => $modulo)),
+        "alumnos" => $arrayalumnos,
+    );
+
+    $return = false;
+    $result = curl($CFG->paperattendance_omegacreateattendanceurl, $fields, $log);
+
+    if (!$result) {
+        return false;
+    }
+
+    $alumnos = new stdClass();
+    $alumnos = json_decode($result)->alumnos;
+
+    // FOR EACH STUDENT ON THE RESULT, SAVE HIS SYNC WITH OMEGA (true or false)
+    for ($i = 0; $i < count($alumnos); $i++) {
+        if ($alumnos[$i]->resultado == true) {
+            $return = true;
+            // el estado es 0 por default, asi que solo update en caso de ser verdadero el resultado
+            // get student id from its username
+            $username = $alumnos[$i]->emailAlumno;
+            if ($studentid = $DB->get_record("user", array("username" => $username))) {
+                $studentid = $studentid->id;
+
+                $omegasessionid = $alumnos[$i]->asistenciaId;
+                //save student sync
+                $sqlsyncstate = "UPDATE {paperattendance_presence} SET omegasync = ?, omegaid = ? WHERE sessionid  = ? AND userid = ?";
+                $studentid = $DB->execute($sqlsyncstate, array('1', $omegasessionid, $sessid, $studentid));
+            }
+        }
+    }
+
+    return $return;
+}
+
+/**
+ * Function to send a curl to omega to update an attendance
+ *
+ * @param bool $update
+ *            1 if he attended the session, 0 if not
+ * @param int $omegaid
+ *            Id omega gives for the students attendance of that session
+ */
+function paperattendance_omegaupdateattendance($update, $omegaid)
+{
+    global $CFG, $DB;
+
+    $url = $CFG->paperattendance_omegaupdateattendanceurl;
+
+    if ($update == 1) {
+        $update = "true";
+    } else {
+        $update = "false";
+    }
+
+    $fields = array(
+        "token" => $token,
+        "asistenciaId" => $omegaid,
+        "asistencia" => $update,
+    );
+
+    curl($url, $fields);
+}
+
+/**
+ * Standard CURL function
+ * It handles logs and tries to curl up to 3 times
+ * @param string $url
+ *                  The url of the function
+ * @param array $fields
+ *                 An array with the fields inside with "key" => value format
+ * @param bool $log
+ *             Optional, true by default, enable or disable cronlog
+ *
+ * Returns the encoded json of the result or false on failure
+ */
+function curl($url, $fields, $log = true)
+{
+    global $CFG, $DB;
+
+    //for logging
+    $initialTime = time();
+
+    $token = $CFG->paperattendance_omegatoken;
+    //check if token exists and set it on the fields
+    if (
+        !isset($token) ||
+        empty($token) ||
+        $token == "" ||
+        $token == null ||
+        $token == " "
+    ) {
+        return false;
+    }
+
+    $fields["token"] = $token;
+
+    //the final result, for opening the scope and defining a default result
+    $result = false;
+
+    //Attempt curl up to 3 times
+    for ($i = 0; $i < 3; $i++) {
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_POST, true);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($fields));
+        curl_setopt($curl, CURLOPT_HTTPHEADER, array("Content-Type: application/json"));
+        $result = curl_exec($curl);
+        curl_close($curl);
+
+        if ($result) {
+            break;
+        }
+    }
+
+    //store execution time in seconds if logging is enabled
+    if ($log) {
+        $executionTime = time() - $initialTime;
+        paperattendance_cronlog($url, $result, $initialTime, $executionTime);
+    }
+
+    return $result;
 }

@@ -1,0 +1,4 @@
+-Add new CURL function
+-Remove all local CURL's for the new function
+-Remove checktoken
+-Rewire AJAX
