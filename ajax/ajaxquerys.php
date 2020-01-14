@@ -386,7 +386,7 @@ switch ($action) {
 							INNER JOIN {context} ct ON (ct.id = ra.contextid)
 							INNER JOIN {course} c ON (c.id = ct.instanceid AND e.courseid = c.id)
 							INNER JOIN {role} r ON (r.id = ra.roleid)
-							WHERE r.id = 3 AND c.id = ? AND e.enrol = 'database'";
+							WHERE r.id = $CFG->paperattendance_profesoreditorrole AND c.id = ? AND e.enrol = 'database'";
 				
 				$teachers = $DB->get_records_sql($teachersquery, array($courseobject->id));
 				

@@ -276,3 +276,13 @@ $string["paperattendance:history"] = "Ver historial de asistencias";
 $string["paperattendance:manageattendance"] = "Configuración asistencias en papel";
 $string["paperattendance:modules"] = "Administrar modulos";
 $string["paperattendance:teacherview"] = "Vista del profesor";
+
+//Config User Roles
+$string['studentrole']="Rol Id Estudiante";
+$string['studentroletext']="Rol Id Estudiante";
+
+$string['professoreditor']="Rol Id Profesor";
+$string['professoreditortext']="Rol Id Profesor";
+
+$string['professornoeditor']="Rol Id Ayudante Corrector";
+$string['professornoeditortext']="Rol Id Ayudante Corrector (profesornoeditor)";
