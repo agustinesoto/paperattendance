@@ -27,7 +27,7 @@ if ($attendance = $DB->get_record("paperattendance_presence", array("id" => $pre
     $DB->update_record("paperattendance_presence", $record);
 
     //dont try to update if there is no omegaid
-    if ($omegaid) {
+    if ($omegaid != 0) {
         $url = $CFG->paperattendance_omegaupdateattendanceurl;
 
         if ($setstudentpresence == 1) {
@@ -45,4 +45,4 @@ if ($attendance = $DB->get_record("paperattendance_presence", array("id" => $pre
     }
 }
 
-echo json_encode("presenceid:" . $presenceid . " omegaid:" . $omegaid . "status:" . $setstudentpresence);
+echo json_encode("presenceid: $presenceid, omegaid: $omegaid, status: $setstudentpresence");

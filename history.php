@@ -1000,6 +1000,7 @@ $( document ).ready(function() {
 			      'presenceid' : presenceid
 		    	},
 		    success: function (response) {
+                console.log(response);
 				div.html(settext);
 				div.attr("setstudentpresence", setpresence);
 				div.parent().parent().find('.icon').first().attr({

@@ -339,9 +339,10 @@ function omegamodulescheck(datetwo, when){
 	    	  'courseid' : <?php echo $courseid; ?>,
 	    	  'category' : <?php echo $category; ?>
 	    	},
-	    success: function (response) {
+	    success: function (data) {
 
-	    	var data = $.parseJSON(response);  
+			//console.log(response);
+	    	//var data = $.parseJSON(response);  
 	       	$.each(data, function(index, datos) {
 				var horainicio = data[index].horaInicio;
 		    	var split = horainicio.split(':');

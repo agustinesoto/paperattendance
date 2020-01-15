@@ -14,7 +14,7 @@ if (isguestuser()) {
 
 global $DB, $USER;
 
-$courseid = required_param("courseid", 1, PARAM_INT);
+$courseid = required_param("courseid", PARAM_INT);
 $omegaid = required_param("omegaid", PARAM_TEXT);
 $diasemana = required_param("diasemana", PARAM_TEXT);
 $category = optional_param("category", $CFG->paperattenadance_categoryid, PARAM_INT);
@@ -46,4 +46,4 @@ $fields = array(
     "seccionId" => $omegaid,
 );
 
-echo curl($url, $fields, false, false);
+echo curl($url, $fields);

@@ -12,6 +12,8 @@ if (isguestuser()) {
     die();
 }
 
+global $DB;
+
 $sessinfo = $_REQUEST['sessinfo'];
 $sessinfo = json_decode($sessinfo);
 $studentsattendance = $_REQUEST['studentsattendance'];
@@ -34,7 +36,6 @@ foreach ($studentsattendance as $student) {
 }
 
 $return["guardar"] = "Asistencia guardada por cada alumno. ";
-
 $omegasync = false;
 
 $return["arregloalumnos"] = print_r($arrayalumnos, true);

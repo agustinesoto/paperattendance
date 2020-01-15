@@ -50,7 +50,9 @@ function paperattendance_create_qr_image($qrstring , $path){
 /**
  * Get all students from a course, for list.
  *
- * @param unknown_type $courseid
+ * @param int $courseid
+ *
+ * @return mixed
  */
 function paperattendance_get_students_for_printing($course) {
 	global $DB;
@@ -71,9 +73,8 @@ function paperattendance_get_students_for_printing($course) {
 			GROUP BY u.id
 			ORDER BY lastname ASC";
 	$params = array($course->id, 50, 'student');
-	$rs = $DB->get_recordset_sql($query, $params);
-	
-	return $rs;
+
+    return $DB->get_recordset_sql($query, $params);
 }
 
 /**
@@ -988,18 +989,21 @@ function paperattendance_convertdate($i){
  */
 function paperattendance_getteacherfromcourse($courseid, $userid){
 	global $DB;
-	$sqlteacher = "SELECT u.id
-			FROM {user} AS u
-			INNER JOIN {role_assignments} ra ON (ra.userid = u.id)
-			INNER JOIN {context} ct ON (ct.id = ra.contextid)
-			INNER JOIN {course} c ON (c.id = ct.instanceid AND c.id = ?)
-			INNER JOIN {role} r ON (r.id = ra.roleid AND r.shortname IN ( ?, ?))
-			WHERE u.id = ?";
+	
+	$sqlteacher = 
+		"SELECT u.id
+		FROM {user} AS u
+		INNER JOIN {role_assignments} ra ON (ra.userid = u.id)
+		INNER JOIN {context} ct ON (ct.id = ra.contextid)
+		INNER JOIN {course} c ON (c.id = ct.instanceid AND c.id = ?)
+		INNER JOIN {role} r ON (r.id = ra.roleid AND r.shortname IN ( ?, ?))
+		WHERE u.id = ?";
 
-	$teacher = $DB->get_record_sql($sqlteacher, array($courseid, 'teacher', 'editingteacher', $userid));
+	//allow both english and spanish rolename
+	$teacher = $DB->get_record_sql($sqlteacher, array($courseid, 'profesoreditor', 'ayudante', $userid));
 
-	if(!isset($teacher->id)){
-		$teacher = $DB->get_record_sql($sqlteacher, array($courseid, 'profesoreditor', 'ayudante', $userid));
+	if(!isset($teacher->id)) {
+		$teacher = $DB->get_record_sql($sqlteacher, array($courseid, 'teacher', 'editingteacher', $userid));
 	}
 
 	return $teacher;
@@ -1483,7 +1487,7 @@ function paperattendance_cronlog($task, $result = NULL, $timecreated, $execution
  *            Full name of the excel
  * @param array $data
  *            Array containing the data of each row
- * @param array $description
+ * @param array $descriptions
  *            Array containing the selected descriptions of attendances
  * @param array $dates
  *            Array containing the dates of each session
@@ -2066,26 +2070,30 @@ function paperattendance_omegacreateattendance($courseid, $arrayalumnos, $sessid
     }
 
     $alumnos = new stdClass();
-    $alumnos = json_decode($result)->alumnos;
+	$alumnos = json_decode($result);
+	$alumnos = $alumnos->alumnos;
 
-    // FOR EACH STUDENT ON THE RESULT, SAVE HIS SYNC WITH OMEGA (true or false)
-    for ($i = 0; $i < count($alumnos); $i++) {
-        if ($alumnos[$i]->resultado == true) {
-            $return = true;
+	// FOR EACH STUDENT ON THE RESULT, SAVE HIS SYNC WITH OMEGA (true or false)
+	foreach ($alumnos as $alumno)
+	{
+		$omegasessionid = $alumno->asistenciaId;
+		var_dump($alumnos->emailAlumno);
+		
+        if ($alumno->resultado == true && $omegasessionid != 0) {
+			$return = true;
+
             // el estado es 0 por default, asi que solo update en caso de ser verdadero el resultado
             // get student id from its username
-            $username = $alumnos[$i]->emailAlumno;
+            $username = $alumno->emailAlumno;
             if ($studentid = $DB->get_record("user", array("username" => $username))) {
                 $studentid = $studentid->id;
 
-                $omegasessionid = $alumnos[$i]->asistenciaId;
                 //save student sync
                 $sqlsyncstate = "UPDATE {paperattendance_presence} SET omegasync = ?, omegaid = ? WHERE sessionid  = ? AND userid = ?";
                 $studentid = $DB->execute($sqlsyncstate, array('1', $omegasessionid, $sessid, $studentid));
             }
         }
-    }
-
+	}
     return $return;
 }
 
@@ -2101,7 +2109,12 @@ function paperattendance_omegaupdateattendance($update, $omegaid)
 {
     global $CFG, $DB;
 
-    $url = $CFG->paperattendance_omegaupdateattendanceurl;
+	$url = $CFG->paperattendance_omegaupdateattendanceurl;
+	
+	if($omegaid == 0)
+	{
+		return false;
+	}
 
     if ($update == 1) {
         $update = "true";
@@ -2165,7 +2178,7 @@ function curl($url, $fields, $log = true)
         $result = curl_exec($curl);
         curl_close($curl);
 
-        if ($result) {
+        if ($result && $result != 0 && $result != "0") {
             break;
         }
     }
