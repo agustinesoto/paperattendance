@@ -80,7 +80,7 @@ $fields = array(
     "seccionId" => $course->idnumber,
 );
 
-$result = curl($url, $fields);
+$result = curl($url, $fields, false);
 
 #$modules = array();
 $modules = json_decode($result);

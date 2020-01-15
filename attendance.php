@@ -86,7 +86,7 @@ if ($action == "view") {
         "seccionId" => $course->idnumber,
     );
 	
-	$result = curl($url, $fields);
+	$result = curl($url, $fields, false);
 
     $omegamodules = json_decode($result);
     //var_dump($omegamodules);
@@ -276,7 +276,10 @@ if ($action == "view") {
 
                     //save attendance in omega
                     $update = new stdClass();
-                    $update->id = $sessid;
+					$update->id = $sessid;
+					
+					//status 0 is not synced, 1 is failed sync and 2 synced
+					//As far as I can tell the status is useless and never used
                     if (paperattendance_omegacreateattendance($courseid, $arrayalumnos, $sessid)) {
                         $update->status = 2;
                     } else {

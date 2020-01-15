@@ -2077,7 +2077,6 @@ function paperattendance_omegacreateattendance($courseid, $arrayalumnos, $sessid
 	foreach ($alumnos as $alumno)
 	{
 		$omegasessionid = $alumno->asistenciaId;
-		var_dump($alumnos->emailAlumno);
 		
         if ($alumno->resultado == true && $omegasessionid != 0) {
 			$return = true;

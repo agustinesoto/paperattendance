@@ -39,10 +39,10 @@ $fields = array(
     "seccionId" => $course->idnumber,
 );
 
-$result = curl($url, $fields, true, false);
+$result = curl($url, $fields, false);
 
 $modules = array();
-$modules = $result;
+$modules = json_decode($result);
 if (count($modules) == 0) {
     $return['modules'] = false;
 } else {
