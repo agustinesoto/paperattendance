@@ -1829,10 +1829,15 @@ function paperattendance_runcsvproccessing($path, $filename, $uploaderobj){
 		$pdf->mergeImageLayers(imagick::LAYERMETHOD_FLATTEN);
 	}*/
 
-	$pdf = new Imagick("$path/$filename");
+	$pdf = new Imagick();
+
+	$pdf->setResolution(300, 300);
+	$pdf->readImage("$path/$filename");
+	$pdf->setImageFormat('jpeg');
+	$pdf->setImageCompression(imagick::COMPRESSION_JPEG);
+	$pdf->setImageCompressionQuality(100);
 
 	if ($pdf->getImageAlphaChannel()) {
-
     	for ($i = 0; $i < $pdf->getNumberImages(); $i++) {
         	$pdf->previousImage();
 
@@ -1840,7 +1845,6 @@ function paperattendance_runcsvproccessing($path, $filename, $uploaderobj){
         	$pdf->setImageBackgroundColor('white');
     	}
 	}
-
 	
 	if (!file_exists($path."/jpgs")) {
 		mkdir($path."/jpgs", 0777, true);
@@ -1852,7 +1856,7 @@ function paperattendance_runcsvproccessing($path, $filename, $uploaderobj){
 	$pdfname = $pdfname[0];
 	
 	$pdf->writeImages("$path/jpgs/$pdfname.jpg", false);
-	$pdf->clear();
+	$pdf->destroy();
 	unset($pdf);
 	
 	if (!file_exists("$path/jpgs/processing")) {
