@@ -925,43 +925,23 @@ function paperattendance_recursiveremovedirectory($directory)
 }
 
 /**
- * Function to Delete all the pngs inside of a folder
- *
- * @param varchar $directory
- *            Directory path
+ * Function that recursively removes all a certain kind of file
+ * 
+ * @param string $directory
+ * The directory to recursively remove files from
+ * 
+ * @param string $extension
+ * The kind of file to remove
  */
-function paperattendance_recursiveremovepng($directory)
+function paperattendance_recursiveremove($directory, $extension)
 {
-	foreach(glob("{$directory}/*.jpg") as $file)
-	{
-		if(is_dir($file)) {
-			paperattendance_recursiveremovepng($file);
-		} else {
-			unlink($file);
-		}
+	foreach (glob("{$directory}/*.$extension") as $file) {
+    	if (is_dir($file)) {
+        	paperattendance_recursiveremovepng($file, $extension);
+    	} else {
+        	unlink($file);
+    	}
 	}
-	//this comand delete the folder of the path, in this case we only want to delete the files inside the folder
-	//rmdir($directory);
-}
-
-/**
- * Function to Delete all the csv inside of a folder
- *
- * @param varchar $directory
- *            Directory path
- */
-function paperattendance_recursiveremovecsv($directory)
-{
-	foreach(glob("{$directory}/*.csv") as $file)
-	{
-		if(is_dir($file)) {
-			paperattendance_recursiveremovecsv($file);
-		} else {
-			unlink($file);
-		}
-	}
-	//this comand delete the folder of the path, in this case we only want to delete the files inside the folder
-	//rmdir($directory);
 }
 
 /**
@@ -1774,7 +1754,6 @@ function paperattendance_save_current_pdf_page_to_session($pagenum, $sessid, $qr
 	return $idsessionpage;
 }
 
-
 /**
  * Counts the number of pages of a pdf
  *
@@ -1793,175 +1772,6 @@ function paperattendance_number_of_pages($path, $pdffilename){
 	return $num;
 }
 
-/**
- * Transforms pdf found into jpgs, runs shell exec to call formscanner, calls readcsv
- *
- * @param varchar $path
- *            Path of the pdf
- * @param varchar $filename
- *            Fullname of the pdf, including extension 
- * @param obj $uploaderobj
- *            Object of the person who uploaded the pdf
- */
-function paperattendance_runcsvproccessing($path, $filename, $uploaderobj){
-	global $CFG;
-	
-	$pagesWithErrors = array();
-	
-	// convert pdf to jpg
-	/*$pdf = new Imagick();
-
-	$pdf->setResolution( 300, 300);
-	$pdf->readImage($path."/".$filename);
-	$pdf->setImageFormat('jpeg');
-	$pdf->setImageCompression(imagick::COMPRESSION_JPEG);
-	$pdf->setImageCompressionQuality(100);
-
-	if ($pdf->getImageAlphaChannel()) {
-		
-		// Remove alpha channel
-		$pdf->setImageAlphaChannel(11);
-		
-		// Set image background color
-		$pdf->setImageBackgroundColor('white');
-		
-		// Merge layers
-		$pdf->mergeImageLayers(imagick::LAYERMETHOD_FLATTEN);
-	}*/
-
-	$pdf = new Imagick();
-
-	$pdf->setResolution(300, 300);
-	$pdf->readImage("$path/$filename");
-	$pdf->setImageFormat('jpeg');
-	$pdf->setImageCompression(imagick::COMPRESSION_JPEG);
-	$pdf->setImageCompressionQuality(100);
-
-	if ($pdf->getImageAlphaChannel()) {
-    	for ($i = 0; $i < $pdf->getNumberImages(); $i++) {
-        	$pdf->previousImage();
-
-        	$pdf->setImageAlphaChannel(Imagick::ALPHACHANNEL_REMOVE);
-        	$pdf->setImageBackgroundColor('white');
-    	}
-	}
-	
-	if (!file_exists($path."/jpgs")) {
-		mkdir($path."/jpgs", 0777, true);
-	}
-	//Remove initial pngs in the directory
-	paperattendance_recursiveremovepng($path."/jpgs");
-	
-	$pdfname = explode(".",$filename);
-	$pdfname = $pdfname[0];
-	
-	$pdf->writeImages("$path/jpgs/$pdfname.jpg", false);
-	$pdf->destroy();
-	unset($pdf);
-	
-	if (!file_exists("$path/jpgs/processing")) {
-		mkdir("$path/jpgs/processing", 0777, true);
-	}
-	//Remove initial pngs in the directory
-	paperattendance_recursiveremovepng($path."/jpgs/processing");
-	//Remove initial csv in the directory
-	paperattendance_recursiveremovecsv($path."/jpgs/processing");
-	//process jpgs one by one and then delete it
-	$countprocessed = 0;
-	foreach(glob("{$path}/jpgs/*.jpg") as $file)
-	{
-		//first move it to the processing folder
-		$jpgname = basename($file);
-		mtrace("el nombre del jpg recien sacado es: ". $jpgname);
-		rename($file, $path."/jpgs/processing/".$jpgname);
-		
-		//now run the exec command
-		//$command = 'timeout 30 java -jar /Datos/formscanner/formscanner-1.1.3-bin/lib/formscanner-main-1.1.3.jar /Datos/formscanner/template.xtmpl /data/data/moodledata/temp/local/paperattendance/unread/jpgs/processing/';	
-		$command = "";
-		if($CFG->paperattendance_categoryid == 406) //if production enable timeout
-		{
-			$command = "timeout 30 java -jar ".$CFG->paperattendance_formscannerjarlocation." ".$CFG->paperattendance_formscannertemplatelocation." ".$CFG->paperattendance_formscannerfolderlocation;
-		}
-		else {
-			$command = "java -jar ".$CFG->paperattendance_formscannerjarlocation." ".$CFG->paperattendance_formscannertemplatelocation." ".$CFG->paperattendance_formscannerfolderlocation;
-		}
-		
-		$lastline = exec($command, $output, $return_var);
-		mtrace($command);
-		print_r($output);
-		mtrace($return_var);
-
-		//return_var devuelve 0 si el proceso funciona correctamente
-		if($return_var == 0){
-			mtrace("Success running OMR");
-			
-			//revisar el csv que creó formscanner
-			foreach(glob("{$path}/jpgs/processing/*.csv") as $filecsv)
-			{
-				$arraypaperattendance_read_csv = array();
-				$arraypaperattendance_read_csv = paperattendance_read_csv($filecsv, $path, $filename, $uploaderobj);
-				$processed = $arraypaperattendance_read_csv[0];
-				if ($arraypaperattendance_read_csv[1] != null){
-					$pagesWithErrors[$arraypaperattendance_read_csv[1]->pagenumber] = $arraypaperattendance_read_csv[1];
-				}
-				$countprocessed += $processed;
-			}
-		}
-		else{
-			//meaning that the timeout was reached, save that page with status unprocessed
-			mtrace("Failure running OMR");
-			$numpages = paperattendance_number_of_pages($path, $filename);
-			
-			if($numpages == 1){
-				$realpagenum = 0;
-			}
-			else{
-				$oldpdfpagenumber= explode("-",$jpgname);
-				$oldpdfpagenumber = $oldpdfpagenumber[1];
-				$realpagenum = explode(".", $oldpdfpagenumber);
-				$realpagenum = $oldpdfpagenumber[0];
-			}
-			
-			$sessionpageid = paperattendance_save_current_pdf_page_to_session($realpagenum, null, null, $filename, 0, $uploaderobj->id, time());
-			
-			if($CFG->paperattendance_sendmail == 1){
-				/*
-				paperattendance_sendMail($sessionpageid, null, $uploaderobj->id, $uploaderobj->id, null, $filename, "nonprocesspdf", $realpagenum);
-				$admins = get_admins();
-				foreach ($admins as $admin){
-					paperattendance_sendMail($sessionpageid, null, $admin->id, $admin->id, null, $pdffilename, "nonprocesspdf", $realpagenum+1);
-				}*/
-				$errorpage = new stdClass();
-				$errorpage->pageid = $sessionpageid;
-				$errorpage->pagenumber = $realpagenum + 1;
-				$pagesWithErrors[$errorpage->pagenumber] = $errorpage;
-			}
-			
-			$countprocessed++;
-		}
-		
-		//finally unlink the jpg file
-		unlink($path."/jpgs/processing/".$jpgname);
-	}
-	if (count($pagesWithErrors) > 0){
-		if (count($pagesWithErrors) > 1){
-			ksort($pagesWithErrors);
-		}
-		paperattendance_sendMail($pagesWithErrors, null, $uploaderobj->id, $uploaderobj->id, null, "NotNull", "nonprocesspdf", null);
-		$admins = get_admins();
-		foreach ($admins as $admin){
-			paperattendance_sendMail($pagesWithErrors, null, $admin->id, $admin->id, null, "NotNull", "nonprocesspdf", null);
-		}
-		mtrace("end pages with errors var dump");
-	}
-	
-	if($countprocessed>= 1){
-		return true;
-	}
-	else{
-		return false;
-	}
-}
 /**
  * Save in a new table in db the the session printed
  *

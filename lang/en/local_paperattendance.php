@@ -261,6 +261,17 @@ $string['student']="Student";
 $string['currentassistance']="Current Assistance";
 $string['setting']="Settings";
 
+$string['printersettings'] = "	
+    <p> Rememeber the printer and scanner settings: </p>
+	<ul>
+		<li> Resolution: 300ppi </li>
+		<li> Colors: Grayscale </li>
+		<li> Size: Letter </li>
+        <li> Make sure the sheet is aligned during scanning </li>
+        <li> Keep the sheet in good shape </li>
+    </ul>
+";
+
 // Task
 $string['taskprocesspdf']="Process PDFs";
 $string['taskdelete']="Delete PDFs";
