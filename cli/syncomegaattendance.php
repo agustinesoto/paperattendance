@@ -65,6 +65,7 @@ cli_heading('Paper Attendance attendance sync with omega');
 echo "\nStarting at " . date("F j, Y, G:i:s") . "\n";
 $initialtime = time();
 
+$sessions = null;
 if (!is_null($options['initialdate']) && !is_null($options['enddate'])) {
     $sessionssql = "SELECT * FROM {paperattendance_session} where lastmodified > ? AND lastmodified < ?";
     $sessions = $DB->get_records_sql($sessionssql, array($options['initialdate'], $options['enddate']));
@@ -76,7 +77,7 @@ if (!is_null($options['course'])) {
     echo "query success\n";
 }
 
-if (count($sessions) > 0) {
+if (is_array($sessions) && count($sessions) > 0) {
     $countsessions = 0;
     $syncedsessions = 0;
     $countstudents = 0;

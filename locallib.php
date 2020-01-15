@@ -1809,7 +1809,7 @@ function paperattendance_runcsvproccessing($path, $filename, $uploaderobj){
 	$pagesWithErrors = array();
 	
 	// convert pdf to jpg
-	$pdf = new Imagick();
+	/*$pdf = new Imagick();
 
 	$pdf->setResolution( 300, 300);
 	$pdf->readImage($path."/".$filename);
@@ -1827,7 +1827,20 @@ function paperattendance_runcsvproccessing($path, $filename, $uploaderobj){
 		
 		// Merge layers
 		$pdf->mergeImageLayers(imagick::LAYERMETHOD_FLATTEN);
+	}*/
+
+	$pdf = new Imagick("$path/$filename");
+
+	if ($pdf->getImageAlphaChannel()) {
+
+    	for ($i = 0; $i < $pdf->getNumberImages(); $i++) {
+        	$pdf->previousImage();
+
+        	$pdf->setImageAlphaChannel(Imagick::ALPHACHANNEL_REMOVE);
+        	$pdf->setImageBackgroundColor('white');
+    	}
 	}
+
 	
 	if (!file_exists($path."/jpgs")) {
 		mkdir($path."/jpgs", 0777, true);
@@ -1838,12 +1851,12 @@ function paperattendance_runcsvproccessing($path, $filename, $uploaderobj){
 	$pdfname = explode(".",$filename);
 	$pdfname = $pdfname[0];
 	
-	$pdf->writeImages($path."/jpgs/".$pdfname.".jpg", false);
+	$pdf->writeImages("$path/jpgs/$pdfname.jpg", false);
 	$pdf->clear();
 	unset($pdf);
 	
-	if (!file_exists($path."/jpgs/processing")) {
-		mkdir($path."/jpgs/processing", 0777, true);
+	if (!file_exists("$path/jpgs/processing")) {
+		mkdir("$path/jpgs/processing", 0777, true);
 	}
 	//Remove initial pngs in the directory
 	paperattendance_recursiveremovepng($path."/jpgs/processing");
@@ -1873,9 +1886,10 @@ function paperattendance_runcsvproccessing($path, $filename, $uploaderobj){
 		mtrace($command);
 		print_r($output);
 		mtrace($return_var);
+
 		//return_var devuelve 0 si el proceso funciona correctamente
 		if($return_var == 0){
-			mtrace("no se alcanzó el timeout, todo bien");
+			mtrace("Success running OMR");
 			
 			//revisar el csv que creó formscanner
 			foreach(glob("{$path}/jpgs/processing/*.csv") as $filecsv)
@@ -1891,7 +1905,7 @@ function paperattendance_runcsvproccessing($path, $filename, $uploaderobj){
 		}
 		else{
 			//meaning that the timeout was reached, save that page with status unprocessed
-			mtrace("si se alcanzó el timeout, todo mal");
+			mtrace("Failure running OMR");
 			$numpages = paperattendance_number_of_pages($path, $filename);
 			
 			if($numpages == 1){
