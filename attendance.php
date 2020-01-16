@@ -288,10 +288,9 @@ if ($action == "view") {
                     $DB->update_record("paperattendance_session", $update);
 
                     //send mail of confirmation
-                    if ($CFG->paperattendance_sendmail == 1) {
-                        $sessdate = date("d-m-Y", time()) . ", " . $modquery->name . ": " . $modquery->initialtime . " - " . $modquery->endtime;
-                        paperattendance_sendMail($sessid, $courseid, $requestorid, $requestorid, $sessdate, $course->fullname, "processpdf", null);
-                    }
+                    $sessdate = date("d-m-Y", time()) . ", " . $modquery->name . ": " . $modquery->initialtime . " - " . $modquery->endtime;
+                    paperattendance_sendMail($sessid, $courseid, $requestorid, $requestorid, $sessdate, $course->fullname, "processpdf", null);
+                    
                     $action = "save";
                 }
             } else {

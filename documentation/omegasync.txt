@@ -14,11 +14,10 @@ All syncronization with omega can be resumed into 3 functions:
 
 ====================================
 
-Most syncronization is done in the ajaxquerys.php file, this file is loaded (through ajax) with an action chosen and it runs an specific function, it ends by encoding the answer in a JSON and echoing it for usage wherever you want. This allows for async usage of data from omega
-
 Some extra syncronization is done in the CLI through the omegasync and syncomegaattendance files, this communication is sync instead of async like the one done by ajax.
 
-1: Get Modulos horarios (curlgetmoduloshorario), called from print.php for some kind of date comparison?
+AJAX functions:
+1: Get Modulos horarios (curlgetmoduloshorario)
 This functions pulls the time modules from omega
 
 2: Get courses (getcourses), used in printsearch

@@ -190,12 +190,10 @@ if ($resources = $DB->get_records_sql($sqlunreadpdfs, array())) {
 
                 $sessionpageid = paperattendance_save_current_pdf_page_to_session($realpagenum, null, null, $filename, 0, $uploaderobj->id, time());
 
-                if ($CFG->paperattendance_sendmail == 1) {
-                    $errorpage = new stdClass();
-                    $errorpage->pageid = $sessionpageid;
-                    $errorpage->pagenumber = $realpagenum + 1;
-                    $pagesWithErrors[$errorpage->pagenumber] = $errorpage;
-                }
+                $errorpage = new stdClass();
+                $errorpage->pageid = $sessionpageid;
+                $errorpage->pagenumber = $realpagenum + 1;
+                $pagesWithErrors[$errorpage->pagenumber] = $errorpage;
 
                 $countprocessed++;
             }

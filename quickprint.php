@@ -153,21 +153,17 @@ $numberstudents = count($studentinfo);
 if ($numberstudents == 0) {
     throw new Exception('No students to print');
 }
+
 // Contruction string for QR encode
 foreach ($modules as $module) {
-    $mod = explode(":", $module->horaInicio);
-    $moduleinicio = $mod[0] . ":" . $mod[1];
-    $modfin = explode(":", $module->horaFin);
-    $modulefin = $modfin[0] . ":" . $modfin[1];
-    $modquery = $DB->get_record("paperattendance_module", array("initialtime" => $moduleinicio));
+    $modquery = $DB->get_record("paperattendance_module", array("initialtime" => $module->horaInicio));
     $moduleid = $modquery->id;
 
-    $key = $moduleid . "*" . $moduleinicio . "*" . $modulefin;
+    $key = $moduleid . "*" . $module->horaInicio . "*" . $module->horaFin;
     $stringqr = $courseid . "*" . $requestor . "*" . $moduleid . "*" . $sessiondate . "*";
 
     $printid = paperattendance_print_save($courseid, $moduleid, $sessiondate, $requestor);
     paperattendance_draw_student_list($pdf, $uailogopath, $course, $studentinfo, $requestorinfo, $key, $path, $stringqr, $webcursospath, $sessiondate, $description, $printid);
-
 }
 
 // Created new pdf

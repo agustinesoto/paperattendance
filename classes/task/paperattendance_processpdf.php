@@ -59,9 +59,7 @@ class paperattendance_processpdf extends \core\task\scheduled_task {
 				
 				$process = paperattendance_readpdf($path, $pdf-> name, $pdf->courseid);
 				if($process["result"] == "true"){
-					if($CFG->paperattendance_sendmail == 1){
-						paperattendance_sendMail($pdf->id, $pdf->courseid, $pdf->teacherid, $pdf->uploaderid, $pdf->date, $pdf->fullname, "processpdf");
-					}
+					paperattendance_sendMail($pdf->id, $pdf->courseid, $pdf->teacherid, $pdf->uploaderid, $pdf->date, $pdf->fullname, "processpdf");
 					if($process["synced"] == "true"){
 						$pdf->status = 2;
 					}

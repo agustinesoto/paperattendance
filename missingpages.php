@@ -215,6 +215,8 @@ if ($action == "view") {
 		echo $OUTPUT->header();
 		echo $OUTPUT->heading(get_string("viewmissingtitle", "local_paperattendance"));
 
+		echo("<p> Total paginas perdidas: $countmissing </p>");
+
 		echo html_writer::table($missingtable);
 		//displays de pagination bar
 		echo $OUTPUT->paging_bar($countmissing, $page, $perpage,

@@ -1,10 +1,9 @@
--if printed list has more dots than students history bugs out and thinks the session is sincronized with omega (minor, ignore)
--somehow some students have negative absences, probably something to do with online assistance (this allows students to have over 100% assistance). It appear to have something to do when online assistance and printed assistance overlap (printed first, online second)
--If you process a printed list and then pass online attendance for the same module double presences are stored, if you pass online atendance first the print will refuse to process. Do the same with online attendances
--Missing pages: sometimes continue button does nothing (only happens in local)
--[DONE] History doesnt show all sessions (this only happens if the module the session was in is deleted)
-
-
-Lots of bugs in history and attendance.php, rework them
-Everything else at least looks stable
-Some redesigning on the db couldnt do any wrong, but I fear adding any foreign key will bring the entire thing down burning because of inconsistencies 
+-Validar sincronización de asistencia con Omega, hubo unos casos del semestre pasado en que a pesar que la asistencia estaba bien en WebCursos, en omega no aparecieron, esto se debe validar (This most likely is problem with Omega not returning Omegaid)
+-Listas bien impresas quedan como ausentes (This problem most likely has to do with sizing or the list being bent)
+-Validar cursos todos ausentes (How? ask the teacher or raise a warning?)
+-Asistencia Online se duplica (Could replicate by doing dumb stuff)
+-Validar el guardado de asistencia al recuperar paginas perdidas
+-Omega createattendance has wrong number of assistances
+-Ensure that everything that doesnt have OmegaId is synced to Omega. I dont know what the point of the Omegasync field is if we can just use the Omegaid
+-[DONE] Contar las listas que pasan a páginas perdidas (Easy peasy)
+-[DONE] Pop Up que recuerde la configuración de impresora

@@ -1085,7 +1085,12 @@ function paperattendance_getcountstudentsbysession($sessionid){
  */
 function paperattendance_sendMail($attendanceid, $courseid, $teacherid, $uploaderid, $date, $course, $case, $errorpage) {
 	GLOBAL $CFG, $USER, $DB;
-	//var_dump($attendanceid); mtrace($courseid); mtrace($teacherid); mtrace($uploaderid); mtrace($date); mtrace($course); mtrace($case); mtrace($errorpage);
+
+	//if mails are disabled dont do anything
+    if ($CFG->paperattendance_sendmail == 0) {
+		return;
+	}
+
 	$teacher = $DB->get_record("user", array("id"=> $teacherid));
 	$userfrom = core_user::get_noreply_user();
 	$userfrom->maildisplay = true;
@@ -1625,12 +1630,10 @@ function paperattendance_read_csv($file, $path, $pdffilename, $uploaderobj){
 							paperattendance_insert_session_module($module, $sessid, $time);
 							paperattendance_save_current_pdf_page_to_session($realpagenum, $sessid, $page, $pdffilename, 1, $uploaderobj->id, time());
 							
-							if($CFG->paperattendance_sendmail == 1){
-								$coursename = $DB->get_record("course", array("id"=> $course));
-								$moduleobject = $DB->get_record("paperattendance_module", array("id"=> $module));
-								$sessdate = date("d-m-Y", $time).", ".$moduleobject->name. ": ". $moduleobject->initialtime. " - " .$moduleobject->endtime;
-								paperattendance_sendMail($sessid, $course, $requestorid, $uploaderobj->id, $sessdate, $coursename->fullname, "processpdf", null);
-							}
+							$coursename = $DB->get_record("course", array("id"=> $course));
+							$moduleobject = $DB->get_record("paperattendance_module", array("id"=> $module));
+							$sessdate = date("d-m-Y", $time).", ".$moduleobject->name. ": ". $moduleobject->initialtime. " - " .$moduleobject->endtime;
+							paperattendance_sendMail($sessid, $course, $requestorid, $uploaderobj->id, $sessdate, $coursename->fullname, "processpdf", null);
 							
 						}
 						else{
@@ -1697,11 +1700,10 @@ function paperattendance_read_csv($file, $path, $pdffilename, $uploaderobj){
 						//$return = false;//send email or something to let know this page had problems
 						$sessionpageid = paperattendance_save_current_pdf_page_to_session($realpagenum, null, null, $pdffilename, 0, $uploaderobj->id, time());
 						
-						if($CFG->paperattendance_sendmail == 1){
-							$errorpage = new StdClass();
-							$errorpage->pagenumber = $realpagenum+1;
-							$errorpage->pageid = $sessionpageid;
-						}
+						$errorpage = new StdClass();
+						$errorpage->pagenumber = $realpagenum+1;
+						$errorpage->pageid = $sessionpageid;
+
 						$return++;
 					}
 				}
@@ -1711,11 +1713,10 @@ function paperattendance_read_csv($file, $path, $pdffilename, $uploaderobj){
 	  			//$return = false;//send email or something to let know this page had problems
 	  			$sessionpageid = paperattendance_save_current_pdf_page_to_session($realpagenum, null, null, $pdffilename, 0, $uploaderobj->id, time());
 	  			
-	  			if($CFG->paperattendance_sendmail == 1){
-	  				$errorpage = new StdClass();
-	  				$errorpage->pagenumber = $realpagenum+1;
-	  				$errorpage->pageid = $sessionpageid;
-	  			}
+				$errorpage = new StdClass();
+				$errorpage->pagenumber = $realpagenum+1;
+				$errorpage->pageid = $sessionpageid;
+					  
 				$return++;
 	  			}
 			}
