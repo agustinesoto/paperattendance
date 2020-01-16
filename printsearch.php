@@ -231,39 +231,41 @@ $carttable->head = array(
 $carttable->id = "carttable";
 
 //reminder for printer settings
-$printerText = get_string("printersettings", "local_paperattendance");
-
 $formmodal = 
 '<div class="modal fade bs-example-modal-lg" id="formModal" tabindex="-1" role="dialog" aria-labelledby="formModalLabel" style="display: none; width:80%; margin-left:-45%">
-			  <div class="modal-dialog modal-lg" role="document">
-			    	<div class="modal-content">
-			    		<div class="modal-header">
-			        		<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-			        		<h4 class="modal-title" id="formModalLabel">Carrito de listas</h4>
-			      		</div>
-		      		<div class="modal-body" style="height:70vh">
-						'.html_writer::table($carttable).'
-		      		</div>
-		      		<div class="modal-footer">
-    	       	    	<button type="button" class="btn btn-info printbutton" data-dismiss="modal">Imprimir</button>
-			       		<button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
-		      		</div>
-	      		</div>
-	  		</div>
-		</div>';
-
-$pdfmodal = "
-	<div class='modal fade bs-example-modal-lg' id='pdfModal' tabindex='-1' role='dialog' aria-labelledby='pdfModalLabel' style='display: none;'>
-		<div class='modal-dialog modal-lg' role='document'>
-			<div class='modal-content'>
-				<div class='modal-header'>
-					<button type='button' class='close' data-dismiss='modal' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
-					<h4 class='modal-title' id='pdfModalLabel'>Listas pdf</h4>
-				</div>
-			<div class='modal-body pdflists' style='height:70vh'>
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="formModalLabel">Carrito de listas</h4>
+			</div>
+			<div class="modal-body" style="height:70vh">
+				'.html_writer::table($carttable).'
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-info printbutton" data-dismiss="modal">Imprimir</button>
+				<button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
 			</div>
 		</div>
 	</div>
+</div>'
+;
+
+$pdfmodal = "
+<div class='modal fade bs-example-modal-lg' id='pdfModal' tabindex='-1' role='dialog' aria-labelledby='pdfModalLabel' style='display: none;'>
+	<div class='modal-dialog modal-lg' role='document'>
+		<div class='modal-content'>
+			<div class='modal-header'>
+				<button type='button' class='close' data-dismiss='modal' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
+				<h4 class='modal-title' id='pdfModalLabel'>Listas pdf</h4>
+			</div>
+			<div class='modal-body'>
+				" . get_string("printersettings", "local_paperattendance") . "
+				<div class='pdflists' style='height: 50vh'></div>
+			</div>
+		</div>
+	</div>
+</div>
 ";
 
 

@@ -81,14 +81,14 @@ $fields = array(
 );
 
 $result = curl($url, $fields, false);
-
-#$modules = array();
 $modules = json_decode($result);
 
-if (count($modules) == 0) {
+if (!is_array($modules)) {
     echo get_string("nothingtoprint", "local_paperattendance");
     die();
 }
+
+echo get_string("printersettings", "local_paperattendance");
 
 $teachersparam = array(
     $CFG->paperattendance_profesoreditorrole,

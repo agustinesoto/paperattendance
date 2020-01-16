@@ -937,7 +937,7 @@ function paperattendance_recursiveremove($directory, $extension)
 {
 	foreach (glob("{$directory}/*.$extension") as $file) {
     	if (is_dir($file)) {
-        	paperattendance_recursiveremovepng($file, $extension);
+        	paperattendance_recursiveremove($file, $extension);
     	} else {
         	unlink($file);
     	}

@@ -262,14 +262,16 @@ $string['currentassistance']="Current Assistance";
 $string['setting']="Settings";
 
 $string['printersettings'] = "	
+<div>
     <p> Rememeber the printer and scanner settings: </p>
 	<ul>
-		<li> Resolution: 300ppi </li>
+		<li> Resolution: 600ppi </li>
 		<li> Colors: Grayscale </li>
 		<li> Size: Letter </li>
         <li> Make sure the sheet is aligned during scanning </li>
         <li> Keep the sheet in good shape </li>
     </ul>
+</div>
 ";
 
 // Task

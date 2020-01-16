@@ -1,7 +1,0 @@
--[DONE] Add new CURL function
--[DONE] Remove all local CURL's for the new function
--[DONE] Remove checktoken
--[DONE] Rewire AJAX
-
--Add 
--Juggle with OMR until it works better

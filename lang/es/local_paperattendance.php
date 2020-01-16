@@ -262,14 +262,16 @@ $string['student']="Alumno";
 $string['currentassistance']="Asistencia Actual";
 
 $string['printersettings'] = "	
+<div>
     <p> Recuerde la configuracion de la impresora y escaner: </p>
 	<ul>
-		<li> Resolucion: 300ppi </li>
+		<li> Resolucion: 600ppi </li>
         <li> Colores: Escala de grises </li>
         <li> Tamaño: Carta </li>
         <li> Asegurese de que la hoja este bien alineada durante el escaneo </li>
         <li> Asegurese de que la hoja este en buen estado </li>
     </ul>
+</div>
 ";
 
 // Task
