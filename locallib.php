@@ -1216,51 +1216,6 @@ function paperattendance_uploadattendances($file, $path, $filename, $context, $c
 }
 
 /**
- * Function to sync unsynced students
- *
- * @param int $courseid
- *            Course of the id reviewed
- * @param int $sessionid
- *            Session id to get the attendance
- */
-function paperattendance_synctask($courseid, $sessionid){
-	global $DB, $CFG;
-
-	$return = false;
-
-	// Sql that brings the unsynced students
-	$sqlstudents = "SELECT p.id, p.userid AS userid, p.status AS status, s.username AS username
-	 				FROM {paperattendance_presence} AS p
-					INNER JOIN {user} AS s on ( p.userid = s.id AND p.sessionid = ? )";
-	
-	if($resources = $DB->get_records_sql($sqlstudents, array($sessionid))){
-	
-		$arrayalumnos = array();
-	
-		foreach ($resources as $student){
-	
-			$line = array();
-			$line['emailAlumno'] = $student-> username;
-			$line['resultado'] = "true";
-	
-			if($student->status == 1){
-				$line['asistencia'] = "true";
-			}
-			else{
-				$line['asistencia'] = "false";
-			}
-	
-			$arrayalumnos[] = $line;
-		}
-	
-		if(paperattendance_omegacreateattendance($courseid, $arrayalumnos, $sessionid, false)){
-			$return = true;
-		}
-	}
-	return $return;
-}
-
-/**
  * Function to create the tabs for history
  *
  * @param int $courseid
@@ -1791,7 +1746,7 @@ function paperattendance_omegacreateattendance($courseid, $arrayalumnos, $sessid
 	foreach ($alumnos as $alumno)
 	{
 		$omegasessionid = $alumno->asistenciaId;
-		
+
         if ($alumno->resultado == true && $omegasessionid != 0) {
 			$return = true;
 

@@ -18,7 +18,7 @@ require_once "$CFG->dirroot/mod/assign/feedback/editpdf/fpdi/fpdi_bridge.php";
 require_once "$CFG->libdir/clilib.php";
 
 cli_heading("Paper Attendance unified CLI");
-echo "This CLI has no options\n";
+echo "This CLI has no options since its unnecesary\n";
 
 //For timing purposes
 $initialTime = time();
@@ -234,14 +234,15 @@ foreach ($records as $record) {
     $names[] = $record->pdfname;
 }
 
-echo "Unlinking unused PDFs\n";
+echo "Unlinking unused PDFs from jpg folder\n";
 
 foreach (glob("{$pathpng}*") as $file) {
     $filename = explode("/", $file);
     $filename = array_pop($filename);
 
     if (!in_array($filename, $names) && !is_dir($file)) {
-        unlink($file);
+        //disabled for confirmation to know if I can actually do this
+        //unlink($file);
     }
 }
 
@@ -252,16 +253,21 @@ echo "\nCleaned temporal folder in $finalTime seconds\n";
 /**
  *
  * Syncing with Omega
+ * Should redo this part as I dont really understand how it works
  *
  */
+echo "\n== Omega Sync ==\n";
 
 $omegaTime = time();
 
-echo "\n== Syncing with Omega ==\n";
-$processedfirst = 0;
-$foundfirst = 0;
+//FIRST PART
+//Syncs processed sessions
 
-// Sql that brings the unsynced sessions (with omega)
+echo "= Sync sessions =\n";
+
+$foundfirst = 0;
+$processedfirst = 0;
+
 $sqlunsynced =
     "SELECT sess.id AS id, sess.courseid AS courseid
 	FROM {paperattendance_session} AS sess
@@ -273,22 +279,57 @@ $params = array(PAPERATTENDANCE_STATUS_PROCESSED);
 
 // sync students with synctask function
 if ($resources = $DB->get_records_sql($sqlunsynced, $params)) {
-    $path = $CFG->dataroot . "/temp/local/paperattendance/unread";
     foreach ($resources as $session) {
         //found an other one
         $foundfirst++;
-        if ($process = paperattendance_synctask($session->courseid, $session->id)) {
-            //processed an other one
-            $processedfirst++;
-            $session->status = 2;
-            $DB->update_record("paperattendance_session", $session);
+
+        // Sql that brings the unsynced students
+        $sqlstudents =
+            "SELECT p.id, p.userid AS userid, p.status AS status, s.username AS username
+	 		FROM {paperattendance_presence} AS p
+			INNER JOIN {user} AS s on ( p.userid = s.id AND p.sessionid = ? )";
+
+        if ($resources = $DB->get_records_sql($sqlstudents, array($session->id))) {
+            $arrayalumnos = array();
+
+            foreach ($resources as $student) {
+
+                $line = array();
+                $line['emailAlumno'] = $student->username;
+                $line['resultado'] = "true";
+
+                if ($student->status == 1) {
+                    $line['asistencia'] = "true";
+                } else {
+                    $line['asistencia'] = "false";
+                }
+
+                $arrayalumnos[] = $line;
+            }
+
+            if (paperattendance_omegacreateattendance($session->courseid, $arrayalumnos, $session->id)) {
+                $processedfirst++;
+                $session->status = PAPERATTENDANCE_STATUS_SYNC;
+                $DB->update_record("paperattendance_session", $session);
+                echo "Synced session: $session->id\n";
+            } else {
+                echo "Failed to sync session: $session->id\n";
+            }
+        }
+        else {
+            echo "ERROR: Session not found: $session->id  (in table paperattendance_presence), inconsistencies found in DB\n";
         }
     }
 }
 
-$processedsecond = 0;
-$foundsecond = 0;
 //SECOND PART
+//Syncs unsynced presences (omegasync 0)
+
+echo "\n= Sync presences =\n";
+
+$foundsecond = 0;
+$processedsecond = 0;
+
 // Sql that brings the unsychronized attendances
 $sqlunsicronizedpresences =
     "SELECT p.id,
@@ -301,9 +342,9 @@ $sqlunsicronizedpresences =
 	INNER JOIN {user} u ON (u.id = p.userid)
 	WHERE p.omegasync = ?";
 
-$unsyncrhonizedpresences = $DB->get_records_sql($sqlunsicronizedpresences, array(0));
+$unsynchronizedpresences = $DB->get_records_sql($sqlunsicronizedpresences, array(0));
 
-foreach ($unsyncrhonizedpresences as $presence) {
+foreach ($unsynchronizedpresences as $presence) {
     $foundsecond++;
 
     $arrayalumnos = array();
@@ -319,13 +360,17 @@ foreach ($unsyncrhonizedpresences as $presence) {
     $arrayalumnos[] = $line;
     if (paperattendance_omegacreateattendance($presence->courseid, $arrayalumnos, $presence->sessionid)) {
         $processedsecond++;
+        echo "Synced presence: $presence->username";
+    }
+    else {
+        echo "Failed to sync presence $presence->username\n";
     }
 }
 
-echo $foundfirst . " Att found first part. \n";
-echo $processedfirst . " Processed first part. \n";
-echo $foundsecond . " Att found second part. \n";
-echo $processedsecond . " Processed second part. \n";
+echo "\n$foundfirst Att found first part\n";
+echo "$processedfirst Processed first part\n";
+echo "$foundsecond Att found second part\n";
+echo "$processedsecond Processed second part\n";
 
 $finalTime = time() - $omegaTime;
 echo "\nSynchronized with Omega in $finalTime seconds\n";
@@ -388,8 +433,8 @@ if ($sessionstoverify = $DB->get_records_sql($sqlsessions, array($lastsessionid)
             foreach ($studentsnotinlist as $student) {
                 paperattendance_save_student_presence($sessionid, $student->id, '0');
             }
+            paperattendance_cronlog("presence", $session->id, time());
         }
-        paperattendance_cronlog("presence", $session->id, time());
     }
 }
 

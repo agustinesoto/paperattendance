@@ -46,4 +46,4 @@ $fields = array(
     "seccionId" => $omegaid,
 );
 
-echo curl($url, $fields, false);
+echo curl($url, $fields);

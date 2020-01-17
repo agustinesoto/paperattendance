@@ -23,13 +23,14 @@ if ($attendance = $DB->get_record("paperattendance_presence", array("id" => $pre
     $record->id = $presenceid;
     $record->lastmodified = time();
     $record->status = $setstudentpresence;
+
     $omegaid = $attendance->omegaid;
-    $DB->update_record("paperattendance_presence", $record);
 
     //dont try to update if there is no omegaid
     if ($omegaid != 0) {
         $url = $CFG->paperattendance_omegaupdateattendanceurl;
 
+        $status = "";
         if ($setstudentpresence == 1) {
             $status = "true";
         } else {
@@ -41,8 +42,16 @@ if ($attendance = $DB->get_record("paperattendance_presence", array("id" => $pre
             "asistencia" => $status,
         );
 
-        curl($url, $fields);
+        //if curl fails we set the student as unsynced so its synced later
+        if (!curl($url, $fields)) {
+            $record->omegasync = false;
+        }
+        else {
+            $record->omegasync = true;
+        }
     }
+
+    $DB->update_record("paperattendance_presence", $record);
 }
 
 echo json_encode("presenceid: $presenceid, omegaid: $omegaid, status: $setstudentpresence");
