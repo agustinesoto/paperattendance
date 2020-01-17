@@ -1904,6 +1904,14 @@ function paperattendance_save_current_pdf_page_to_session($pagenum, $sessid, $qr
 	$pagesession->uploaderid = $uploaderid;
 	$pagesession->timecreated = $timecreated;
 	$idsessionpage = $DB->insert_record('paperattendance_sessionpages', $pagesession, true);
+
+	if ($processed == 0){// Add record to missingppages table
+        $missingpage = new stdClass();
+        $missingpage->sessionpagesid = $idsessionpage;
+        $missingpage->timeprocessed = $timecreated;
+        $DB->insert_record('paperattendance_missingpages', $missingpage);
+
+    }
 	return $idsessionpage;
 }
 

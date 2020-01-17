@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="local/paperattendance/db" VERSION="20181220" COMMENT="XMLDB file for Moodle local/paperattendance"
+<XMLDB PATH="local/paperattendance/db" VERSION="20191127" COMMENT="XMLDB file for Moodle local/paperattendance"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
@@ -14,9 +14,7 @@
         <FIELD NAME="status" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="description" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="lastmodified" TYPE="int" LENGTH="20" NOTNULL="false" SEQUENCE="false"/>
-        <FIELD NAME="type" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Defines whether or not the attendance was recorded on paper or digital
-0 -&amp;gt; paper
-1-&amp;gt; digital"/>
+        <FIELD NAME="type" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Defines whether or not the attendance was recorded on paper or digital 0 -&amp;gt; paper 1-&amp;gt; digital"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
@@ -141,6 +139,17 @@
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="paperattendance_missingpages" COMMENT="Table to register missing pages">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="sessionpagesid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="timeprocessed" TYPE="int" LENGTH="20" NOTNULL="false" SEQUENCE="false" COMMENT="Inserted time as a missing page"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="sessionpagesid" TYPE="foreign" FIELDS="sessionpagesid" REFTABLE="sessionpages" REFFIELDS="id"/>
       </KEYS>
     </TABLE>
   </TABLES>
