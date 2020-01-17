@@ -60,16 +60,6 @@ if ($hassiteconfig) {
 					PARAM_TEXT
 			)
 	);
-	//grayscale
-	$settings->add(
-			new admin_setting_configtext(
-					'paperattendance_grayscale',
-					get_string('grayscale', 'local_paperattendance'),
-					get_string('grayscaletext', 'local_paperattendance'),
-					'63500',
-					PARAM_INT
-					)
-			);
 	//minuteslate
 	$settings->add(
 			new admin_setting_configtext(
@@ -186,7 +176,7 @@ if ($hassiteconfig) {
 					'paperattendance_formscannerfolderlocation',
 					get_string('formscannerfolderlocation', 'local_paperattendance'),
 					get_string('formscannerfolderlocationtext', 'local_paperattendance'),
-					'/data/data/moodledata/temp/local/paperattendance/unread/jpgs/processing/',
+					'/data/data/moodledata/temp/local/paperattendance/unread/jpgs/',
 					PARAM_TEXT
 					)
 			);
