@@ -1402,19 +1402,19 @@ function paperattendance_read_csv($file, $path, $pdffilename, $uploaderobj){
 				print_r($data);
 			}
 			$stop = true;
+
+
 			
 			if($fila> 1 && $numero > 26){
 				//$data[27] and $data[28] brings the info of the session
 				$qrcodebottom = $data[27];
 				$qrcodetop = $data[28];
+				$qrcode = false;
 				if(strpos($qrcodetop, '*') !== false) {
 					$qrcode = $qrcodetop;
 				} else {    
 					if(strpos($qrcodebottom, '*') !== false) {
 						$qrcode = $qrcodebottom;
-					}
-					else{
-						$stop = false;
 					}
 				}
 				
@@ -1431,9 +1431,30 @@ function paperattendance_read_csv($file, $path, $pdffilename, $uploaderobj){
 					$realpagenum = explode(".", $oldpdfpagenumber);
 					$realpagenum = $realpagenum[0];
 					mtrace("PDF page number: $realpagenum");
+				}			
+
+				//check if everyone is absent
+				$presences = 0;
+				foreach($data as $presence)
+				{
+					if($presence == "A")
+					{
+						$presences++;
+					}
 				}
-				
-				if($stop){
+				if($presences == 0)
+				{
+					mtrace("Error: Everyone absent, potential problem with scanning");
+					$sessionpageid = paperattendance_save_current_pdf_page_to_session($realpagenum, null, null, $pdffilename, 0, $uploaderobj->id, time());
+
+					$errorpage = new StdClass();
+					$errorpage->pagenumber = $realpagenum + 1;
+					$errorpage->pageid = $sessionpageid;
+
+					$return++;
+				}
+				else if($qrcode)
+				{
 					//If stop is not false, it means that we could read one qr
 					mtrace("qr found");
 					$qrinfo = explode("*",$qrcode);
@@ -1474,7 +1495,6 @@ function paperattendance_read_csv($file, $path, $pdffilename, $uploaderobj){
 							$moduleobject = $DB->get_record("paperattendance_module", array("id"=> $module));
 							$sessdate = date("d-m-Y", $time).", ".$moduleobject->name. ": ". $moduleobject->initialtime. " - " .$moduleobject->endtime;
 							paperattendance_sendMail($sessid, $course, $requestorid, $uploaderobj->id, $sessdate, $coursename->fullname, "processpdf", null);
-							
 						}
 						else{
 							$sessid = $sessdoesntexist; //if session exist, then $sessdoesntexist contains the session id
