@@ -3,7 +3,7 @@ Moodle plugin
 
 ------------------------------------------
 Paper Attendance activity for Moodle 2.6+
-Version: 1.0.0
+Version: 1.1
 ------------------------------------------
 
 Authors:
@@ -11,19 +11,18 @@ Authors:
 * Jorge Cabané (jcabane@alumnos.uai.cl) 
 * Matías Queirolo (mqueirolo@alumnos.uai.cl)
 * Cristobal Silva (cristobal.isilvap@gmail.com) 
- 
+* Juan Pablo Espinoza (juaespinoza@icloud.com)
 
 Release notes
 -------------
 
+1.1    New version with multiple bugfixes
 1.0.0: First official deploy
 
 NOTE
 ----
 
-This module was developed starting from Moodle 3.0.1 and it is currently used and
-developed in Moodle 3.0.6. It does not use any specific code in 3.0.6 so
-it should be compatible to 3.0+, however we have not tested in 3.1+.
+The plugin is written and tested on Moodle 3.5 Stable.
 
 Introduction
 ------------
@@ -50,6 +49,11 @@ However, the following library must be installed in php:
 
 As for scanning and using the scanner, you must install the PaperPort program and use the black and white configuration with a resolution of 600 dpi and sensitivity 30.
 
+Upgrading
+------------
+When upgrading from version 1.0 you must carefully update the settings as the moodledata folders have been slightly modified and the OMR has been updated to version 1.1.4.
+The CLI must be changed to paperattendance/cli.php instead of paperattendance/cli/processpdfcsv.php
+All tasks have been deleted
 
 Acnkowledgments, suggestions, complaints and bug reporting
 ----------------------------------------------------------

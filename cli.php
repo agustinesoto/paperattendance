@@ -122,6 +122,18 @@ if ($resources = $DB->get_records_sql($sqlunreadpdfs, array())) {
                         $pagesWithErrors[$arraypaperattendance_read_csv[1]->pagenumber] = $arraypaperattendance_read_csv[1];
                     }
                     $countprocessed += $processed;
+
+                    /**
+                     * TODO: Remake CSV reading for inline one (it isnt used anywhere else), the new one must be capable of sending pages with everyone absent to missing
+                     * 
+                     * We need to:
+                     * -Read the CSV
+                     * -Identify the session
+                     * -Check the presences
+                     * -Send the page to missing if all absent
+                     * -Store the presences
+                     * -Attempt to sync with Omega
+                     */
                 }
             } else {
                 //meaning that the timeout was reached, save that page with status unprocessed
@@ -256,6 +268,7 @@ echo "\nCleaned temporal folder in $finalTime seconds\n";
  * Should redo this part as I dont really understand how it works
  *
  */
+return;
 echo "\n== Omega Sync ==\n";
 
 $omegaTime = time();
@@ -360,7 +373,7 @@ foreach ($unsynchronizedpresences as $presence) {
     $arrayalumnos[] = $line;
     if (paperattendance_omegacreateattendance($presence->courseid, $arrayalumnos, $presence->sessionid)) {
         $processedsecond++;
-        echo "Synced presence: $presence->username";
+        echo "Synced presence: $presence->username\n";
     }
     else {
         echo "Failed to sync presence $presence->username\n";
