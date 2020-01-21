@@ -1402,8 +1402,6 @@ function paperattendance_read_csv($file, $path, $pdffilename, $uploaderobj){
 				print_r($data);
 			}
 			$stop = true;
-
-
 			
 			if($fila> 1 && $numero > 26){
 				//$data[27] and $data[28] brings the info of the session

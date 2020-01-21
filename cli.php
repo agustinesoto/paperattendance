@@ -42,31 +42,37 @@ $sqlunreadpdfs =
 if ($resources = $DB->get_records_sql($sqlunreadpdfs, array())) {
     $path = "$CFG->dataroot/temp/local/paperattendance/unread";
 
-    var_dump($resources);
-    echo ("Found PDFs to process\n");
+    $pdfnum = count($resources);
+    echo ("Found $pdfnum PDFs to process\n");
+
+    if (!file_exists("$path/jpgs")) {
+        mkdir("$path/jpgs", 0777, true);
+    }
+
+    $pagesWithErrors = array();
+    $countprocessed = 0;
 
     foreach ($resources as $pdf) {
         $found++;
 
         $filename = $pdf->name;
         $uploaderobj = $DB->get_record("user", array("id" => $pdf->userid));
-        $pagesWithErrors = array();
 
         echo ("Processing PDF $filename ($found)\n");
 
         /**
          * Create JPGs
          * We use a slightly roundabout method of splitting the PDF into single page ones
-         * This is done to avoid the absurd memory usage of Imagick
+         * This is done to avoid the absurd memory usage of Imagick when reading large files
          */
         //clean the directory
         paperattendance_recursiveremovedirectory("$path/jpgs");
 
         //count pages
-        $pdf = new FPDI();
-        $pagecount = $pdf->setSourceFile("$path/$filename");
-        $pdf->close();
-        unset($pdf);
+        $pages = new FPDI();
+        $pagecount = $pages->setSourceFile("$path/$filename");
+        $pages->close();
+        unset($pages);
 
         for ($i = 1; $i <= $pagecount; $i++) {
             echo "Exporting page $i\n";
@@ -90,108 +96,68 @@ if ($resources = $DB->get_records_sql($sqlunreadpdfs, array())) {
                 $image->setImageAlphaChannel(Imagick::ALPHACHANNEL_REMOVE);
                 $image->setImageBackgroundColor('white');
             }
-            $image->writeImage("$path/jpgs/$i.jpg");
+            $image->writeImage("$path/jpgs/temp.jpg");
             $image->destroy();
-        }
-
-        unlink("$write/jpgs/temp.pdf");
-
-        if (!file_exists("$path/jpgs")) {
-            mkdir("$path/jpgs", 0777, true);
-        }
-
-        //process jpgs one by one and then delete it
-        $countprocessed = 0;
-        foreach (glob("{$path}/jpgs/*.jpg") as $file) {
-            $jpgname = basename($file);
-            echo "Running OMR on $jpgname\n";
 
             //now run the exec command
             //if production enable timeout
-            $command = "";
-            if ($CFG->paperattendance_categoryid == 406) {
-                $command = "timeout 30 java -jar $CFG->paperattendance_formscannerjarlocation $CFG->paperattendance_formscannertemplatelocation $CFG->paperattendance_formscannerfolderlocation";
+            //this will generate a csv with all the necesary data
+            echo "Running OMR\n";
+            $command = "timeout 30 java -jar $CFG->paperattendance_formscannerjarlocation $CFG->paperattendance_formscannertemplatelocation $CFG->paperattendance_formscannerfolderlocation";
 
-            } else {
-                $command = "java -jar $CFG->paperattendance_formscannerjarlocation $CFG->paperattendance_formscannertemplatelocation $CFG->paperattendance_formscannerfolderlocation";
-            }
-
-            $lastline = exec($command, $output, $return_var);
             echo "$command\n";
+            $lastline = exec($command, $output, $return_var);
             print_r($output);
             echo "$return_var\n";
 
-            //return_var devuelve 0 si el proceso funciona correctamente
+            //if formscanner ran successfully
             if ($return_var == 0) {
                 echo "Success running OMR\n";
-
-                //revisar el csv que creó formscanner
-                foreach (glob("{$path}/jpgs/*.csv") as $filecsv) {
-                    $arraypaperattendance_read_csv = array();
-                    $arraypaperattendance_read_csv = paperattendance_read_csv($filecsv, $path, $filename, $uploaderobj);
-                    $processed = $arraypaperattendance_read_csv[0];
-                    if ($arraypaperattendance_read_csv[1] != null) {
-                        $pagesWithErrors[$arraypaperattendance_read_csv[1]->pagenumber] = $arraypaperattendance_read_csv[1];
-                    }
-                    $countprocessed += $processed;
-
-                    /**
-                     * TODO: Remake CSV reading for inline one (it isnt used anywhere else), the new one must be capable of sending pages with everyone absent to missing
-                     *
-                     * We need to:
-                     * -Read the CSV
-                     * -Identify the session
-                     * -Check the presences
-                     * -Send the page to missing if all absent
-                     * -Store the presences
-                     * -Attempt to sync with Omega
-                     */
+                $arraypaperattendance_read_csv = array();
+                $arraypaperattendance_read_csv = paperattendance_read_csv(glob("{$path}/jpgs/*.csv")[0], $path, $filename, $uploaderobj);
+                $processed = $arraypaperattendance_read_csv[0];
+                if ($arraypaperattendance_read_csv[1] != null) {
+                    $pagesWithErrors[$arraypaperattendance_read_csv[1]->pagenumber] = $arraypaperattendance_read_csv[1];
                 }
+                $countprocessed += $processed;
             } else {
                 //meaning that the timeout was reached, save that page with status unprocessed
                 echo "Failure running OMR\n";
-                $numpages = paperattendance_number_of_pages($path, $filename);
-
-                if ($numpages == 1) {
-                    $realpagenum = 0;
-                } else {
-                    $oldpdfpagenumber = explode("-", $jpgname);
-                    $oldpdfpagenumber = $oldpdfpagenumber[1];
-                    $realpagenum = explode(".", $oldpdfpagenumber);
-                    $realpagenum = $oldpdfpagenumber[0];
-                }
-
-                $sessionpageid = paperattendance_save_current_pdf_page_to_session($realpagenum, null, null, $filename, 0, $uploaderobj->id, time());
+                $sessionpageid = paperattendance_save_current_pdf_page_to_session($i, null, null, $filename, 0, $uploaderobj->id, time());
 
                 $errorpage = new stdClass();
                 $errorpage->pageid = $sessionpageid;
-                $errorpage->pagenumber = $realpagenum + 1;
+                $errorpage->pagenumber = $i;
                 $pagesWithErrors[$errorpage->pagenumber] = $errorpage;
             }
-
-            //finally unlink the jpg file
-            unlink("$path/jpgs/$jpgname");
-        }
-        if (count($pagesWithErrors) > 0) {
-            if (count($pagesWithErrors) > 1) {
-                ksort($pagesWithErrors);
-            }
-            paperattendance_sendMail($pagesWithErrors, null, $uploaderobj->id, $uploaderobj->id, null, "NotNull", "nonprocesspdf", null);
-            $admins = get_admins();
-            foreach ($admins as $admin) {
-                paperattendance_sendMail($pagesWithErrors, null, $admin->id, $admin->id, null, "NotNull", "nonprocesspdf", null);
-            }
-            echo ("end pages with errors var dump\n");
         }
 
-        if ($countprocessed >= 1) {
-            echo "PDF $found correctly processed\n";
-            $read++;
-            $DB->delete_records("paperattendance_unprocessed", array('id' => $pdf->id));
-            echo "PDF $found deleted from unprocessed table\n";
-        } else {
-            echo "problem reading the csv or with the pdf\n";
+        unlink("$path/jpgs/temp.pdf");
+        unlink("$path/jpgs/temp.jpg");
+    }
+
+    //send messages if necessary
+    if (count($pagesWithErrors) > 0) {
+        if (count($pagesWithErrors) > 1) {
+            ksort($pagesWithErrors);
         }
+        //send mail to uploader
+        paperattendance_sendMail($pagesWithErrors, null, $uploaderobj->id, $uploaderobj->id, null, "NotNull", "nonprocesspdf", null);
+
+        //send mail to admins
+        $admins = get_admins();
+        foreach ($admins as $admin) {
+            paperattendance_sendMail($pagesWithErrors, null, $admin->id, $admin->id, null, "NotNull", "nonprocesspdf", null);
+        }
+        echo ("end pages with errors var dump\n");
+    }
+
+    if ($countprocessed >= 1) {
+        $DB->delete_records("paperattendance_unprocessed", array('id' => $pdf->id));
+        echo "PDF $found correctly processed\n";
+        echo "PDF $found deleted from unprocessed table\n";
+    } else {
+        echo "problem reading the csv or with the pdf\n";
     }
 
     echo "$found PDF found\n";
