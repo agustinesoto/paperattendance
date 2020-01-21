@@ -12,13 +12,12 @@ define('CLI_SCRIPT', true);
 require_once dirname(dirname(dirname(__FILE__))) . '/config.php';
 require_once "$CFG->dirroot/local/paperattendance/locallib.php";
 require_once "$CFG->dirroot/repository/lib.php";
-require_once "$CFG->libdir/pdflib.php";
+require_once "$CFG->dirroot/lib/pdflib.php";
 require_once "$CFG->dirroot/mod/assign/feedback/editpdf/fpdi/fpdi.php";
 require_once "$CFG->dirroot/mod/assign/feedback/editpdf/fpdi/fpdi_bridge.php";
-require_once "$CFG->libdir/clilib.php";
+require_once "$CFG->dirroot/lib/clilib.php";
 
 cli_heading("Paper Attendance unified CLI");
-echo "This CLI has no options since its unnecesary\n";
 
 //For timing purposes
 $initialTime = time();
@@ -43,56 +42,69 @@ $sqlunreadpdfs =
 if ($resources = $DB->get_records_sql($sqlunreadpdfs, array())) {
     $path = "$CFG->dataroot/temp/local/paperattendance/unread";
 
-    echo ("Found PDF's to process\n");
+    var_dump($resources);
+    echo ("Found PDFs to process\n");
 
     foreach ($resources as $pdf) {
         $found++;
-        echo ("Found $found pdfs\n");
 
         $filename = $pdf->name;
-
         $uploaderobj = $DB->get_record("user", array("id" => $pdf->userid));
-
         $pagesWithErrors = array();
 
-        //split pdf into multiple jpegs
-        //this way we can process all pages independently and format the images beforehand
-        $image = new Imagick();
+        echo ("Processing PDF $filename ($found)\n");
 
-        $image->setResolution(300, 300);
-        $image->readImage("$path/$filename");
-        $image->setImageFormat('jpeg');
-        $image->setImageCompression(Imagick::COMPRESSION_JPEG);
-        $image->setImageCompressionQuality(100);
+        /**
+         * Create JPGs
+         * We use a slightly roundabout method of splitting the PDF into single page ones
+         * This is done to avoid the absurd memory usage of Imagick
+         */
+        //clean the directory
+        paperattendance_recursiveremovedirectory("$path/jpgs");
 
-        if ($image->getImageAlphaChannel()) {
-            for ($i = 0; $i < $image->getNumberImages(); $i++) {
-                //we actually start at the end of the array, so we need to move backwards to remove the alpha of each image
-                $image->previousImage();
+        //count pages
+        $pdf = new FPDI();
+        $pagecount = $pdf->setSourceFile("$path/$filename");
+        $pdf->close();
+        unset($pdf);
+
+        for ($i = 1; $i <= $pagecount; $i++) {
+            echo "Exporting page $i\n";
+            //Split a single page
+            $new_pdf = new FPDI();
+            $new_pdf->AddPage();
+            $new_pdf->setSourceFile("$path/$filename");
+            $new_pdf->useTemplate($new_pdf->importPage($i));
+            $new_pdf->Output("$path/jpgs/temp.pdf", "F");
+            $new_pdf->close();
+
+            //Export the page as JPG
+            $image = new Imagick();
+            $image->setResolution(300, 300);
+            $image->readImage("$path/jpgs/temp.pdf");
+            $image->setImageFormat('jpeg');
+            $image->setImageCompression(Imagick::COMPRESSION_JPEG);
+            $image->setImageCompressionQuality(100);
+
+            if ($image->getImageAlphaChannel()) {
                 $image->setImageAlphaChannel(Imagick::ALPHACHANNEL_REMOVE);
                 $image->setImageBackgroundColor('white');
             }
+            $image->writeImage("$path/jpgs/$i.jpg");
+            $image->destroy();
         }
+
+        unlink("$write/jpgs/temp.pdf");
 
         if (!file_exists("$path/jpgs")) {
             mkdir("$path/jpgs", 0777, true);
         }
 
-        //Remove initial files in directory
-        paperattendance_recursiveremovedirectory("$path/jpgs");
-
-        $pdfname = explode(".", $filename);
-        $pdfname = $pdfname[0];
-
-        $image->writeImages("$path/jpgs/$pdfname.jpg", false);
-        $image->destroy();
-        unset($image);
-
         //process jpgs one by one and then delete it
         $countprocessed = 0;
         foreach (glob("{$path}/jpgs/*.jpg") as $file) {
             $jpgname = basename($file);
-            echo "Name of JPG: $jpgname\n";
+            echo "Running OMR on $jpgname\n";
 
             //now run the exec command
             //if production enable timeout
@@ -125,7 +137,7 @@ if ($resources = $DB->get_records_sql($sqlunreadpdfs, array())) {
 
                     /**
                      * TODO: Remake CSV reading for inline one (it isnt used anywhere else), the new one must be capable of sending pages with everyone absent to missing
-                     * 
+                     *
                      * We need to:
                      * -Read the CSV
                      * -Identify the session
@@ -190,7 +202,7 @@ if ($resources = $DB->get_records_sql($sqlunreadpdfs, array())) {
 
 // Displays the time required to complete the process
 $executiontime = time() - $pdfTime;
-echo "Processed PDFs in $executiontime\n";
+echo "Processed PDFs in $executiontime seconds\n";
 
 /**
  *
@@ -268,7 +280,10 @@ echo "\nCleaned temporal folder in $finalTime seconds\n";
  * Should redo this part as I dont really understand how it works
  *
  */
-return;
+
+//disable omega sync
+//return;
+
 echo "\n== Omega Sync ==\n";
 
 $omegaTime = time();
@@ -328,8 +343,7 @@ if ($resources = $DB->get_records_sql($sqlunsynced, $params)) {
             } else {
                 echo "Failed to sync session: $session->id\n";
             }
-        }
-        else {
+        } else {
             echo "ERROR: Session not found: $session->id  (in table paperattendance_presence), inconsistencies found in DB\n";
         }
     }
@@ -374,8 +388,7 @@ foreach ($unsynchronizedpresences as $presence) {
     if (paperattendance_omegacreateattendance($presence->courseid, $arrayalumnos, $presence->sessionid)) {
         $processedsecond++;
         echo "Synced presence: $presence->username\n";
-    }
-    else {
+    } else {
         echo "Failed to sync presence $presence->username\n";
     }
 }

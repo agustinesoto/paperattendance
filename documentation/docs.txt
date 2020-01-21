@@ -1,4 +1,4 @@
-This document quickly documents how Paperattendance syncs with Omega
+A little bit of documentation about paper I wrote for myself
 
 First beware: understand the difference between sessions, modules and attendances.
 A session is a single class, a class can span through multiple modules.
@@ -6,15 +6,13 @@ An attendance (or presence) is a single student going (or not) to a single modul
 
 ===================================
 
-All syncronization with omega can be resumed into 3 functions:
+Omega has 3 functions to communicate with Paperattendance
 -Create attendance, which creates a session and sends the attendances of all the students in multiple modules, then returns an id per attendance
 (this function is mostly the paperattendance_omegacreateattendance in locallib.php)
 -Update attendance, which using the id that omega returned with create attendance to update a single user attendance
 -Get modulos, this one reads the modules from a class to preselect modules when the teacher is going to create a print
 
 ====================================
-
-Some extra syncronization is done in the CLI through the omegasync and syncomegaattendance files, this communication is sync instead of async like the one done by ajax.
 
 AJAX functions:
 1: Get Modulos horarios (curlgetmoduloshorario)

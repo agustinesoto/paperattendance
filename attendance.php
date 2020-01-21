@@ -30,7 +30,6 @@ require_once $CFG->dirroot . "/repository/lib.php";
 require_once $CFG->libdir . '/pdflib.php';
 require_once $CFG->dirroot . '/mod/assign/feedback/editpdf/fpdi/fpdi.php';
 require_once $CFG->dirroot . "/mod/assign/feedback/editpdf/fpdi/fpdi_bridge.php";
-require_once $CFG->dirroot . "/mod/assign/feedback/editpdf/fpdi/fpdi.php";
 require_once $CFG->dirroot . "/local/paperattendance/forms/attendance_form.php";
 
 global $CFG, $DB, $OUTPUT, $USER, $PAGE;

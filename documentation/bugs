@@ -1,9 +1,0 @@
--Validar sincronización de asistencia con Omega, hubo unos casos del semestre pasado en que a pesar que la asistencia estaba bien en WebCursos, en omega no aparecieron, esto se debe validar (This most likely is problem with Omega not returning Omegaid)
--Listas bien impresas quedan como ausentes (This problem most likely has to do with sizing or the list being bent)
--Validar cursos todos ausentes (How? ask the teacher or raise a warning?)
--Asistencia Online se duplica (Could replicate by doing dumb stuff)
--Validar el guardado de asistencia al recuperar paginas perdidas
--Omega createattendance has wrong number of assistances
--Ensure that everything that doesnt have OmegaId is synced to Omega. I dont know what the point of the Omegasync field is if we can just use the Omegaid
--[DONE] Contar las listas que pasan a páginas perdidas (Easy peasy)
--[DONE] Pop Up que recuerde la configuración de impresora
