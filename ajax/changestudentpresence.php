@@ -43,7 +43,7 @@ if ($attendance = $DB->get_record("paperattendance_presence", array("id" => $pre
         );
 
         //if curl fails we set the student as unsynced so its synced later
-        if (!curl($url, $fields)) {
+        if (!paperattendance_curl($url, $fields)) {
             $record->omegasync = false;
         }
         else {

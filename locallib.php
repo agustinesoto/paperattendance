@@ -1758,7 +1758,7 @@ function paperattendance_omegacreateattendance($courseid, $arrayalumnos, $sessid
     );
 
     $return = false;
-    $result = curl($CFG->paperattendance_omegacreateattendanceurl, $fields, $log);
+    $result = paperattendance_curl($CFG->paperattendance_omegacreateattendanceurl, $fields, $log);
 
     if (!$result) {
         return false;
@@ -1822,7 +1822,7 @@ function paperattendance_omegaupdateattendance($update, $omegaid)
         "asistencia" => $update,
     );
 
-    curl($url, $fields);
+    paperattendance_curl($url, $fields);
 }
 
 /**
@@ -1837,7 +1837,7 @@ function paperattendance_omegaupdateattendance($update, $omegaid)
  *
  * Returns the encoded json of the result or false on failure
  */
-function curl($url, $fields, $log = true)
+function paperattendance_curl($url, $fields, $log = true)
 {
     global $CFG, $DB;
 

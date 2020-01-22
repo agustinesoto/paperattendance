@@ -80,7 +80,7 @@ $fields = array(
     "seccionId" => $course->idnumber,
 );
 
-$result = curl($url, $fields, false);
+$result = paperattendance_curl($url, $fields, false);
 $modules = json_decode($result);
 
 if (!is_array($modules)) {

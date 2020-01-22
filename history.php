@@ -370,7 +370,7 @@ if( $isteacher || is_siteadmin($USER) || has_capability('local/paperattendance:p
                         "asistencia" => $status
                     );
 
-                    curl($url, $fields);
+                    paperattendance_curl($url, $fields);
                     
                     $backurl = new moodle_url("/local/paperattendance/history.php", array(
                         "action" => "studentsattendance",

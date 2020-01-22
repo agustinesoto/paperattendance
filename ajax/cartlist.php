@@ -39,7 +39,7 @@ $fields = array(
     "seccionId" => $course->idnumber,
 );
 
-$result = curl($url, $fields, false);
+$result = paperattendance_curl($url, $fields, false);
 
 $modules = array();
 $modules = json_decode($result);

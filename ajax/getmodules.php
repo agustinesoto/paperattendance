@@ -46,4 +46,4 @@ $fields = array(
     "seccionId" => $omegaid,
 );
 
-echo curl($url, $fields, false);
+echo paperattendance_curl($url, $fields, false);

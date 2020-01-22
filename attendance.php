@@ -85,7 +85,7 @@ if ($action == "view") {
         "seccionId" => $course->idnumber,
     );
 	
-	$result = curl($url, $fields, false);
+	$result = paperattendance_curl($url, $fields, false);
 
     $omegamodules = json_decode($result);
     //var_dump($omegamodules);
