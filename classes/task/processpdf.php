@@ -79,7 +79,7 @@ class processpdf extends \core\task\adhoc_task
                         $image->setImageAlphaChannel(12);
                         $image->setImageBackgroundColor('white');
                     }
-                    $image->writeImage("$path/jpgs/temp.jpg");
+                    $image->writeImage("$path/jpgs/$i.jpg");
                     $image->destroy();
 
                     //now run the exec command
