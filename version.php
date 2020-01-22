@@ -14,18 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-
 /**
  *
-*
-* @package    local
-* @subpackage paperattendance
-* @copyright  2016 Matías Queirolo (mqueirolo@alumnos.uai.cl) 
-* @copyright  2016 Hans Jeria (hansjeria@gmail.com) 
-* @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
-*/
+ *
+ * @package    local
+ * @subpackage paperattendance
+ * @copyright  2016 Matías Queirolo (mqueirolo@alumnos.uai.cl) 
+ * @copyright  2016 Hans Jeria (hansjeria@gmail.com) 
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 
 $plugin->component = 'local_paperattendance';
-$plugin->version   = 2020012200;
+$plugin->version   = 2020012205;
 $plugin->requires  = 2015111600;
 
