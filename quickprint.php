@@ -88,7 +88,6 @@ if (!is_array($modules)) {
     die();
 }
 
-echo get_string("printersettings", "local_paperattendance");
 
 $teachersparam = array(
     $CFG->paperattendance_profesoreditorrole,

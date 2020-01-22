@@ -1416,20 +1416,9 @@ function paperattendance_read_csv($file, $path, $pdffilename, $uploaderobj){
 					}
 				}
 				
-				$numpages = paperattendance_number_of_pages($path, $pdffilename);
-				if($numpages == 1){
-					$realpagenum = 0;
-				}
-				else{
-					$jpgfilenamecsv = $data[0];
-					mtrace("PDF name: ". $jpgfilenamecsv);
-					$oldpdfpagenumber= explode("-",$jpgfilenamecsv);
-					$oldpdfpagenumber = $oldpdfpagenumber[1];
-					mtrace("el explode es: ".$oldpdfpagenumber);
-					$realpagenum = explode(".", $oldpdfpagenumber);
-					$realpagenum = $realpagenum[0];
-					mtrace("PDF page number: $realpagenum");
-				}			
+				$realpagenum = (int)$pdffilename;
+
+				echo "Real Page num: $realpagenum\n";
 
 				//check if everyone is absent
 				$presences = 0;
@@ -1440,9 +1429,9 @@ function paperattendance_read_csv($file, $path, $pdffilename, $uploaderobj){
 						$presences++;
 					}
 				}
-				if($presences == 0)
+				if(false && $presences == 0) //lets disable this for the time being
 				{
-					mtrace("Error: Everyone absent, potential problem with scanning");
+					mtrace("Error: Everyone absent, potential problem with scanning, dumping page to missing by default");
 					$sessionpageid = paperattendance_save_current_pdf_page_to_session($realpagenum, null, null, $pdffilename, 0, $uploaderobj->id, time());
 
 					$errorpage = new StdClass();

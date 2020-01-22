@@ -56,8 +56,9 @@ class processpdf extends \core\task\adhoc_task
                 $pages->close();
                 unset($pages);
 
+                echo "$pagecount pages found\n";
                 for ($i = 1; $i <= $pagecount; $i++) {
-                    echo "Exporting page $i\n";
+                    echo "\nProcessing page $i\n";
                     //Split a single page
                     $new_pdf = new \FPDI();
                     $new_pdf->AddPage();
@@ -75,7 +76,7 @@ class processpdf extends \core\task\adhoc_task
                     $image->setImageCompressionQuality(100);
 
                     if ($image->getImageAlphaChannel()) {
-                        $image->setImageAlphaChannel(\Imagick::ALPHACHANNEL_REMOVE);
+                        $image->setImageAlphaChannel(12);
                         $image->setImageBackgroundColor('white');
                     }
                     $image->writeImage("$path/jpgs/temp.jpg");
@@ -87,8 +88,8 @@ class processpdf extends \core\task\adhoc_task
                     echo "Running OMR\n";
                     $command = "timeout 30 java -jar $CFG->paperattendance_formscannerjarlocation $CFG->paperattendance_formscannertemplatelocation $CFG->paperattendance_formscannerfolderlocation";
 
-                    echo "$command\n";
                     $lastline = exec($command, $output, $return_var);
+                    echo "$command\n";
                     print_r($output);
                     echo "$return_var\n";
 
