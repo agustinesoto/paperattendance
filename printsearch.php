@@ -260,8 +260,7 @@ $pdfmodal = "
 				<h4 class='modal-title' id='pdfModalLabel'>Listas pdf</h4>
 			</div>
 			<div class='modal-body'>
-				" . get_string("printersettings", "local_paperattendance") . "
-				<div class='pdflists' style='height: 50vh'></div>
+				<div class='pdflists'></div>
 			</div>
 		</div>
 	</div>
@@ -273,7 +272,6 @@ echo html_writer::div($formmodal, "modaldiv");
 echo html_writer::div($pdfmodal, "modaldiv");
 
 echo $OUTPUT->footer();
-
 
 ?>
 <script>

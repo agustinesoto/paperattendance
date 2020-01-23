@@ -83,11 +83,10 @@ $fields = array(
 $result = paperattendance_curl($url, $fields, false);
 $modules = json_decode($result);
 
-if (!is_array($modules)) {
+if (count($modules) == 0) {
     echo get_string("nothingtoprint", "local_paperattendance");
     die();
 }
-
 
 $teachersparam = array(
     $CFG->paperattendance_profesoreditorrole,
@@ -191,15 +190,21 @@ if ($fs->file_exists($context->id, 'local_paperattendance', 'draft', 0, '/', "pa
 // Info for the new file
 $fileinfo = $fs->create_file_from_pathname($file_record, $attendancepdffile);
 
-//    echo $OUTPUT->header();
-
 $url = moodle_url::make_pluginfile_url($context->id, 'local_paperattendance', 'draft', 0, '/', "paperattendance_" . $courseid . "_" . $timepdf . ".pdf");
 $viewerpdf = html_writer::nonempty_tag("iframe", " ", array(
     "id" => "pdf-iframe",
     "src" => $url,
-    "style" => "height:100%; width:100%",
+    "style" => "height:50vh; width:100%",
 ));
-echo $viewerpdf;
+
+$reminder = get_string("printersettings", "local_paperattendance");
+$downloadText = get_string("downloadprint", "local_paperattendance");
+
+echo("
+    $reminder
+    $viewerpdf
+    <a href='$url' target='_blank' rel='noopener noreferrer' class='btn btn-primary'> $downloadText </a>"
+);
 
 ?>
 
