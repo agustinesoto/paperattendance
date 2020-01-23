@@ -218,8 +218,8 @@ if($action == "download" && isset($attendancepdffile)){
 	echo "
 	$printerText
 	<div>
-		<a href='$url' target='_blank' rel='noopener noreferrer' class='btn btn-primary'> $downloadText </a>
 		<a href='$urlprint' class='btn btn-secondary'> $backText </a>
+		<a href='$url' target='_blank' rel='noopener noreferrer' class='btn btn-primary'> $downloadText </a>
 	</div>
 	<br>
 	$viewerpdf

@@ -82,10 +82,14 @@ class processpdf extends \core\task\adhoc_task
                     $image->writeImage("$path/jpgs/$i.jpg");
                     $image->destroy();
 
+                    $formscanner_jar = "$CFG->dirroot/local/paperattendance/formscanner-1.1.4-bin/lib/formscanner-main-1.1.4.jar";
+                    $formscanner_template = "$CFG->dirroot/local/paperattendance/template.xtmpl";
+                    $formscanner_path = "$path/jpgs/";
+
                     //now run the exec command
                     //if production enable timeout
                     //this will generate a csv with all the necesary data
-                    $command = "timeout 30 java -jar $CFG->paperattendance_formscannerjarlocation $CFG->paperattendance_formscannertemplatelocation $CFG->paperattendance_formscannerfolderlocation";
+                    $command = "timeout 30 java -jar $formscanner_jar $formscanner_template $formscanner_path";
 
                     $lastline = exec($command, $output, $return_var);
                     echo "$command\n";

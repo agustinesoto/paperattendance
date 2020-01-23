@@ -202,9 +202,9 @@ $downloadText = get_string("downloadprint", "local_paperattendance");
 
 echo("
     $reminder
+    <a href='$url' target='_blank' rel='noopener noreferrer' class='btn btn-primary'> $downloadText </a>
     $viewerpdf
-    <a href='$url' target='_blank' rel='noopener noreferrer' class='btn btn-primary'> $downloadText </a>"
-);
+");
 
 ?>
 
