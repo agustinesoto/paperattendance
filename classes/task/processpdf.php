@@ -79,7 +79,7 @@ class processpdf extends \core\task\adhoc_task
                         $image->setImageAlphaChannel(12);
                         $image->setImageBackgroundColor('white');
                     }
-                    $image->writeImage("$path/jpgs/temp.jpg");
+                    $image->writeImage("$path/jpgs/$i.jpg");
                     $image->destroy();
 
                     //now run the exec command
@@ -96,7 +96,7 @@ class processpdf extends \core\task\adhoc_task
                     if ($return_var == 0) {
                         echo "Success running OMR\n";
                         $arraypaperattendance_read_csv = array();
-                        $arraypaperattendance_read_csv = \paperattendance_read_csv(glob("{$path}/jpgs/*.csv")[0], $path, $filename, $uploaderobj, $i);
+                        $arraypaperattendance_read_csv = \paperattendance_read_csv(glob("{$path}/jpgs/*.csv")[0], $path, $filename, $uploaderobj);
                         $processed = $arraypaperattendance_read_csv[0];
                         if ($arraypaperattendance_read_csv[1] != null) {
                             $pagesWithErrors[$arraypaperattendance_read_csv[1]->pagenumber] = $arraypaperattendance_read_csv[1];
@@ -112,11 +112,9 @@ class processpdf extends \core\task\adhoc_task
                         $errorpage->pagenumber = $i;
                         $pagesWithErrors[$errorpage->pagenumber] = $errorpage;
                     }
-
+                    unlink("$path/jpgs/$i.jpg");
                 }
-
                 unlink("$path/jpgs/temp.pdf");
-                unlink("$path/jpgs/temp.jpg");
             }
 
             //send messages if necessary

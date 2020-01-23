@@ -169,7 +169,7 @@ if( $isteacher || is_siteadmin($USER)) {
     				$f1 = substr($newpdfname, 0 , 2);
     				$f2 = substr($newpdfname, 2, 2);
     				$filepath = $f1."/".$f2."/".$newpdfname;
-    				$pages = $pdfname->pagenum + 1;
+    				$pages = $pdfname->pagenum;
     				//$originalpdf = $CFG -> dataroot. "/temp/local/paperattendance/unread/".$pdfname->pdfname;
     				$originalpdf = $CFG -> dataroot. "/filedir/".$filepath;
     				

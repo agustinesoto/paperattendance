@@ -185,7 +185,7 @@ if ($action == "view") {
 			$scanurl_attendance = new moodle_url("/local/paperattendance/missingpages.php", array(
 					"action" => "scan",
 					"pdfname" => $miss->pdfname,
-					"page" => ($miss->pagenum +1)
+					"page" => ($miss->pagenum)
 			));
 			$scanicon_attendance = new pix_icon("e/new_document", get_string('see', 'local_paperattendance'));
 			$scanaction_attendance = $OUTPUT->action_icon(
@@ -203,7 +203,7 @@ if ($action == "view") {
 			$missingtable->data [] = array(
 					$counter,
 					$scanaction_attendance,
-					$miss->pagenum +1,
+					$miss->pagenum,
 					$dateconverted,
 					$username,
 					$deleteactionmissing . $editactionmissing);
@@ -236,9 +236,6 @@ if ($action == "edit") {
 			$path = $CFG -> dataroot. "/temp/local/paperattendance";
 			$attendancepdffile = $path . "/print/paperattendance_".$sesspageid."_".$timepdf.".pdf";
 
-			//$pdfpath = $CFG -> dataroot. "/temp/local/paperattendance/unread/".$session->pdfname;
-			//$viewerstart = $session->pagenum + 1;
-
 			$pdf = new FPDI();
 			$hashnamesql = "SELECT contenthash
 							FROM {files}
@@ -249,7 +246,7 @@ if ($action == "edit") {
 				$f1 = substr($newpdfname, 0 , 2);
 				$f2 = substr($newpdfname, 2, 2);
 				$filepath = $f1."/".$f2."/".$newpdfname;
-				$pages = $session->pagenum + 1;
+				$pages = $session->pagenum;
 
 				$originalpdf = $CFG -> dataroot. "/filedir/".$filepath;
 					
