@@ -1380,11 +1380,12 @@ function paperattendance_exporttoexcel($title, $header, $filename, $data, $descr
  * @param obj $uploaderobj
  *            Object of the person who uploaded the pdf
  */
-function paperattendance_read_csv($file, $path, $pdffilename, $uploaderobj){
+function paperattendance_read_csv($file, $path, $pdffilename, $uploaderobj, $pagenum){
 	global $DB, $CFG, $USER;
 
 	$fila = 1;
 	$return = 0;
+	$pagenum--;
 	
 	$errorpage = null;
 	if (($handle = fopen($file, "r")) !== FALSE) {
@@ -1416,10 +1417,6 @@ function paperattendance_read_csv($file, $path, $pdffilename, $uploaderobj){
 					}
 				}
 				
-				$realpagenum = (int)$pdffilename;
-
-				echo "Real Page num: $realpagenum\n";
-
 				//check if everyone is absent
 				$presences = 0;
 				foreach($data as $presence)
@@ -1432,10 +1429,10 @@ function paperattendance_read_csv($file, $path, $pdffilename, $uploaderobj){
 				if(false && $presences == 0) //lets disable this for the time being
 				{
 					mtrace("Error: Everyone absent, potential problem with scanning, dumping page to missing by default");
-					$sessionpageid = paperattendance_save_current_pdf_page_to_session($realpagenum, null, null, $pdffilename, 0, $uploaderobj->id, time());
+					$sessionpageid = paperattendance_save_current_pdf_page_to_session($pagenum, null, null, $pdffilename, 0, $uploaderobj->id, time());
 
 					$errorpage = new StdClass();
-					$errorpage->pagenumber = $realpagenum + 1;
+					$errorpage->pagenumber = $pagenum + 1;
 					$errorpage->pageid = $sessionpageid;
 
 					$return++;
@@ -1476,7 +1473,7 @@ function paperattendance_read_csv($file, $path, $pdffilename, $uploaderobj){
 							$sessid = paperattendance_insert_session($course, $requestorid, $uploaderobj->id, $pdffilename, $description, 0);
 							mtrace("la session id es : ".$sessid);
 							paperattendance_insert_session_module($module, $sessid, $time);
-							paperattendance_save_current_pdf_page_to_session($realpagenum, $sessid, $page, $pdffilename, 1, $uploaderobj->id, time());
+							paperattendance_save_current_pdf_page_to_session($pagenum, $sessid, $page, $pdffilename, 1, $uploaderobj->id, time());
 							
 							$coursename = $DB->get_record("course", array("id"=> $course));
 							$moduleobject = $DB->get_record("paperattendance_module", array("id"=> $module));
@@ -1492,7 +1489,7 @@ function paperattendance_read_csv($file, $path, $pdffilename, $uploaderobj){
 								$stop = false;
 							}
 							else{
-								paperattendance_save_current_pdf_page_to_session($realpagenum, $sessid, $page, $pdffilename, 1, $uploaderobj->id, time());
+								paperattendance_save_current_pdf_page_to_session($pagenum, $sessid, $page, $pdffilename, 1, $uploaderobj->id, time());
 								mtrace("Session exists, but list hasn't been uploaded (attendance checked online?)");
 								$stop = true;
 							}
@@ -1545,10 +1542,10 @@ function paperattendance_read_csv($file, $path, $pdffilename, $uploaderobj){
 					}else{
 						mtrace("Error: can't process this page, no readable qr code");
 						//$return = false;//send email or something to let know this page had problems
-						$sessionpageid = paperattendance_save_current_pdf_page_to_session($realpagenum, null, null, $pdffilename, 0, $uploaderobj->id, time());
+						$sessionpageid = paperattendance_save_current_pdf_page_to_session($pagenum, null, null, $pdffilename, 0, $uploaderobj->id, time());
 						
 						$errorpage = new StdClass();
-						$errorpage->pagenumber = $realpagenum+1;
+						$errorpage->pagenumber = $pagenum + 1;
 						$errorpage->pageid = $sessionpageid;
 
 						$return++;
@@ -1558,10 +1555,10 @@ function paperattendance_read_csv($file, $path, $pdffilename, $uploaderobj){
 
 	  			mtrace("Error: can't process this page, no readable qr code");
 	  			//$return = false;//send email or something to let know this page had problems
-	  			$sessionpageid = paperattendance_save_current_pdf_page_to_session($realpagenum, null, null, $pdffilename, 0, $uploaderobj->id, time());
+	  			$sessionpageid = paperattendance_save_current_pdf_page_to_session($pagenum, null, null, $pdffilename, 0, $uploaderobj->id, time());
 	  			
 				$errorpage = new StdClass();
-				$errorpage->pagenumber = $realpagenum+1;
+				$errorpage->pagenumber = $pagenum + 1;
 				$errorpage->pageid = $sessionpageid;
 					  
 				$return++;

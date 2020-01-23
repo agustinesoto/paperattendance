@@ -79,13 +79,12 @@ class processpdf extends \core\task\adhoc_task
                         $image->setImageAlphaChannel(12);
                         $image->setImageBackgroundColor('white');
                     }
-                    $image->writeImage("$path/jpgs/$i.jpg");
+                    $image->writeImage("$path/jpgs/temp.jpg");
                     $image->destroy();
 
                     //now run the exec command
                     //if production enable timeout
                     //this will generate a csv with all the necesary data
-                    echo "Running OMR\n";
                     $command = "timeout 30 java -jar $CFG->paperattendance_formscannerjarlocation $CFG->paperattendance_formscannertemplatelocation $CFG->paperattendance_formscannerfolderlocation";
 
                     $lastline = exec($command, $output, $return_var);
@@ -97,7 +96,7 @@ class processpdf extends \core\task\adhoc_task
                     if ($return_var == 0) {
                         echo "Success running OMR\n";
                         $arraypaperattendance_read_csv = array();
-                        $arraypaperattendance_read_csv = \paperattendance_read_csv(glob("{$path}/jpgs/*.csv")[0], $path, $filename, $uploaderobj);
+                        $arraypaperattendance_read_csv = \paperattendance_read_csv(glob("{$path}/jpgs/*.csv")[0], $path, $filename, $uploaderobj, $i);
                         $processed = $arraypaperattendance_read_csv[0];
                         if ($arraypaperattendance_read_csv[1] != null) {
                             $pagesWithErrors[$arraypaperattendance_read_csv[1]->pagenumber] = $arraypaperattendance_read_csv[1];
@@ -108,11 +107,12 @@ class processpdf extends \core\task\adhoc_task
                         echo "Failure running OMR\n";
                         $sessionpageid = \paperattendance_save_current_pdf_page_to_session($i, null, null, $filename, 0, $uploaderobj->id, time());
 
-                        $errorpage = new stdClass();
+                        $errorpage = new \stdClass();
                         $errorpage->pageid = $sessionpageid;
                         $errorpage->pagenumber = $i;
                         $pagesWithErrors[$errorpage->pagenumber] = $errorpage;
                     }
+
                 }
 
                 unlink("$path/jpgs/temp.pdf");
@@ -141,7 +141,7 @@ class processpdf extends \core\task\adhoc_task
             } else {
                 echo "problem reading the csv or with the pdf\n";
             }
-            
+
             $DB->delete_records("paperattendance_unprocessed", array('id' => $pdf->id));
 
             echo "$found PDF found\n";
