@@ -25,14 +25,13 @@
 //Online attendance
 
 require_once dirname(dirname(dirname(__FILE__))) . '/config.php';
-require_once $CFG->dirroot . '/local/paperattendance/locallib.php';
+require_once $CFG->dirroot . "/local/paperattendance/locallib.php";
 require_once $CFG->dirroot . "/repository/lib.php";
-require_once $CFG->libdir . '/pdflib.php';
-require_once $CFG->dirroot . '/mod/assign/feedback/editpdf/fpdi/fpdi.php';
+require_once $CFG->libdir  . "/pdflib.php";
+require_once $CFG->dirroot . "/mod/assign/feedback/editpdf/fpdi/fpdi.php";
 require_once $CFG->dirroot . "/mod/assign/feedback/editpdf/fpdi/fpdi_bridge.php";
 require_once $CFG->dirroot . "/local/paperattendance/forms/attendance_form.php";
 
-global $CFG, $DB, $OUTPUT, $USER, $PAGE;
 // User must be logged in.
 require_login();
 if (isguestuser()) {

@@ -2,7 +2,7 @@
 Moodle plugin 
 
 ------------------------------------------
-Paper Attendance activity for Moodle 2.6+
+Paper Attendance activity for Moodle 3.5
 Version: 1.1
 ------------------------------------------
 
@@ -16,13 +16,8 @@ Authors:
 Release notes
 -------------
 
-1.1    New version with multiple bugfixes
-1.0.0: First official deploy
-
-NOTE
-----
-
-The plugin is written and tested on Moodle 3.5 Stable.
+1.1: New version with multiple bugfixes (written and tested on Moodle 3.5)
+1.0: First official deploy (written and tested on Moodle 2.6)
 
 Introduction
 ------------
@@ -48,12 +43,6 @@ However, the following library must be installed in php:
 - Imagick
 
 As for scanning and using the scanner, you must install the PaperPort program and use the black and white configuration with a resolution of 600 dpi and sensitivity 30.
-
-Upgrading
-------------
-When upgrading from version 1.0 you must carefully update the settings as the moodledata folders have been slightly modified and the OMR has been updated to version 1.1.4.
-The CLI must be changed to paperattendance/cli.php instead of paperattendance/cli/processpdfcsv.php
-All tasks have been deleted
 
 Acnkowledgments, suggestions, complaints and bug reporting
 ----------------------------------------------------------

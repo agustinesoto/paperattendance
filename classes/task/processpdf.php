@@ -71,11 +71,11 @@ class processpdf extends \core\task\adhoc_task
                 $new_pdf->Output("$path/jpgs/temp.pdf", "F");
                 $new_pdf->close();
 
-                //Export the page as JPG
+                //Export the page as PNG
                 $image = new \Imagick();
                 $image->setResolution(300, 300);
                 $image->readImage("$path/jpgs/temp.pdf");
-                $image->setImageFormat('jpeg');
+                $image->setImageFormat('png');
                 $image->setImageCompression(\Imagick::COMPRESSION_JPEG);
                 $image->setImageCompressionQuality(100);
 
@@ -83,25 +83,48 @@ class processpdf extends \core\task\adhoc_task
                     $image->setImageAlphaChannel(12);
                     $image->setImageBackgroundColor('white');
                 }
-                $image->writeImage("$path/jpgs/$i.jpg");
+                $image->writeImage("$path/jpgs/$i.png");
                 $image->destroy();
 
+                //crop image
+                $image = imagecreatefrompng("$path/jpgs/$i.png");
+                $cropped = imagecropauto($image, IMG_CROP_DEFAULT);
+                if ($cropped != false) {
+                    imagedestroy($image);
+                    $image = $cropped;
+                    imagepng($image, "$path/jpgs/$i.png");
+                }
+
+                //process the PDF with an arbitrary number of templates
+                //any new templates add here
+                $templates = ["template-1.xtmpl", "template-2.xtmpl"];
                 $formscanner_jar = "$CFG->dirroot/local/paperattendance/formscanner-1.1.4-bin/lib/formscanner-main-1.1.4.jar";
-                $formscanner_template = "$CFG->dirroot/local/paperattendance/formscanner-1.1.4-bin/template.xtmpl";
                 $formscanner_path = "$path/jpgs/";
 
-                //now run the exec command
-                //if production enable timeout
-                //this will generate a csv with all the necesary data
-                $command = "timeout 30 java -jar $formscanner_jar $formscanner_template $formscanner_path";
+                $success = false;
 
-                $lastline = exec($command, $output, $return_var);
-                echo "$command\n";
-                print_r($output);
-                echo "$return_var\n";
+                foreach ($templates as $template) {
+                    //set the template
+                    $formscanner_template = "$CFG->dirroot/local/paperattendance/formscanner-1.1.4-bin/$template";
 
-                //if formscanner ran successfully
-                if ($return_var == 0) {
+                    $command = "timeout 30 java -jar $formscanner_jar $formscanner_template $formscanner_path";
+
+                    $lastline = exec($command, $output, $return_var);
+                    echo "$command\n";
+                    print_r($output);
+                    echo "$return_var\n";
+
+                    if ($return_var == 0) {
+                        $success = true;
+                        echo "Success scanning with template: $template\n";
+                        break;
+                    } else {
+                        echo "Failure with template: $template\n";
+                    }
+                }
+
+                //if success read the CSV which in turn will write everything into the DB and sync with Omega
+                if ($success) {
                     echo "Success running OMR\n";
                     $arraypaperattendance_read_csv = array();
                     $arraypaperattendance_read_csv = \paperattendance_read_csv(glob("{$path}/jpgs/*.csv")[0], $path, $filename, $uploaderobj);
@@ -109,9 +132,8 @@ class processpdf extends \core\task\adhoc_task
                     if ($arraypaperattendance_read_csv[1] != null) {
                         $pagesWithErrors[$arraypaperattendance_read_csv[1]->pagenumber] = $arraypaperattendance_read_csv[1];
                     }
-                    $countprocessed += $processed;
+                    $countprocessed++;
                 } else {
-                    //meaning that the timeout was reached, save that page with status unprocessed
                     echo "Failure running OMR\n";
                     $sessionpageid = \paperattendance_save_current_pdf_page_to_session($i, null, null, $filename, 0, $uploaderobj->id, time());
 
@@ -120,7 +142,8 @@ class processpdf extends \core\task\adhoc_task
                     $errorpage->pagenumber = $i;
                     $pagesWithErrors[$errorpage->pagenumber] = $errorpage;
                 }
-                unlink("$path/jpgs/$i.jpg");
+
+                unlink("$path/jpgs/$i.png");
             }
             unlink("$path/jpgs/temp.pdf");
 
