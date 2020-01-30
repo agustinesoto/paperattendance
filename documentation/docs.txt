@@ -1,10 +1,37 @@
 A little bit of documentation about paper I wrote for myself
 
 First beware: understand the difference between sessions, modules and attendances.
-A session is a single class, a class can span through multiple modules.
+A session is a single class, a class in theory can span through multiple modules.
 An attendance (or presence) is a single student going (or not) to a single module of a single session. Each attendance gets an OmegaID when synced which is used to update the attendance later if needed.
 
 ===================================
+WORKFLOW
+The secretaries print all PDFs for the day, they give the relevant pages to each teacher.
+The teacher then fills the pages and at the end of the day hands the pages back to the secretaries.
+The secretaries scan all the pages and make huge PDFs they scan and upload to paper
+Paper scans and processes the PDFs, and then syncs everything with Omega
+
+===================================
+PAGES
+
+-attendance.php: to pass online attendance
+-discussion.php: For students to discussion their (in)assistances and teachers to close the discussion?
+-export.php: probably to export the history attendances as excel
+-history.php: to see the sessions and the assistances in each session, also shows if sync with omega
+-lib.php: a moodle function to handle files apparently
+-locallib.php: A lot of functions used everywhere
+-missingpages.php: shows the missing pages and manually processing them
+-modules.php: to edit the time modules
+-print.php: for printing pdfs for a single class
+-printsearch.php: for printing multiple pdfs for multiple classes
+-quickprint.php: server side for printsearch, sends a pdf for all modules of a class in the day
+-carprint.php: server side for printsearch.php, it sends a pdf for the classes and modules selected
+-summary.php: ???
+-settings.php: the settings, ex: the max time for a student to come late (I dont know where that info is used though), configurable through Site Administration->Plugins->Local Plugins->PaperAttendance
+-upload.php: upload a PDF after being filled in class
+
+===================================
+OMEGA 
 
 Omega has 3 functions to communicate with Paperattendance
 -Create attendance, which creates a session and sends the attendances of all the students in multiple modules, then returns an id per attendance
@@ -13,8 +40,8 @@ Omega has 3 functions to communicate with Paperattendance
 -Get modulos, this one reads the modules from a class to preselect modules when the teacher is going to create a print
 
 ====================================
+AJAX FUNCTIONS:
 
-AJAX functions:
 1: Get Modulos horarios (curlgetmoduloshorario)
 This functions pulls the time modules from omega
 
@@ -44,3 +71,14 @@ I think this reads the db to see if a page was processed or not, regarldess its 
 
 9: Save insert student (saveinsertstudent), used in history.php 
 It saves an array of students to the db and then syncs them to omega
+
+====================================
+TASKS:
+
+There are 4 tasks, 3 are scheduled tasks which run at specified times, 1 is an ad-hoc task that is queued from the code.
+-cleantemp.php, deletes everything in the print and unread/jpgs folder.
+-omegasync.php, syncs unsynced courses and students
+-presence.php, unkown, probably something to do with insert students?
+-processpdf.php, the only ad-hoc task, is queued on upload.php when a pdf is uploaded. It is run the next time the moodle cron is executed, it processes uploaded pdfs, scanning and registering everything.
+
+To run the scheduled tasks configure moodle to allow to run the tasks from the web interface, to run processpdf upload a pdf and either run the moodle cron with php (moodle/admin/cli/cron.php) or run it through the browser (http://$url/admin/cron.php)

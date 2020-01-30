@@ -1,2 +1,0 @@
-on multi page lists if one of the lists is lost it cant be recovered and some students dont have records
-Insert students can fix this
