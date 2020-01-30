@@ -2,9 +2,6 @@
 Moodle plugin 
 
 ------------------------------------------
-Paper Attendance activity for Moodle 3.5
-Version: 1.1
-------------------------------------------
 
 Authors:
 * Hans Jeria (hansjeria@gmail.com)
@@ -16,15 +13,15 @@ Authors:
 Release notes
 -------------
 
-1.1: New version with multiple bugfixes (written and tested on Moodle 3.5)
-1.0: First official deploy (written and tested on Moodle 2.6)
+- 1.1: New version with multiple bugfixes (written and tested on Moodle 3.5)
+- 1.0: First official deploy (written and tested on Moodle 2.6)
 
 Introduction
 ------------
 
 The paper attendance project began its development in July 2016 to give a definitive solution to the problem of registering attendance for teachers. Nowadays there is only one plugin for Moodle that allows the taking of assists, but its use requires a previous management of Webcourses by the teacher that wants to use it, besides the assistance must be taken from the platform.
 
-Thus, the main idea of paper attendance is that teachers have an effective and simple method so that they can take the attendance in their classes, without having to have much knowledge of the applications of Webcourses or of what this allows them to do, so just mark in the paper course list the students present, deliver the paper to the secretaries who must digitize and upload to the platform, this way, will automatically take the paper assitance to an online registration in both Webcourses and Omega.
+Thus, the main idea of paper attendance is that teachers have an effective and simple method so that they can take the attendance in their classes, without having to have much knowledge of the applications of Webcourses or of what this allows them to do, so just mark in the paper course list the students present, deliver the paper to the secretaries who must digitize and upload to the platform, this way, will automatically take the paper assistance to an online registration in both Webcourses and Omega.
 
 Installation
 ------------
