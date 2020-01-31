@@ -268,7 +268,9 @@ $string['printersettings'] = "
 		<li> Resolucion: 600ppi </li>
         <li> Colores: Escala de grises </li>
         <li> Tamaño: Carta </li>
-        <li> Asegurese de que la hoja este bien alineada durante el escaneo </li>
+        <li> No pase la hoja a los alumnos, el profesor debe marcar la hoja </li>
+        <li> <strong> No marque afuera de los margenes </strong> </li>
+        <li> Asegurese de que la hoja este <strong> bien alineada </strong> durante el escaneo </li>
         <li> Asegurese de que la hoja este en buen estado </li>
     </ul>
 </div>

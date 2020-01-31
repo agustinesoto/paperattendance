@@ -1361,7 +1361,10 @@ function paperattendance_read_csv($file, $path, $pdffilename, $uploaderobj){
 						$presences++;
 					}
 				}
-				if(false && $presences == 0) //lets disable this for the time being
+				/*
+				If everyone absent send to missing pages automatically
+				Beware: the next if should be an else if
+				if($presences == 0) //lets disable this for the time being
 				{
 					mtrace("Error: Everyone absent, potential problem with scanning, dumping page to missing by default");
 					$sessionpageid = paperattendance_save_current_pdf_page_to_session($pdfpage, null, null, $pdffilename, 0, $uploaderobj->id, time());
@@ -1371,8 +1374,8 @@ function paperattendance_read_csv($file, $path, $pdffilename, $uploaderobj){
 					$errorpage->pageid = $sessionpageid;
 
 					$return++;
-				}
-				else if($qrcode)
+				}*/
+				if($qrcode)
 				{
 					//If stop is not false, it means that we could read one qr
 					mtrace("qr found");
@@ -1708,11 +1711,16 @@ function paperattendance_omegacreateattendance($courseid, $arrayalumnos, $sessid
             // get student id from its username
             $username = $alumno->emailAlumno;
             if ($studentid = $DB->get_record("user", array("username" => $username))) {
-                $studentid = $studentid->id;
-
-                //save student sync
-                $sqlsyncstate = "UPDATE {paperattendance_presence} SET omegasync = ?, omegaid = ? WHERE sessionid  = ? AND userid = ?";
-                $studentid = $DB->execute($sqlsyncstate, array('1', $omegasessionid, $sessid, $studentid));
+				$studentid = $studentid->id;
+				
+				//check if omegaid already exists
+				if($DB->record_exists("paperattendance_presence", array("omegaid" => $omegasessionid)))
+				{
+					echo "Fatal Error: Omega ID already exists!\n";
+				}
+               	//save student sync
+               	$sqlsyncstate = "UPDATE {paperattendance_presence} SET omegasync = ?, omegaid = ? WHERE sessionid  = ? AND userid = ?";
+               	$studentid = $DB->execute($sqlsyncstate, array('1', $omegasessionid, $sessid, $studentid));
             }
         }
 	}
@@ -1807,8 +1815,9 @@ function paperattendance_curl($url, $fields, $log = true)
 
     //store execution time in seconds if logging is enabled
     if ($log) {
-        $executionTime = time() - $initialTime;
-        paperattendance_cronlog($url, $result, $initialTime, $executionTime);
+		$executionTime = time() - $initialTime;
+		paperattendance_cronlog($url, "Sent: " . json_encode($fields), $initialTime, $executionTime);
+        paperattendance_cronlog($url, "Received: " . $result, $initialTime, $executionTime);
     }
 
     return $result;

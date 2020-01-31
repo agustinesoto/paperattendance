@@ -75,7 +75,7 @@ class processpdf extends \core\task\adhoc_task
                 $image = new \Imagick();
                 $image->setResolution(300, 300);
                 $image->readImage("$path/jpgs/temp.pdf");
-                $image->setImageFormat('png');
+                $image->setImageFormat('jpeg');
                 $image->setImageCompression(\Imagick::COMPRESSION_JPEG);
                 $image->setImageCompressionQuality(100);
 
@@ -83,21 +83,26 @@ class processpdf extends \core\task\adhoc_task
                     $image->setImageAlphaChannel(12);
                     $image->setImageBackgroundColor('white');
                 }
-                $image->writeImage("$path/jpgs/$i.png");
+                $image->transformImageColorspace(\Imagick::CHANNEL_GRAY);
+                $image->writeImage("$path/jpgs/$i.jpeg");
                 $image->destroy();
 
+                /*
                 //crop image
+                //this cropping barely works, dont recommend it
+                //when it works successfully the template 2 will likely crash and drop to the template 1 which is worse
                 $image = imagecreatefrompng("$path/jpgs/$i.png");
                 $cropped = imagecropauto($image, IMG_CROP_DEFAULT);
                 if ($cropped != false) {
                     imagedestroy($image);
                     $image = $cropped;
                     imagepng($image, "$path/jpgs/$i.png");
-                }
+                }*/
 
                 //process the PDF with an arbitrary number of templates
                 //any new templates add here
-                $templates = ["template-1.xtmpl", "template-2.xtmpl"];
+                //the template 1 might crash less but its significantly less precise.
+                $templates = ["template-2.xtmpl", "template-1.xtmpl"];
                 $formscanner_jar = "$CFG->dirroot/local/paperattendance/formscanner-1.1.4-bin/lib/formscanner-main-1.1.4.jar";
                 $formscanner_path = "$path/jpgs/";
 
@@ -143,7 +148,7 @@ class processpdf extends \core\task\adhoc_task
                     $pagesWithErrors[$errorpage->pagenumber] = $errorpage;
                 }
 
-                unlink("$path/jpgs/$i.png");
+                //unlink("$path/jpgs/$i.png");
             }
             unlink("$path/jpgs/temp.pdf");
 

@@ -70,15 +70,24 @@ class omegasync extends \core\task\scheduled_task
                         echo "Synced session: $session->id\n";
                     } else {
                         echo "Failed to sync session: $session->id\n";
+                        //should we continue to attempt to sync the session?
                     }
                 } else {
+                    //this error means that there are no students in the session
+                    //I'm not sure how it could happen
+                    //if the teacher inserts a student later it will be synced manually by the second part, so there is no problem in just never trying again to sync this session
                     echo "ERROR: The session $session->id doesnt exists in the presence table\n";
+
+                    //dont try to sync again, it wont work.
+                    $session->status = PAPERATTENDANCE_STATUS_SYNC;
+                    $DB->update_record("paperattendance_session", $session);
                 }
             }
         }
 
         //SECOND PART
         //Syncs unsynced presences (omegasync 0)
+        //As far as I can tell this is mostly for inserted students, since their courses have already been synced and wont be synced again.
 
         echo "\n= Sync presences =\n";
 

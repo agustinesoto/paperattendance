@@ -27,7 +27,7 @@ PAGES
 -quickprint.php: server side for printsearch, sends a pdf for all modules of a class in the day
 -carprint.php: server side for printsearch.php, it sends a pdf for the classes and modules selected
 -summary.php: ???
--settings.php: the settings, ex: the max time for a student to come late (I dont know where that info is used though), configurable through Site Administration->Plugins->Local Plugins->PaperAttendance
+-settings.php: the settings, ex: the max time for a student to come late (I dont know where that setting is used though), configurable through Site Administration->Plugins->Local Plugins->PaperAttendance
 -upload.php: upload a PDF after being filled in class
 
 ===================================
@@ -36,7 +36,7 @@ OMEGA
 Omega has 3 functions to communicate with Paperattendance
 -Create attendance, which creates a session and sends the attendances of all the students in multiple modules, then returns an id per attendance
 (this function is mostly the paperattendance_omegacreateattendance in locallib.php)
--Update attendance, which using the id that omega returned with create attendance to update a single user attendance
+-Update attendance, which using the id that omega returned with create attendance to update a single user attendance, it seems it can also be used to create a single attendance
 -Get modulos, this one reads the modules from a class to preselect modules when the teacher is going to create a print
 
 ====================================

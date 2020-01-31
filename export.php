@@ -86,17 +86,17 @@ if ($formdata = $exportform->get_data()) {
     $parameters = array_merge(array($course->id), $paramenrol);
     $querystudent =
         "SELECT u.id,
-			u.email,
-			u.firstname,
-			u.lastname
-			FROM {user_enrolments} ue
-			INNER JOIN {enrol} e ON (e.id = ue.enrolid AND e.courseid = ?)
-			INNER JOIN {context} c ON (c.contextlevel = 50 AND c.instanceid = e.courseid)
-			INNER JOIN {role_assignments} ra ON (ra.contextid = c.id AND ra.roleid = $CFG->paperattendance_studentrole AND ra.userid = ue.userid)
-			INNER JOIN {user} u ON (ue.userid = u.id)
-			WHERE e.enrol $enrolmethod
-			GROUP BY u.id
-			ORDER BY lastname, firstname, id ASC";
+		u.email,
+		u.firstname,
+		u.lastname
+		FROM {user_enrolments} ue
+		INNER JOIN {enrol} e ON (e.id = ue.enrolid AND e.courseid = ?)
+		INNER JOIN {context} c ON (c.contextlevel = 50 AND c.instanceid = e.courseid)
+		INNER JOIN {role_assignments} ra ON (ra.contextid = c.id AND ra.roleid = $CFG->paperattendance_studentrole AND ra.userid = ue.userid)
+		INNER JOIN {user} u ON (ue.userid = u.id)
+		WHERE e.enrol $enrolmethod
+		GROUP BY u.id
+		ORDER BY lastname, firstname, id ASC";
 
     $studentlist = $DB->get_records_sql($querystudent, $parameters);
     $list = new stdClass();
@@ -119,14 +119,14 @@ if ($formdata = $exportform->get_data()) {
     $parametros = array_merge($parametros, array($formdata->initdate, $formdata->enddate));
     $getsessions =
         "SELECT s.id,
-			sm.date,
-			CONCAT( m.initialtime, '-', m.endtime) AS hour,
-			s.description AS description
-			FROM {paperattendance_session} AS s
-			INNER JOIN {paperattendance_sessmodule} AS sm ON (s.id = sm.sessionid)
-			INNER JOIN {paperattendance_module} AS m ON (sm.moduleid = m.id)
-			WHERE s.description $selectedtypes AND s.courseid = ? AND sm.date BETWEEN ? AND ?
-			ORDER BY sm.date ASC";
+		sm.date,
+		CONCAT( m.initialtime, '-', m.endtime) AS hour,
+		s.description AS description
+		FROM {paperattendance_session} AS s
+		INNER JOIN {paperattendance_sessmodule} AS sm ON (s.id = sm.sessionid)
+		INNER JOIN {paperattendance_module} AS m ON (sm.moduleid = m.id)
+		WHERE s.description $selectedtypes AND s.courseid = ? AND sm.date BETWEEN ? AND ?
+		ORDER BY sm.date ASC";
 
     $sessions = $DB->get_records_sql($getsessions, $parametros);
     //sql in for presences of studdents for each session
@@ -139,11 +139,12 @@ if ($formdata = $exportform->get_data()) {
         //get session attendances
         $getpresences =
             "SELECT  u.id,
-				IFNULL(p.status,0) AS status
-				FROM {paperattendance_presence} AS p
-				RIGHT JOIN {user} AS u ON (u.id = p.userid AND p.sessionid = ?)
-				WHERE u.id $studentids
-				ORDER BY u.lastname, u.firstname, u.id ASC";
+			IFNULL(p.status,0) AS status
+			FROM {paperattendance_presence} AS p
+			RIGHT JOIN {user} AS u ON (u.id = p.userid AND p.sessionid = ?)
+			WHERE u.id $studentids
+			ORDER BY u.lastname, u.firstname, u.id ASC";
+
         $presences = $DB->get_records_sql($getpresences, $params);
         $sess = array();
         foreach ($presences as $presence) {
@@ -157,11 +158,11 @@ if ($formdata = $exportform->get_data()) {
         $paramscountpercentage = array_merge(array($course->id), $paramstatus, array($course->id), $paramstatus, array($studentid));
         $sqlpercentage =
             "SELECT ROUND((COUNT(*)/
-				(SELECT COUNT(*)
-				FROM {paperattendance_session} s
-				WHERE s.courseid = ? AND s.status $statusprocessed))*100,0) AS percentage
-				FROM {paperattendance_session} s
-				INNER JOIN {paperattendance_presence} p ON (s.id = p.sessionid AND s.courseid =? AND s.status $statusprocessed AND p.userid= ? AND p.status=1)";
+			(SELECT COUNT(*)
+			FROM {paperattendance_session} s
+			WHERE s.courseid = ? AND s.status $statusprocessed))*100,0) AS percentage
+			FROM {paperattendance_session} s
+			INNER JOIN {paperattendance_presence} p ON (s.id = p.sessionid AND s.courseid =? AND s.status $statusprocessed AND p.userid= ? AND p.status=1)";
 
         $totalpercentage[] = ($DB->get_record_sql($sqlpercentage, $paramscountpercentage)->percentage) . "%";
     }

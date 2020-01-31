@@ -267,7 +267,9 @@ $string['printersettings'] = "
 	<ul>
 		<li> Resolution: 600ppi </li>
 		<li> Colors: Grayscale </li>
-		<li> Size: Letter </li>
+        <li> Size: Letter </li>
+        <li> Don't let the students mark the sheet, the teacher must mark it </li>
+        <li> <strong> Do not mark outside of the margins </strong> </li>
         <li> Make sure the sheet is aligned during scanning </li>
         <li> Keep the sheet in good shape </li>
     </ul>
