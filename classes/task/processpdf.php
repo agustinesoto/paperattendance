@@ -83,7 +83,6 @@ class processpdf extends \core\task\adhoc_task
                     $image->setImageAlphaChannel(12);
                     $image->setImageBackgroundColor('white');
                 }
-                $image->transformImageColorspace(\Imagick::CHANNEL_GRAY);
                 $image->writeImage("$path/jpgs/$i.jpeg");
                 $image->destroy();
 
@@ -148,7 +147,7 @@ class processpdf extends \core\task\adhoc_task
                     $pagesWithErrors[$errorpage->pagenumber] = $errorpage;
                 }
 
-                //unlink("$path/jpgs/$i.png");
+                unlink("$path/jpgs/$i.png");
             }
             unlink("$path/jpgs/temp.pdf");
 
