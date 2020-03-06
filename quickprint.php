@@ -106,7 +106,7 @@ if (paperattendance_checktoken($CFG->paperattendance_omegatoken)){
 	}
 	
 	$teachersparam = array(
-		3,
+        $CFG->paperattendance_profesoreditorrole,
 		$courseid,
 		'database'
 	);
