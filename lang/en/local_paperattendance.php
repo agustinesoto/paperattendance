@@ -273,3 +273,13 @@ $string["paperattendance:history"] = "View history attendance";
 $string["paperattendance:manageattendance"] = "Setting paper attendance";
 $string["paperattendance:modules"] = "Manage modules";
 $string["paperattendance:teacherview"] = "Teacher view";
+
+//Config User Roles
+$string['studentrole']="Rol Id Student";
+$string['studentroletext']="Rol Id Student";
+
+$string['professoreditor']="Rol Id Professor";
+$string['professoreditortext']="Rol Id Professor";
+
+$string['professornoeditor']="Role Id Assistant Corrector";
+$string['professornoeditortext']="Role Id Assistant Corrector (profesornoeditor)";

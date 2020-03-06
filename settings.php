@@ -210,4 +210,37 @@ if ($hassiteconfig) {
 					PARAM_INT
 					)
 			);
+
+    //Student role Parameter
+    $settings->add(
+        new admin_setting_configtext(
+            'paperattendance_studentrole',
+            get_string('studentrole', 'local_paperattendance'),
+            get_string('studentroletext', 'local_paperattendance'),
+            5,
+            PARAM_INT
+        )
+    );
+
+    //ProfesorEditor role Parameter
+    $settings->add(
+        new admin_setting_configtext(
+            'paperattendance_profesoreditorrole',
+            get_string('professoreditor', 'local_paperattendance'),
+            get_string('professoreditortext', 'local_paperattendance'),
+            3,
+            PARAM_INT
+        )
+    );
+
+    //ProfesorNoEditor role Parameter
+    $settings->add(
+        new admin_setting_configtext(
+            'paperattendance_profesornoeditorrole',
+            get_string('professornoeditor', 'local_paperattendance'),
+            get_string('professornoeditortext', 'local_paperattendance'),
+            4,
+            PARAM_INT
+        )
+    );
 }

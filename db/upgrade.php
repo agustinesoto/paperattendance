@@ -650,8 +650,29 @@ function xmldb_local_paperattendance_upgrade($oldversion) {
 	    // Paperattendance savepoint reached.
 	    upgrade_plugin_savepoint(true, 2018122601, 'local', 'paperattendance');
 	}
-	
-	
-	
+
+    if ($oldversion < 2019112700) {
+
+        // Define table paperattendance_missingpages to be created.
+        $table = new xmldb_table('paperattendance_missingpages');
+
+        // Adding fields to table paperattendance_missingpages.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('sessionpagesid', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('timeprocessed', XMLDB_TYPE_INTEGER, '20', null, null, null, null);
+
+        // Adding keys to table paperattendance_missingpages.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table->add_key('sessionpagesid', XMLDB_KEY_FOREIGN, array('sessionpagesid'), 'sessionpages', array('id'));
+
+        // Conditionally launch create table for paperattendance_missingpages.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Paperattendance savepoint reached.
+        upgrade_plugin_savepoint(true, 2019112700, 'local', 'paperattendance');
+    }
+
 	return true;
 }
