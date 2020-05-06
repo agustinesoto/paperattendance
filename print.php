@@ -211,7 +211,7 @@ if($action == "download" && isset($attendancepdffile)){
 		" ", 
 		array(
 			"src" => $url,
-			"style" => "height:75vh; width:60vw"
+			"style" => "height:100vh; width:100%"
 		)
 	);
 

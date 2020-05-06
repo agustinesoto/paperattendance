@@ -215,7 +215,7 @@ if ($action == "view") {
 		echo $OUTPUT->header();
 		echo $OUTPUT->heading(get_string("viewmissingtitle", "local_paperattendance"));
 
-		echo("<p> Total paginas perdidas: $countmissing </p>");
+		echo("<p> get_string('totalmissing', 'local_paperattendance'): $countmissing </p>");
 
 		echo html_writer::table($missingtable);
 		//displays de pagination bar
@@ -389,7 +389,7 @@ if ($action == "edit") {
 							.form-control:-ms-input-placeholder { color: lightgrey; }  /* Internet Explorer 10-11 */
 							.form-control::-ms-input-placeholder { color: lightgrey; }  /* Microsoft Edge *
 							</style>');
-	echo html_writer::div(get_string("missingpageshelp","local_paperattendance"),"alert alert-info", array("role"=>"alert", "id"=>"alerthelp"));
+	//echo html_writer::div(get_string("missingpageshelp","local_paperattendance"),"alert alert-info", array("role"=>"alert", "id"=>"alerthelp"));
   	$pdfarea = html_writer::div($viewerpdf,"col-md-12", array( "id"=>"pdfviewer"));
   	$inputarea = html_writer::div($inputs,"col-sm-12 row", array( "id"=>"inputs"));
  	echo html_writer::div($inputarea.$pdfarea, "form-group");

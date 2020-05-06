@@ -193,6 +193,7 @@ $string['waitnextmodule'] = "Para poder tomar asistencia debe esperar a que comi
 $string['attendancesaved'] = "Asistencia guardada correctamente.";
 $string['alertinfodigitalattendance'] = "<strong>¡Atención!</strong> No podrá pasar asistencia para el módulo actual después que este haya finalizado.";
 $string['setting']="Configuracion";
+$string['totalmissing']="Total páginas perdidas";
 
 
 //messages
@@ -263,15 +264,15 @@ $string['currentassistance']="Asistencia Actual";
 
 $string['printersettings'] = "	
 <div>
-    <p> Recuerde la configuracion de la impresora y escaner: </p>
+    <p> Recuerde la configuración de la impresora y escaner: </p>
 	<ul>
-		<li> Resolucion: 600ppi </li>
+		<li> Resolución: 600ppi </li>
         <li> Colores: Escala de grises </li>
         <li> Tamaño: Carta </li>
         <li> No pase la hoja a los alumnos, el profesor debe marcar la hoja </li>
-        <li> <strong> No marque afuera de los margenes </strong> </li>
-        <li> Asegurese de que la hoja este <strong> bien alineada </strong> durante el escaneo </li>
-        <li> Asegurese de que la hoja este en buen estado </li>
+        <li> <strong> No marque afuera de los márgenes </strong> </li>
+        <li> Asegúrese de que la hoja este <strong> bien alineada </strong> durante el escaneo </li>
+        <li> Asegúrese de que la hoja este en buen estado </li>
     </ul>
 </div>
 ";

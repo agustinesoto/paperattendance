@@ -192,6 +192,7 @@ $string['attendancealreadytaken'] = "Assistance has already been taken in the cu
 $string['waitnextmodule'] = "To be able to take assistance you must wait for the <strong>next module</strong> to start.";
 $string['attendancesaved'] = "Attendance saved correctly.";
 $string['alertinfodigitalattendance'] = "<strong>Attention!</strong> You can not take the attendance for the current module after it has finished.";
+$string['totalmissing']="Missing pages";
 
 
 //messages
