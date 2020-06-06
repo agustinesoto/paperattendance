@@ -110,7 +110,7 @@ $url = moodle_url::make_pluginfile_url($context->id, 'local_paperattendance', 'd
 $viewerpdf = html_writer::nonempty_tag("iframe", " ", array(
 		"id" => "pdf-iframe",
 		"src" => $url,
-		"style" => "height:50vh; width:100%"
+		"style" => "flex-grow: 1"
 ));
 $reminder = get_string("printersettings", "local_paperattendance");
 $downloadText = get_string("downloadprint", "local_paperattendance");

@@ -260,7 +260,7 @@ $pdfmodal = "
 				<h4 class='modal-title' id='pdfModalLabel'>Listas pdf</h4>
 			</div>
 			<div class='modal-body'>
-				<div class='pdflists' style='max-height: 80vh; display:flex; flex-direction: column; align-items: start;'></div>
+				<div class='pdflists' style='display:flex; flex-direction: column; height: 80vh;'></div>
 			</div>
 		</div>
 	</div>
