@@ -83,7 +83,7 @@ $fields = array(
 $result = paperattendance_curl($url, $fields, false);
 $modules = json_decode($result);
 
-if (count($modules) == 0) {
+if (!is_array($modules) || count($modules) == 0) {
     echo get_string("nothingtoprint", "local_paperattendance");
     die();
 }
@@ -202,7 +202,7 @@ $downloadText = get_string("downloadprint", "local_paperattendance");
 
 echo("
     $reminder
-    <a href='$url' style='margin-bottom: 15px' target='_blank' rel='noopener noreferrer' class='btn btn-primary'> $downloadText </a>
+    <a href='$url' style='margin-bottom: 15px; width: fit-content;' target='_blank' rel='noopener noreferrer' class='btn btn-primary'> $downloadText </a>
     $viewerpdf
 ");
 

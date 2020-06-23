@@ -1,0 +1,2 @@
+-improve file deletion (in particular lost pdfs are not deleted when deleted)
+-move pdf log to file instead of DB
