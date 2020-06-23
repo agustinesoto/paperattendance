@@ -83,16 +83,16 @@ foreach ($resources as $pdf) {
         $image->destroy();
 
         /*
-                //crop image
-                //this cropping barely works, dont recommend it
-                //when it works successfully the template 2 will likely crash and drop to the template 1 which is worse
-                $image = imagecreatefrompng("$path/jpgs/$i.png");
-                $cropped = imagecropauto($image, IMG_CROP_DEFAULT);
-                if ($cropped != false) {
-                    imagedestroy($image);
-                    $image = $cropped;
-                    imagepng($image, "$path/jpgs/$i.png");
-                }*/
+        //crop image
+        //this cropping barely works, dont recommend it
+        //when it works successfully the template 2 will likely crash and drop to the template 1 which is worse
+        $image = imagecreatefrompng("$path/jpgs/$i.png");
+        $cropped = imagecropauto($image, IMG_CROP_DEFAULT);
+        if ($cropped != false) {
+            imagedestroy($image);
+            $image = $cropped;
+            imagepng($image, "$path/jpgs/$i.png");
+        }*/
 
         //process the PDF with an arbitrary number of templates
         //any new templates add here
@@ -143,7 +143,7 @@ foreach ($resources as $pdf) {
             $pagesWithErrors[$errorpage->pagenumber] = $errorpage;
         }
 
-        unlink("$path/jpgs/$i.png");
+        unlink("$path/jpgs/$i.jpeg");
     }
     unlink("$path/jpgs/temp.pdf");
 

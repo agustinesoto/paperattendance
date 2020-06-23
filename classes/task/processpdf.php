@@ -147,7 +147,7 @@ class processpdf extends \core\task\adhoc_task
                     $pagesWithErrors[$errorpage->pagenumber] = $errorpage;
                 }
 
-                unlink("$path/jpgs/$i.png");
+                unlink("$path/jpgs/$i.jpeg");
             }
             unlink("$path/jpgs/temp.pdf");
 
