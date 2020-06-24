@@ -1,0 +1,19 @@
+.pdflists {
+    display:flex; 
+    flex-direction: column;
+}
+
+#download-button {
+    margin-bottom: 15px;
+    width: fit-content;
+}
+
+#pdf-iframe {
+    flex-grow: 1;
+}
+
+@media only screen and (min-height: 700px) {
+    .pdflists {
+        height: 80vh;
+    }
+}

@@ -187,6 +187,8 @@ $PAGE->requires->jquery_plugin ( 'ui' );
 $PAGE->requires->jquery_plugin ( 'ui-css' );
 $PAGE->requires->js( new moodle_url('https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js') );
 $PAGE->requires->css( new moodle_url('https://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css') );
+$PAGE->requires->css( new moodle_url('printsearch.css'));
+
 
 $coursecount = $page*$perpage+1;
 foreach($courses as $course){
@@ -260,7 +262,7 @@ $pdfmodal = "
 				<h4 class='modal-title' id='pdfModalLabel'>Listas pdf</h4>
 			</div>
 			<div class='modal-body'>
-				<div class='pdflists' style='display:flex; flex-direction: column; height: 80vh;'></div>
+				<div class='pdflists'></div>
 			</div>
 		</div>
 	</div>

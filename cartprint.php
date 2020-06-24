@@ -109,14 +109,13 @@ $fileinfo = $fs->create_file_from_pathname($file_record, $attendancepdffile);
 $url = moodle_url::make_pluginfile_url($context->id, 'local_paperattendance', 'draft', 0, '/', "paperattendance_".$timepdf.".pdf");
 $viewerpdf = html_writer::nonempty_tag("iframe", " ", array(
 		"id" => "pdf-iframe",
-		"src" => $url,
-		"style" => "flex-grow: 1"
+		"src" => $url
 ));
 $reminder = get_string("printersettings", "local_paperattendance");
 $downloadText = get_string("downloadprint", "local_paperattendance");
 
 echo ("
     $reminder
-	<a href='$url' style='margin-bottom: 15px;width: fit-content;' target='_blank' rel='noopener noreferrer' class='btn btn-primary'> $downloadText </a>
+	<a href='$url' id='download-button' target='_blank' rel='noopener noreferrer' class='btn btn-primary'> $downloadText </a>
     $viewerpdf
 ");
