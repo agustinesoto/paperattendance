@@ -129,6 +129,10 @@ if ($addform->get_data()) {
 		}
 	}
 	$action = "viewmessages";
+
+	//queue the pdf processing task after uploading the pdf
+	$task = new \local_paperattendance\task\processpdf();
+	\core\task\manager::queue_adhoc_task($task);
 }
 // If there is no data or is it not cancelled show the header, the tabs and the form.
 echo $OUTPUT->header();

@@ -185,7 +185,7 @@ if ($action == "view") {
 			$scanurl_attendance = new moodle_url("/local/paperattendance/missingpages.php", array(
 					"action" => "scan",
 					"pdfname" => $miss->pdfname,
-					"page" => ($miss->pagenum +1)
+					"page" => ($miss->pagenum)
 			));
 			$scanicon_attendance = new pix_icon("e/new_document", get_string('see', 'local_paperattendance'));
 			$scanaction_attendance = $OUTPUT->action_icon(
@@ -203,7 +203,7 @@ if ($action == "view") {
 			$missingtable->data [] = array(
 					$counter,
 					$scanaction_attendance,
-					$miss->pagenum +1,
+					$miss->pagenum,
 					$dateconverted,
 					$username,
 					$deleteactionmissing . $editactionmissing);
@@ -214,6 +214,9 @@ if ($action == "view") {
 		$PAGE->set_heading(get_string("viewmissing", "local_paperattendance"));
 		echo $OUTPUT->header();
 		echo $OUTPUT->heading(get_string("viewmissingtitle", "local_paperattendance"));
+
+		$totalmissing = get_string('totalmissing', 'local_paperattendance');
+		echo("<p> $totalmissing: $countmissing </p>");
 
 		echo html_writer::table($missingtable);
 		//displays de pagination bar
@@ -234,9 +237,6 @@ if ($action == "edit") {
 			$path = $CFG -> dataroot. "/temp/local/paperattendance";
 			$attendancepdffile = $path . "/print/paperattendance_".$sesspageid."_".$timepdf.".pdf";
 
-			//$pdfpath = $CFG -> dataroot. "/temp/local/paperattendance/unread/".$session->pdfname;
-			//$viewerstart = $session->pagenum + 1;
-
 			$pdf = new FPDI();
 			$hashnamesql = "SELECT contenthash
 							FROM {files}
@@ -247,7 +247,7 @@ if ($action == "edit") {
 				$f1 = substr($newpdfname, 0 , 2);
 				$f2 = substr($newpdfname, 2, 2);
 				$filepath = $f1."/".$f2."/".$newpdfname;
-				$pages = $session->pagenum + 1;
+				$pages = $session->pagenum;
 
 				$originalpdf = $CFG -> dataroot. "/filedir/".$filepath;
 					
@@ -390,7 +390,7 @@ if ($action == "edit") {
 							.form-control:-ms-input-placeholder { color: lightgrey; }  /* Internet Explorer 10-11 */
 							.form-control::-ms-input-placeholder { color: lightgrey; }  /* Microsoft Edge *
 							</style>');
-	echo html_writer::div(get_string("missingpageshelp","local_paperattendance"),"alert alert-info", array("role"=>"alert", "id"=>"alerthelp"));
+	//echo html_writer::div(get_string("missingpageshelp","local_paperattendance"),"alert alert-info", array("role"=>"alert", "id"=>"alerthelp"));
   	$pdfarea = html_writer::div($viewerpdf,"col-md-12", array( "id"=>"pdfviewer"));
   	$inputarea = html_writer::div($inputs,"col-sm-12 row", array( "id"=>"inputs"));
  	echo html_writer::div($inputarea.$pdfarea, "form-group");
@@ -480,6 +480,8 @@ echo $OUTPUT->footer();
 </script>
 
 <script>
+//check here to fix continue button
+
 var sessinfo = [];
 //When submit button in the form is clicked
 $( "#confirm" ).on( "click", function() {
@@ -491,16 +493,26 @@ $( "#confirm" ).on( "click", function() {
 	var pdfviewer = '<?php echo $viewerpdftres; ?>';
 	var backbutton = '<?php echo preg_replace("/[\r\n|\n|\r]+/", " ", $viewbackbutton); ?>';
 	//Validate the four fields in the form
-	if (!course.val() || !date.val() || !module.val() || !begin.val() || (parseFloat(begin.val())-1+26)%26 != 0 || date.val() === date.val().split('-')[0] || module.val() === module.val().split(':')[0]) {
+	if 
+	(
+		!course.val() || 
+		!date.val() || 
+		!module.val() || 
+		!begin.val() || 
+		(parseFloat(begin.val())-1+26)%26 != 0 
+		|| date.val() === date.val().split('-')[0] 
+		|| module.val() === module.val().split(':')[0]
+	) 
+	{
 	    alert("Por favor, rellene todos los campos correctamente");
 	}
-	else {
+	else 
+	{
 		//AJAX to get the students list
 		$.ajax({
 			    type: 'GET',
-			    url: 'ajax/ajaxquerys.php',
+			    url: 'ajax/getliststudentspage.php',
 			    data: {
-				      'action' : 'getliststudentspage',
 				      'result' : course.val(),
 				      'begin' : parseFloat(begin.val()),
 				      'module' : module.val(),
@@ -520,9 +532,8 @@ $( "#confirm" ).on( "click", function() {
 						//AJAX to check if the page was processed
 			        	$.ajax({
 			        	    type: 'POST',
-			        	    url: 'ajax/ajaxquerys.php',
+			        	    url: 'ajax/checkprocesspage.php',
 			        	    data: {
-			        		      'action' : 'checkprocesspage',
 			        		      'sessinfo' : JSON.stringify(sessinfo)
 			        	    	},
 			        	    success: function (responsetwo) {
@@ -658,9 +669,8 @@ function RefreshSomeEventListener() {
 		$.ajax({
 		    type: 'GET',
 		    dataType:'JSON',
-		    url: 'ajax/ajaxquerys.php',
+		    url: 'ajax/savestudentsattendance.php',
 		    data: {
-			      'action' : 'savestudentsattendance',
 			      'sessinfo' : JSON.stringify(sessinfo),
 			      'studentsattendance' : JSON.stringify(studentsattendance)
 		    	},

@@ -50,7 +50,9 @@ function paperattendance_create_qr_image($qrstring , $path){
 /**
  * Get all students from a course, for list.
  *
- * @param unknown_type $courseid
+ * @param int $courseid
+ *
+ * @return mixed
  */
 function paperattendance_get_students_for_printing($course) {
 	global $DB;
@@ -71,9 +73,8 @@ function paperattendance_get_students_for_printing($course) {
 			GROUP BY u.id
 			ORDER BY lastname ASC";
 	$params = array($course->id, 50, 'student');
-	$rs = $DB->get_recordset_sql($query, $params);
-	
-	return $rs;
+
+    return $DB->get_recordset_sql($query, $params);
 }
 
 /**
@@ -244,15 +245,10 @@ function paperattendance_draw_student_list($pdf, $logofilepath, $course, $studen
 	$current = 1;
 	$pdf->SetFillColor(228, 228, 228);
 	$studentlist = array();
+	$fill = 0;
 	foreach($studentinfo as $stlist) {
 		
 		$pdf->SetXY($left, $top);
-		// Cell color
-		if($current%2 == 0){
-			$fill = 1;
-		}else{
-			$fill = 0;
-		}
 		// Number
 		$pdf->Cell(8, 8, $current, 0, 0, 'L', $fill);
 		// ID student
@@ -400,123 +396,6 @@ function paperattendance_drawcircles($pdf){
 	$pdf -> Rect($left + $width + 2, $top + $height -4, -12, 4, 'F', $borderstyle, $fillcolor);
 	$pdf->SetFillColor(228, 228, 228);
 
-}
-
-/**
- * Unused function to process a pdf 
- *
- * @param varchar $path
- *			Full path of the pdf
- * @param varchar $filename
- * 			Full name of the pdf
- * @param int $course
- * 			Course id
- */
-function paperattendance_readpdf($path, $filename, $course){
-	global $DB, $CFG;
-	
-	$return = array();
-	$return["result"] = "false";
-	$return["synced"] = "false";
-
-	$context = context_course::instance($course);
-	$objcourse = new stdClass();
-	$objcourse -> id = $course;
-	
-	$studentlist = paperattendance_get_printed_students($context ->id, $objcourse);	
-	$sessid = paperattendance_get_sessionid($filename);
-	
-	// pre process pdf
-	$pdf = new Imagick($path."/".$filename);
-	$pdftotalpages = (int)$pdf->getNumberImages();	
-	$pdfpages = array();
-	
-	//$debugpath = $CFG -> dirroot. "/local/paperattendance/test/";
-	for($numpage = 0; $numpage < $pdftotalpages; $numpage++){
-		$page = new Imagick();
-		$page->setResolution( 300, 300);
-		$page->readImage($path."/".$filename."[$numpage]");
-		if(PHP_MAJOR_VERSION < 7){
-			$page = $page->flattenImages(); 
-		}else{
-			$page->setImageBackgroundColor('white');
-			$page->setImageAlphaChannel(11);
-			$page->mergeImageLayers(imagick::LAYERMETHOD_FLATTEN);
-		}
-		$page->setImageType( imagick::IMGTYPE_GRAYSCALE );
-		$page->setImageFormat('png');
-		//$page->writeImage($debugpath."pdf_$numpage.pdf");
-		$pdfpages[] = $page;
-	}
-	
-	$countstudent = 1;
-	$numberpage = 0;
-	$factor = 0;
-	$arrayalumnos = array();
-	
-	foreach ($studentlist as $student){
-		$return["result"] = "true";
-		
-		// Page size
-		$height = $pdfpages[$numberpage]->getImageHeight();
-		$width = $pdfpages[$numberpage]->getImageWidth();
-		
-		if($numberpage == 0){
-			$attendancecircle = $pdfpages[$numberpage]->getImageRegion(
-					$width * 0.028,
-					$height * 0.019,
-					$width * 0.773,
-					$height * (0.182 + 0.02640 * $factor)
-			);
-			//$attendancecircle->writeImage($debugpath.'student_'.$countstudent.' * '.$student->name.'.png');
-			//echo "<br> Pagina 1: $numberpage estudiante $countstudent ".$student->name;
-	
-		}else{
-			$attendancecircle = $pdfpages[$numberpage]->getImageRegion(
-					$width * 0.028,
-					$height * 0.0195,
-					$width * 0.771,
-					$height * (0.160 + 0.02640 * $factor)
-			);
-			//$attendancecircle->writeImage($debugpath.'student_'.$countstudent.' * '.$student->name.'.png');	
-			//echo "<br> Pagina 2: $numberpage estudiante $countstudent ".$student->name;
-		}
-		
-		$line = array();
-		$line['emailAlumno'] = paperattendance_getusername($student->id);
-		$line['resultado'] = "true";
-		
-		$graychannel = $attendancecircle->getImageChannelMean(Imagick::CHANNEL_GRAY);
-		if($graychannel["mean"] < $CFG->paperattendance_grayscale){
-			paperattendance_save_student_presence($sessid, $student->id, '1', $graychannel["mean"]);
-			$line['asistencia'] = "true";
-		}
-		else{
-			paperattendance_save_student_presence($sessid, $student->id, '0', $graychannel["mean"]);
-			$line['asistencia'] = "false";
-		}
-		
-		$arrayalumnos[] = $line;
-		
-		// 26 student per each page
-		$numberpage = floor($countstudent/26);
-		$attendancecircle->destroy();
-		
-		if($countstudent%26 == 0 && $countstudent != 1){
-			$factor = $factor - 26;
-		}
-		
-		$countstudent++;
-		$factor++;
-	}
-	
-	if(paperattendance_checktoken($CFG->paperattendance_omegatoken)){
-		if(paperattendance_omegacreateattendance($course, $arrayalumnos, $sessid)){
-			$return["synced"] = "true";
-		}
-	}
-	
-	return $return;
 }
 
 /**
@@ -931,43 +810,23 @@ function paperattendance_recursiveremovedirectory($directory)
 }
 
 /**
- * Function to Delete all the pngs inside of a folder
- *
- * @param varchar $directory
- *            Directory path
+ * Function that recursively removes all a certain kind of file
+ * 
+ * @param string $directory
+ * The directory to recursively remove files from
+ * 
+ * @param string $extension
+ * The kind of file to remove
  */
-function paperattendance_recursiveremovepng($directory)
+function paperattendance_recursiveremove($directory, $extension)
 {
-	foreach(glob("{$directory}/*.jpg") as $file)
-	{
-		if(is_dir($file)) {
-			paperattendance_recursiveremovepng($file);
-		} else {
-			unlink($file);
-		}
+	foreach (glob("{$directory}/*.$extension") as $file) {
+    	if (is_dir($file)) {
+        	paperattendance_recursiveremove($file, $extension);
+    	} else {
+        	unlink($file);
+    	}
 	}
-	//this comand delete the folder of the path, in this case we only want to delete the files inside the folder
-	//rmdir($directory);
-}
-
-/**
- * Function to Delete all the csv inside of a folder
- *
- * @param varchar $directory
- *            Directory path
- */
-function paperattendance_recursiveremovecsv($directory)
-{
-	foreach(glob("{$directory}/*.csv") as $file)
-	{
-		if(is_dir($file)) {
-			paperattendance_recursiveremovecsv($file);
-		} else {
-			unlink($file);
-		}
-	}
-	//this comand delete the folder of the path, in this case we only want to delete the files inside the folder
-	//rmdir($directory);
 }
 
 /**
@@ -995,18 +854,21 @@ function paperattendance_convertdate($i){
  */
 function paperattendance_getteacherfromcourse($courseid, $userid){
 	global $DB;
-	$sqlteacher = "SELECT u.id
-			FROM {user} AS u
-			INNER JOIN {role_assignments} ra ON (ra.userid = u.id)
-			INNER JOIN {context} ct ON (ct.id = ra.contextid)
-			INNER JOIN {course} c ON (c.id = ct.instanceid AND c.id = ?)
-			INNER JOIN {role} r ON (r.id = ra.roleid AND r.shortname IN ( ?, ?))
-			WHERE u.id = ?";
+	
+	$sqlteacher = 
+		"SELECT u.id
+		FROM {user} AS u
+		INNER JOIN {role_assignments} ra ON (ra.userid = u.id)
+		INNER JOIN {context} ct ON (ct.id = ra.contextid)
+		INNER JOIN {course} c ON (c.id = ct.instanceid AND c.id = ?)
+		INNER JOIN {role} r ON (r.id = ra.roleid AND r.shortname IN ( ?, ?))
+		WHERE u.id = ?";
 
-	$teacher = $DB->get_record_sql($sqlteacher, array($courseid, 'teacher', 'editingteacher', $userid));
+	//allow both english and spanish rolename
+	$teacher = $DB->get_record_sql($sqlteacher, array($courseid, 'profesoreditor', 'ayudante', $userid));
 
-	if(!isset($teacher->id)){
-		$teacher = $DB->get_record_sql($sqlteacher, array($courseid, 'profesoreditor', 'ayudante', $userid));
+	if(!isset($teacher->id)) {
+		$teacher = $DB->get_record_sql($sqlteacher, array($courseid, 'teacher', 'editingteacher', $userid));
 	}
 
 	return $teacher;
@@ -1036,82 +898,6 @@ function paperattendance_getstudentfromcourse($courseid, $userid){
 }
 
 /**
- * Function to send a curl to omega to create a session
- *
- * @param int $courseid
- *            Id of a Course
- * @param int $arrayalumnos
- *            Array containinng the user email and its attendance to the session
- * @param int $sessid
- *            Session id
- */
-function paperattendance_omegacreateattendance($courseid, $arrayalumnos, $sessid){
-	global $DB,$CFG;
-	
-	if(paperattendance_checktoken($CFG->paperattendance_omegatoken)){
-		//GET OMEGA COURSE ID FROM WEBCURSOS COURSE ID
-		$omegaid = $DB->get_record("course", array("id" => $courseid));
-		$omegaid = $omegaid -> idnumber;
-		
-		//GET FECHA & MODULE FROM SESS ID $fecha, $modulo,
-		$sqldatemodule = "SELECT sessmodule.id, FROM_UNIXTIME(sessmodule.date,'%Y-%m-%d') AS sessdate, module.initialtime AS sesstime
-						FROM {paperattendance_sessmodule} AS sessmodule
-						INNER JOIN {paperattendance_module} AS module ON (sessmodule.moduleid = module.id AND sessmodule.sessionid = ?)";
-		$datemodule = $DB->get_record_sql($sqldatemodule, array($sessid));
-		//var_dump($datemodule);
-		$fecha = $datemodule -> sessdate;
-		$modulo = $datemodule -> sesstime;
-	    $initialtime = time();
-		//CURL CREATE ATTENDANCE OMEGA
-		$curl = curl_init();
-
-		$url =  $CFG->paperattendance_omegacreateattendanceurl;
-		$token =  $CFG->paperattendance_omegatoken;
-		//mtrace("SESSIONID: " .$datemodule->id. "## Formato de fecha: " . $fecha . " Modulo " . $modulo);
-		$fields = array (
-				"token" => $token,
-				"seccionId" => $omegaid,
-				"diaSemana" => $fecha,
-				"modulos" => array( array("hora" => $modulo) ),
-				"alumnos" => $arrayalumnos
-		);
-		curl_setopt($curl, CURLOPT_URL, $url);
-		curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
-		curl_setopt($curl, CURLOPT_POST, TRUE);
-		curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($fields));
-		curl_setopt($curl, CURLOPT_HTTPHEADER, array("Content-Type: application/json"));
-		$result = curl_exec ($curl);
-		curl_close ($curl);
-        $executiontime = time() - $initialtime;
-        $cron = paperattendance_cronlog($url, $result, time(), $executiontime);
-		$alumnos = new stdClass();
-		$alumnos = json_decode($result)->alumnos;
-		
-		$return = false;
-		// FOR EACH STUDENT ON THE RESULT, SAVE HIS SYNC WITH OMEGA (true or false)
-		for ($i = 0 ; $i < count($alumnos); $i++){
-			if($alumnos[$i]->resultado == true){
-				$return = true;
-				// el estado es 0 por default, asi que solo update en caso de ser verdadero el resultado
-					
-				// get student id from its username
-				$username = $alumnos[$i]->emailAlumno;
-				if($studentid = $DB->get_record("user", array("username" => $username))){
-					$studentid = $studentid -> id;
-						
-					$omegasessionid = $alumnos[$i]->asistenciaId;
-					//save student sync
-					$sqlsyncstate = "UPDATE {paperattendance_presence} SET omegasync = ?, omegaid = ? WHERE sessionid  = ? AND userid = ?";
-					$studentid = $DB->execute($sqlsyncstate, array('1', $omegasessionid, $sessid, $studentid));
-				}else{
-				}
-			}
-		}
-	}
-	return $return;
-}
-
-/**
  * Function to get a username from its userid
  *
  * @param int $userid
@@ -1122,64 +908,6 @@ function paperattendance_getusername($userid){
 	$username = $DB->get_record("user", array("id" => $userid));
 	$username = $username -> username;
 	return $username;
-}
-
-/**
- * Function to send a curl to omega to update an attendance
- *
- * @param boolean $update
- *            1 if he attended the session, 0 if not
- * @param int $omegaid
- *            Id omega gives for the students attendance of that session
- */
-function paperattendance_omegaupdateattendance($update, $omegaid){
-	global $CFG, $DB;
-	
-	if (paperattendance_checktoken($CFG->paperattendance_omegatoken)){
-		//CURL UPDATE ATTENDANCE OMEGA
-	
-		$url =  $CFG->paperattendance_omegaupdateattendanceurl;
-		$token =  $CFG->paperattendance_omegatoken;
-	
-		if($update == 1){
-			$update = "true";
-		}
-		else{
-			$update = "false";
-		}
-	
-		$fields = array (
-				"token" => $token,
-				"asistenciaId" => $omegaid,
-				"asistencia" => $update
-		);
-	   $initialtime = time();
-		$curl = curl_init();
-		curl_setopt($curl, CURLOPT_URL, $url);
-		curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
-		curl_setopt($curl, CURLOPT_POST, TRUE);
-		curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($fields));
-		curl_setopt($curl, CURLOPT_HTTPHEADER, array("Content-Type: application/json"));
-		$result = curl_exec ($curl);
-		curl_close ($curl);
-		$executiontime = time() - $initialtime;
-		paperattendance_cronlog($url, $result, time(), $executiontime);
-	}
-}
-
-/**
- * Function to check if the config token exists
- *
- * @param varchar $token
- *            Token to access omega
- */
-function paperattendance_checktoken($token){
-	if (!isset($token) || empty($token) || $token == "" || $token == null || $token == " ") {
-		return false;
-	}
-	else{
-		return true;
-	}
 }
 
 /**
@@ -1242,7 +970,12 @@ function paperattendance_getcountstudentsbysession($sessionid){
  */
 function paperattendance_sendMail($attendanceid, $courseid, $teacherid, $uploaderid, $date, $course, $case, $errorpage) {
 	GLOBAL $CFG, $USER, $DB;
-	//var_dump($attendanceid); mtrace($courseid); mtrace($teacherid); mtrace($uploaderid); mtrace($date); mtrace($course); mtrace($case); mtrace($errorpage);
+
+	//if mails are disabled dont do anything
+    if ($CFG->paperattendance_sendmail == 0) {
+		return;
+	}
+
 	$teacher = $DB->get_record("user", array("id"=> $teacherid));
 	$userfrom = core_user::get_noreply_user();
 	$userfrom->maildisplay = true;
@@ -1483,51 +1216,6 @@ function paperattendance_uploadattendances($file, $path, $filename, $context, $c
 }
 
 /**
- * Function to sync unsynced students
- *
- * @param int $courseid
- *            Course of the id reviewed
- * @param int $sessionid
- *            Session id to get the attendance
- */
-function paperattendance_synctask($courseid, $sessionid){
-	global $DB, $CFG;
-
-	$return = false;
-
-	// Sql that brings the unsynced students
-	$sqlstudents = "SELECT p.id, p.userid AS userid, p.status AS status, s.username AS username
-	 				FROM {paperattendance_presence} AS p
-					INNER JOIN {user} AS s on ( p.userid = s.id AND p.sessionid = ? )";
-	
-	if($resources = $DB->get_records_sql($sqlstudents, array($sessionid))){
-	
-		$arrayalumnos = array();
-	
-		foreach ($resources as $student){
-	
-			$line = array();
-			$line['emailAlumno'] = $student-> username;
-			$line['resultado'] = "true";
-	
-			if($student->status == 1){
-				$line['asistencia'] = "true";
-			}
-			else{
-				$line['asistencia'] = "false";
-			}
-	
-			$arrayalumnos[] = $line;
-		}
-	
-		if(paperattendance_omegacreateattendance($courseid, $arrayalumnos, $sessionid)){
-			$return = true;
-		}
-	}
-	return $return;
-}
-
-/**
  * Function to create the tabs for history
  *
  * @param int $courseid
@@ -1614,73 +1302,8 @@ function paperattendance_cronlog($task, $result = NULL, $timecreated, $execution
 }
 
 /**
- * Function to export the Attendance's Summary to excel
- *
- * @param varchar $title
- *            Title of the Summary
- * @param array $header
- *            Array containing the header of each row
- * @param varchar $filename
- *            Full name of the excel
- * @param array $data
- *            Array containing the data of each row
- * @param array $description
- *            Array containing the selected descriptions of attendances
- * @param array $dates
- *            Array containing the dates of each session
- * @param array $tabs
- *            Array containing the tabs of the excel
- */
-function paperattendance_exporttoexcel($title, $header, $filename, $data, $descriptions, $dates, $tabs){
-	global $CFG;
-	$workbook = new MoodleExcelWorkbook("-");
-	$workbook->send($filename);
-	foreach ($tabs as $index=>$tab){
-		$attxls = $workbook->add_worksheet($tab);
-		$i = 0; //y axis
-		$j = 0;//x axis
-		$titleformat = $workbook->add_format();
-		$titleformat->set_bold(1);
-		$titleformat->set_size(12);
-		$attxls->write($i,$j,$title,$titleformat);
-		$i = 1;
-		$j = 3;
-		$headerformat = $workbook->add_format();
-		$headerformat->set_bold(1);
-		$headerformat->set_size(10);
-		foreach ($descriptions[$index] as $descr){
-			$attxls->write($i, $j, $descr, $headerformat);
-			$j++;
-		}
-		$i = 2;
-		$j = 3;
-		foreach ($dates[$index] as $date){
-			$attxls->write($i, $j, $date, $headerformat);
-			$j++;
-		}
-		$i= 3;
-		$j = 0;
-		foreach($header[$index] as $cell){
-			$attxls->write($i, $j, $cell, $headerformat);
-			$j++;
-		}
-		$i=4;
-		$j=0;
-		foreach ($data[$index] as $row){
-			foreach($row as $cell){
-				$attxls->write($i, $j,$cell);
-				$i++;
-			}
-			$j++;
-			$i=4;
-		}
-	}
-	$workbook->close();
-	exit;
-}
-
-/**
  * Processes the CSV, saves session and presences and sync with omega
+ * The CSV is created by formscanner when running the CLI processpdfcsv.php
  *
  * @param resource $file
  *            Csv resource
@@ -1694,7 +1317,6 @@ function paperattendance_exporttoexcel($title, $header, $filename, $data, $descr
 function paperattendance_read_csv($file, $path, $pdffilename, $uploaderobj){
 	global $DB, $CFG, $USER;
 
-	$omegafailures = array(); //Is not in use
 	$fila = 1;
 	$return = 0;
 	
@@ -1703,44 +1325,60 @@ function paperattendance_read_csv($file, $path, $pdffilename, $uploaderobj){
 		while(! feof($handle))
   		{
 			$data = fgetcsv($handle, 1000, ";");
-			$numero = count($data);
-			mtrace( $numero." datoss en la línea ".$fila);
-			print_r($data);
+
+			//avoid complaints from count by checking if $data is an array
+			//apparently this function does 3 passes, on the last pass there is no data
+			$numero = false;
+			if(is_array($data))
+			{
+				$numero = count($data);
+				mtrace("data in row $fila: $numero");
+				print_r($data);
+			}
 			$stop = true;
+
+			$pdfpage = explode(".", $data[0])[0];
 			
 			if($fila> 1 && $numero > 26){
 				//$data[27] and $data[28] brings the info of the session
 				$qrcodebottom = $data[27];
 				$qrcodetop = $data[28];
+				$qrcode = false;
 				if(strpos($qrcodetop, '*') !== false) {
 					$qrcode = $qrcodetop;
 				} else {    
 					if(strpos($qrcodebottom, '*') !== false) {
 						$qrcode = $qrcodebottom;
 					}
-					else{
-						$stop = false;
+				}
+				
+				//check if everyone is absent
+				$presences = 0;
+				foreach($data as $presence)
+				{
+					if($presence == "A")
+					{
+						$presences++;
 					}
 				}
-				
-				$numpages = paperattendance_number_of_pages($path, $pdffilename);
-				if($numpages == 1){
-					$realpagenum = 0;
-				}
-				else{
-					$jpgfilenamecsv = $data[0];
-					mtrace("el nombre del jpg recien sacado es: ". $jpgfilenamecsv);
-					$oldpdfpagenumber= explode("-",$jpgfilenamecsv);
-					$oldpdfpagenumber = $oldpdfpagenumber[1];
-					mtrace("el explode es: ".$oldpdfpagenumber);
-					$realpagenum = explode(".", $oldpdfpagenumber);
-					$realpagenum = $realpagenum[0];
-					mtrace("el numero de pagina correspondiente a este pdf es: ".$realpagenum);
-				}
-				
-				if($stop){
+				/*
+				If everyone absent send to missing pages automatically
+				Beware: the next if should be an else if
+				if($presences == 0) //lets disable this for the time being
+				{
+					mtrace("Error: Everyone absent, potential problem with scanning, dumping page to missing by default");
+					$sessionpageid = paperattendance_save_current_pdf_page_to_session($pdfpage, null, null, $pdffilename, 0, $uploaderobj->id, time());
+
+					$errorpage = new StdClass();
+					$errorpage->pagenumber = $pdfpage;
+					$errorpage->pageid = $sessionpageid;
+
+					$return++;
+				}*/
+				if($qrcode)
+				{
 					//If stop is not false, it means that we could read one qr
-					mtrace("qr correctly found");
+					mtrace("qr found");
 					$qrinfo = explode("*",$qrcode);
 					//var_dump($qrinfo);
 					if(count($qrinfo) == 7){
@@ -1773,28 +1411,24 @@ function paperattendance_read_csv($file, $path, $pdffilename, $uploaderobj){
 							$sessid = paperattendance_insert_session($course, $requestorid, $uploaderobj->id, $pdffilename, $description, 0);
 							mtrace("la session id es : ".$sessid);
 							paperattendance_insert_session_module($module, $sessid, $time);
-							paperattendance_save_current_pdf_page_to_session($realpagenum, $sessid, $page, $pdffilename, 1, $uploaderobj->id, time());
+							paperattendance_save_current_pdf_page_to_session($pdfpage, $sessid, $page, $pdffilename, 1, $uploaderobj->id, time());
 							
-							if($CFG->paperattendance_sendmail == 1){
-								$coursename = $DB->get_record("course", array("id"=> $course));
-								$moduleobject = $DB->get_record("paperattendance_module", array("id"=> $module));
-								$sessdate = date("d-m-Y", $time).", ".$moduleobject->name. ": ". $moduleobject->initialtime. " - " .$moduleobject->endtime;
-								paperattendance_sendMail($sessid, $course, $requestorid, $uploaderobj->id, $sessdate, $coursename->fullname, "processpdf", null);
-							}
-							
+							$coursename = $DB->get_record("course", array("id"=> $course));
+							$moduleobject = $DB->get_record("paperattendance_module", array("id"=> $module));
+							$sessdate = date("d-m-Y", $time).", ".$moduleobject->name. ": ". $moduleobject->initialtime. " - " .$moduleobject->endtime;
+							paperattendance_sendMail($sessid, $course, $requestorid, $uploaderobj->id, $sessdate, $coursename->fullname, "processpdf", null);
 						}
 						else{
-							mtrace("session ya eexiste");
 							$sessid = $sessdoesntexist; //if session exist, then $sessdoesntexist contains the session id
 							//Check if the page already was processed
 							if($DB->record_exists('paperattendance_sessionpages', array('sessionid'=>$sessid,'qrpage'=>$page))){
-								mtrace("session ya existe y esta hoja ya fue subida y procesada");
+								mtrace("Session exists, list already uploaded");
 								$return++;
 								$stop = false;
 							}
 							else{
-								paperattendance_save_current_pdf_page_to_session($realpagenum, $sessid, $page, $pdffilename, 1, $uploaderobj->id, time());
-								mtrace("session ya existe pero esta hoja no habia sido subida ni procesada");
+								paperattendance_save_current_pdf_page_to_session($pdfpage, $sessid, $page, $pdffilename, 1, $uploaderobj->id, time());
+								mtrace("Session exists, but list hasn't been uploaded (attendance checked online?)");
 								$stop = true;
 							}
 						}
@@ -1827,10 +1461,8 @@ function paperattendance_read_csv($file, $path, $pdffilename, $uploaderobj){
 							}
 							
 							$omegasync = false;
-							if(paperattendance_checktoken($CFG->paperattendance_omegatoken)){
-								if(paperattendance_omegacreateattendance($course, $arrayalumnos, $sessid)){
-									$omegasync = true;
-								}
+							if(paperattendance_omegacreateattendance($course, $arrayalumnos, $sessid)){
+								$omegasync = true;
 							}
 							
 							$update = new stdClass();
@@ -1848,13 +1480,12 @@ function paperattendance_read_csv($file, $path, $pdffilename, $uploaderobj){
 					}else{
 						mtrace("Error: can't process this page, no readable qr code");
 						//$return = false;//send email or something to let know this page had problems
-						$sessionpageid = paperattendance_save_current_pdf_page_to_session($realpagenum, null, null, $pdffilename, 0, $uploaderobj->id, time());
+						$sessionpageid = paperattendance_save_current_pdf_page_to_session($pdfpage, null, null, $pdffilename, 0, $uploaderobj->id, time());
 						
-						if($CFG->paperattendance_sendmail == 1){
-							$errorpage = new StdClass();
-							$errorpage->pagenumber = $realpagenum+1;
-							$errorpage->pageid = $sessionpageid;
-						}
+						$errorpage = new StdClass();
+						$errorpage->pagenumber = $pdfpage;
+						$errorpage->pageid = $sessionpageid;
+
 						$return++;
 					}
 				}
@@ -1862,13 +1493,12 @@ function paperattendance_read_csv($file, $path, $pdffilename, $uploaderobj){
 
 	  			mtrace("Error: can't process this page, no readable qr code");
 	  			//$return = false;//send email or something to let know this page had problems
-	  			$sessionpageid = paperattendance_save_current_pdf_page_to_session($realpagenum, null, null, $pdffilename, 0, $uploaderobj->id, time());
+	  			$sessionpageid = paperattendance_save_current_pdf_page_to_session($pdfpage, null, null, $pdffilename, 0, $uploaderobj->id, time());
 	  			
-	  			if($CFG->paperattendance_sendmail == 1){
-	  				$errorpage = new StdClass();
-	  				$errorpage->pagenumber = $realpagenum+1;
-	  				$errorpage->pageid = $sessionpageid;
-	  			}
+				$errorpage = new StdClass();
+				$errorpage->pagenumber = $pdfpage;
+				$errorpage->pageid = $sessionpageid;
+					  
 				$return++;
 	  			}
 			}
@@ -1915,7 +1545,6 @@ function paperattendance_save_current_pdf_page_to_session($pagenum, $sessid, $qr
 	return $idsessionpage;
 }
 
-
 /**
  * Counts the number of pages of a pdf
  *
@@ -1934,150 +1563,6 @@ function paperattendance_number_of_pages($path, $pdffilename){
 	return $num;
 }
 
-/**
- * Transforms pdf found into jpgs, runs shell exec to call formscanner, calls readcsv
- *
- * @param varchar $path
- *            Path of the pdf
- * @param varchar $filename
- *            Fullname of the pdf, including extension 
- * @param obj $uploaderobj
- *            Object of the person who uploaded the pdf
- */
-function paperattendance_runcsvproccessing($path, $filename, $uploaderobj){
-	global $CFG;
-	
-	$pagesWithErrors = array();
-	
-	// convert pdf to jpg
-	$pdf = new Imagick();
-
-	$pdf->setResolution( 300, 300);
-	$pdf->readImage($path."/".$filename);
-	$pdf->setImageFormat('jpeg');
-	$pdf->setImageCompression(imagick::COMPRESSION_JPEG);
-	$pdf->setImageCompressionQuality(100);
-
-	if ($pdf->getImageAlphaChannel()) {
-		
-		// Remove alpha channel
-		$pdf->setImageAlphaChannel(11);
-		
-		// Set image background color
-		$pdf->setImageBackgroundColor('white');
-		
-		// Merge layers
-		$pdf->mergeImageLayers(imagick::LAYERMETHOD_FLATTEN);
-	}
-	
-	if (!file_exists($path."/jpgs")) {
-		mkdir($path."/jpgs", 0777, true);
-	}
-	//Remove initial pngs in the directory
-	paperattendance_recursiveremovepng($path."/jpgs");
-	
-	$pdfname = explode(".",$filename);
-	$pdfname = $pdfname[0];
-	
-	$pdf->writeImages($path."/jpgs/".$pdfname.".jpg", false);
-	$pdf->clear();
-	unset($pdf);
-	
-	if (!file_exists($path."/jpgs/processing")) {
-		mkdir($path."/jpgs/processing", 0777, true);
-	}
-	//Remove initial pngs in the directory
-	paperattendance_recursiveremovepng($path."/jpgs/processing");
-	//Remove initial csv in the directory
-	paperattendance_recursiveremovecsv($path."/jpgs/processing");
-	//process jpgs one by one and then delete it
-	$countprocessed = 0;
-	foreach(glob("{$path}/jpgs/*.jpg") as $file)
-	{
-		//first move it to the processing folder
-		$jpgname = basename($file);
-		mtrace("el nombre del jpg recien sacado es: ". $jpgname);
-		rename($file, $path."/jpgs/processing/".$jpgname);
-		
-		//now run the exec command
-		//$command = 'timeout 30 java -jar /Datos/formscanner/formscanner-1.1.3-bin/lib/formscanner-main-1.1.3.jar /Datos/formscanner/template.xtmpl /data/data/moodledata/temp/local/paperattendance/unread/jpgs/processing/';	
-		$command = "timeout 30 java -jar ".$CFG->paperattendance_formscannerjarlocation." ".$CFG->paperattendance_formscannertemplatelocation." ".$CFG->paperattendance_formscannerfolderlocation;
-		
-		$lastline = exec($command, $output, $return_var);
-		mtrace($command);
-		print_r($output);
-		mtrace($return_var);
-		//return_var devuelve 0 si el proceso funciona correctamente
-		if($return_var == 0){
-			mtrace("no se alcanzó el timeout, todo bien");
-			
-			//revisar el csv que creó formscanner
-			foreach(glob("{$path}/jpgs/processing/*.csv") as $filecsv)
-			{
-				$arraypaperattendance_read_csv = array();
-				$arraypaperattendance_read_csv = paperattendance_read_csv($filecsv, $path, $filename, $uploaderobj);
-				$processed = $arraypaperattendance_read_csv[0];
-				if ($arraypaperattendance_read_csv[1] != null){
-					$pagesWithErrors[$arraypaperattendance_read_csv[1]->pagenumber] = $arraypaperattendance_read_csv[1];
-				}
-				$countprocessed += $processed;
-			}
-		}
-		else{
-			//meaning that the timeout was reached, save that page with status unprocessed
-			mtrace("si se alcanzó el timeout, todo mal");
-			$numpages = paperattendance_number_of_pages($path, $filename);
-			
-			if($numpages == 1){
-				$realpagenum = 0;
-			}
-			else{
-				$oldpdfpagenumber= explode("-",$jpgname);
-				$oldpdfpagenumber = $oldpdfpagenumber[1];
-				$realpagenum = explode(".", $oldpdfpagenumber);
-				$realpagenum = $oldpdfpagenumber[0];
-			}
-			
-			$sessionpageid = paperattendance_save_current_pdf_page_to_session($realpagenum, null, null, $filename, 0, $uploaderobj->id, time());
-			
-			if($CFG->paperattendance_sendmail == 1){
-				/*
-				paperattendance_sendMail($sessionpageid, null, $uploaderobj->id, $uploaderobj->id, null, $filename, "nonprocesspdf", $realpagenum);
-				$admins = get_admins();
-				foreach ($admins as $admin){
-					paperattendance_sendMail($sessionpageid, null, $admin->id, $admin->id, null, $pdffilename, "nonprocesspdf", $realpagenum+1);
-				}*/
-				$errorpage = new stdClass();
-				$errorpage->pageid = $sessionpageid;
-				$errorpage->pagenumber = $realpagenum + 1;
-				$pagesWithErrors[$errorpage->pagenumber] = $errorpage;
-			}
-			
-			$countprocessed++;
-		}
-		
-		//finally unlink the jpg file
-		unlink($path."/jpgs/processing/".$jpgname);
-	}
-	if (count($pagesWithErrors) > 0){
-		if (count($pagesWithErrors) > 1){
-			ksort($pagesWithErrors);
-		}
-		paperattendance_sendMail($pagesWithErrors, null, $uploaderobj->id, $uploaderobj->id, null, "NotNull", "nonprocesspdf", null);
-		$admins = get_admins();
-		foreach ($admins as $admin){
-			paperattendance_sendMail($pagesWithErrors, null, $admin->id, $admin->id, null, "NotNull", "nonprocesspdf", null);
-		}
-		mtrace("end pages with errors var dump");
-	}
-	
-	if($countprocessed>= 1){
-		return true;
-	}
-	else{
-		return false;
-	}
-}
 /**
  * Save in a new table in db the the session printed
  *
@@ -2156,4 +1641,184 @@ function paperattendance_get_printed_students_missingpages($moduleid,$courseid,$
 		$studentinfo[$student->id] = $studentobj;
 	}
 	return $studentinfo;
+}
+
+/**
+ * Function to send a curl to omega to create a session
+ *
+ * @param int $courseid
+ *            Id of a Course
+ * @param int $arrayalumnos
+ *            Array containinng the user email and its attendance to the session
+ * @param int $sessid
+ *            Session id
+ * @param bool $log
+ * 			   For enabling and disabling logging, true by default
+ */
+function paperattendance_omegacreateattendance($courseid, $arrayalumnos, $sessid, $log = true)
+{
+    global $DB, $CFG;
+
+    //GET OMEGA COURSE ID FROM WEBCURSOS COURSE ID
+    $omegaid = $DB->get_record("course", array("id" => $courseid));
+    $omegaid = $omegaid->idnumber;
+
+    //GET FECHA & MODULE FROM SESS ID $fecha, $modulo,
+    $sqldatemodule =
+        "SELECT sessmodule.id, FROM_UNIXTIME(sessmodule.date,'%Y-%m-%d') AS sessdate, module.initialtime AS sesstime
+		FROM {paperattendance_sessmodule} AS sessmodule
+        INNER JOIN {paperattendance_module} AS module ON (sessmodule.moduleid = module.id AND sessmodule.sessionid = ?)";
+
+	$datemodule = $DB->get_record_sql($sqldatemodule, array($sessid));
+	
+	//sometimes datemodule is undefined
+	//probably has something to do with the module changes
+	if(!$datemodule)
+	{
+		return false;
+	}
+
+    $fecha = $datemodule->sessdate;
+    $modulo = $datemodule->sesstime;
+
+    $fields = array(
+        "seccionId" => $omegaid,
+        "diaSemana" => $fecha,
+        "modulos" => array(array("hora" => $modulo)),
+        "alumnos" => $arrayalumnos,
+    );
+
+    $return = false;
+    $result = paperattendance_curl($CFG->paperattendance_omegacreateattendanceurl, $fields, $log);
+
+    if (!$result) {
+        return false;
+    }
+
+    $alumnos = new stdClass();
+	$alumnos = json_decode($result);
+	$alumnos = $alumnos->alumnos;
+
+	// FOR EACH STUDENT ON THE RESULT, SAVE HIS SYNC WITH OMEGA (true or false)
+	foreach ($alumnos as $alumno)
+	{
+		$omegasessionid = $alumno->asistenciaId;
+
+        if ($alumno->resultado == true && $omegasessionid != 0) {
+			$return = true;
+
+            // el estado es 0 por default, asi que solo update en caso de ser verdadero el resultado
+            // get student id from its username
+            $username = $alumno->emailAlumno;
+            if ($studentid = $DB->get_record("user", array("username" => $username))) {
+				$studentid = $studentid->id;
+				
+				//check if omegaid already exists
+				if($DB->record_exists("paperattendance_presence", array("omegaid" => $omegasessionid)))
+				{
+					echo "Fatal Error: Omega ID already exists!\n";
+				}
+               	//save student sync
+               	$sqlsyncstate = "UPDATE {paperattendance_presence} SET omegasync = ?, omegaid = ? WHERE sessionid  = ? AND userid = ?";
+               	$studentid = $DB->execute($sqlsyncstate, array('1', $omegasessionid, $sessid, $studentid));
+            }
+        }
+	}
+    return $return;
+}
+
+/**
+ * Function to send a curl to omega to update an attendance
+ *
+ * @param bool $update
+ *            1 if he attended the session, 0 if not
+ * @param int $omegaid
+ *            Id omega gives for the students attendance of that session
+ */
+function paperattendance_omegaupdateattendance($update, $omegaid)
+{
+    global $CFG, $DB;
+
+	$url = $CFG->paperattendance_omegaupdateattendanceurl;
+	
+	if($omegaid == 0)
+	{
+		return false;
+	}
+
+    if ($update == 1) {
+        $update = "true";
+    } else {
+        $update = "false";
+    }
+
+    $fields = array(
+        "token" => $token,
+        "asistenciaId" => $omegaid,
+        "asistencia" => $update,
+    );
+
+    paperattendance_curl($url, $fields);
+}
+
+/**
+ * Standard CURL function
+ * It handles logs and tries to curl up to 3 times
+ * @param string $url
+ *                  The url of the function
+ * @param array $fields
+ *                 An array with the fields inside with "key" => value format
+ * @param bool $log
+ *             Optional, true by default, enable or disable cronlog
+ *
+ * Returns the encoded json of the result or false on failure
+ */
+function paperattendance_curl($url, $fields, $log = true)
+{
+    global $CFG, $DB;
+
+    //for logging
+    $initialTime = time();
+
+    $token = $CFG->paperattendance_omegatoken;
+    //check if token exists and set it on the fields
+    if (
+        !isset($token) ||
+        empty($token) ||
+        $token == "" ||
+        $token == null ||
+        $token == " "
+    ) {
+        return false;
+    }
+
+    $fields["token"] = $token;
+
+    //the final result, for opening the scope and defining a default result
+    $result = false;
+
+    //Attempt curl up to 3 times
+    for ($i = 0; $i < 3; $i++) {
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_POST, true);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($fields));
+        curl_setopt($curl, CURLOPT_HTTPHEADER, array("Content-Type: application/json"));
+        $result = curl_exec($curl);
+        curl_close($curl);
+
+        if ($result && $result != 0 && $result != "0") {
+            break;
+        }
+    }
+
+    //store execution time in seconds if logging is enabled
+    if ($log) {
+		$executionTime = time() - $initialTime;
+		paperattendance_cronlog($url, "Sent: " . json_encode($fields), $initialTime, $executionTime);
+        paperattendance_cronlog($url, "Received: " . $result, $initialTime, $executionTime);
+    }
+
+    return $result;
 }

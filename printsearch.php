@@ -187,6 +187,8 @@ $PAGE->requires->jquery_plugin ( 'ui' );
 $PAGE->requires->jquery_plugin ( 'ui-css' );
 $PAGE->requires->js( new moodle_url('https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js') );
 $PAGE->requires->css( new moodle_url('https://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css') );
+$PAGE->requires->css( new moodle_url('printsearch.css'));
+
 
 $coursecount = $page*$perpage+1;
 foreach($courses as $course){
@@ -230,42 +232,48 @@ $carttable->head = array(
 );
 $carttable->id = "carttable";
 
-$formmodal = '<div class="modal fade bs-example-modal-lg" id="formModal" tabindex="-1" role="dialog" aria-labelledby="formModalLabel" style="display: none; width:80%; margin-left:-45%">
-			  <div class="modal-dialog modal-lg" role="document">
-			    	<div class="modal-content">
-			    		<div class="modal-header">
-			        		<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-			        		<h4 class="modal-title" id="formModalLabel">Carrito de listas</h4>
-			      		</div>
-		      		<div class="modal-body" style="height:70vh">
-						'.html_writer::table($carttable).'
-		      		</div>
-		      		<div class="modal-footer">
-    	       	    	<button type="button" class="btn btn-info printbutton" data-dismiss="modal">Imprimir</button>
-			       		<button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
-		      		</div>
-	      		</div>
-	  		</div>
-		</div>';
+//reminder for printer settings
+$formmodal = 
+'<div class="modal fade bs-example-modal-lg" id="formModal" tabindex="-1" role="dialog" aria-labelledby="formModalLabel" style="display: none; width:80%; margin-left:-45%">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="formModalLabel">Carrito de listas</h4>
+			</div>
+			<div class="modal-body" style="height:70vh">
+				'.html_writer::table($carttable).'
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-info printbutton" data-dismiss="modal">Imprimir</button>
+				<button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+			</div>
+		</div>
+	</div>
+</div>'
+;
 
-$pdfmodal = '<div class="modal fade bs-example-modal-lg" id="pdfModal" tabindex="-1" role="dialog" aria-labelledby="pdfModalLabel" style="display: none;">
-			  <div class="modal-dialog modal-lg" role="document">
-			    	<div class="modal-content">
-			    		<div class="modal-header">
-			        		<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-			        		<h4 class="modal-title" id="pdfModalLabel">Listas pdf</h4>
-			      		</div>
-		      		<div class="modal-body pdflists" style="height:70vh">
-		      		</div>
-	      		</div>
-	  		</div>
-		</div>';
+$pdfmodal = "
+<div class='modal fade bs-example-modal-lg' id='pdfModal' tabindex='-1' role='dialog' aria-labelledby='pdfModalLabel' style='display: none;'>
+	<div class='modal-dialog modal-lg' role='document'>
+		<div class='modal-content'>
+			<div class='modal-header'>
+				<button type='button' class='close' data-dismiss='modal' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
+				<h4 class='modal-title' id='pdfModalLabel'>Listas pdf</h4>
+			</div>
+			<div class='modal-body'>
+				<div class='pdflists'></div>
+			</div>
+		</div>
+	</div>
+</div>
+";
+
 
 echo html_writer::div($formmodal, "modaldiv");
 echo html_writer::div($pdfmodal, "modaldiv");
 
 echo $OUTPUT->footer();
-
 
 ?>
 <script>
@@ -320,9 +328,8 @@ $( document ).ready(function() {
 		    //Get data to print
 			$.ajax({
 			    type: 'GET',
-			    url: 'ajax/ajaxquerys.php',
+			    url: 'ajax/cartlist.php',
 			    data: {
-				      'action' : 'cartlist',
 				      'courseid' : courseid,
 				      'teacherid' : that.closest("tr").find(".teacher").attr("teacherid"),
 				      'diasemana' : day
@@ -458,9 +465,8 @@ $( document ).ready(function() {
 		$(".loader").show();
 		$.ajax({
 		    type: 'GET',
-		    url: 'ajax/ajaxquerys.php',
+		    url: 'ajax/getcourses.php',
 		    data: {
-			      'action' : 'getcourses',
 			      'result' : data,
 			      'path' : path,
 			      'category' : categoryid
@@ -495,9 +501,8 @@ $( document ).ready(function() {
 		modulesoptions.prop( "selected", false);
 		$.ajax({
 		    type: 'POST',
-		    url: 'ajax/ajaxquerys.php',
+		    url: 'ajax/cartlist.php',
 		    data: {
-			      'action' : 'cartlist',
 			      'courseid' : courseid,	
 		    	  'diasemana': dayofweek
 		    	},

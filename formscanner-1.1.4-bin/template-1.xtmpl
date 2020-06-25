@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<template density="40" threshold="127" version="2.1">
+    <crop bottom="0" left="0" right="0" top="0"/>
+    <rotation angle="-0.003636347608441714"/>
+    <corners type="ROUND">
+        <corner position="BOTTOM_LEFT">
+            <point x="55.0" y="3333.0"/>
+        </corner>
+        <corner position="TOP_LEFT">
+            <point x="62.0" y="56.0"/>
+        </corner>
+        <corner position="BOTTOM_RIGHT">
+            <point x="2255.0" y="3317.0"/>
+        </corner>
+        <corner position="TOP_RIGHT">
+            <point x="2262.0" y="64.0"/>
+        </corner>
+    </corners>
+    <fields groups="true" shape="CIRCLE" size="20">
+        <group name="group003">
+            <area name="Barcode/QRCode002" type="BARCODE">
+                <corners>
+                    <corner position="BOTTOM_LEFT">
+                        <point x="1792.0" y="3338.0"/>
+                    </corner>
+                    <corner position="TOP_LEFT">
+                        <point x="1794.0" y="3009.0"/>
+                    </corner>
+                    <corner position="BOTTOM_RIGHT">
+                        <point x="2126.0" y="3339.0"/>
+                    </corner>
+                    <corner position="TOP_RIGHT">
+                        <point x="2127.0" y="3011.0"/>
+                    </corner>
+                </corners>
+            </area>
+        </group>
+        <group name="group002">
+            <area name="Barcode/QRCode001" type="BARCODE">
+                <corners>
+                    <corner position="BOTTOM_LEFT">
+                        <point x="1794.0" y="374.0"/>
+                    </corner>
+                    <corner position="TOP_LEFT">
+                        <point x="1795.0" y="48.0"/>
+                    </corner>
+                    <corner position="BOTTOM_RIGHT">
+                        <point x="2124.0" y="375.0"/>
+                    </corner>
+                    <corner position="TOP_RIGHT">
+                        <point x="2125.0" y="49.0"/>
+                    </corner>
+                </corners>
+            </area>
+        </group>
+        <group name="group001">
+            <question multiple="false" question="Question022" rejectMultiple="false" type="QUESTIONS_BY_ROWS">
+                <values>
+                    <value response="A">
+                        <point x="1957.0" y="2551.0"/>
+                    </value>
+                </values>
+            </question>
+            <question multiple="false" question="Question001" rejectMultiple="false" type="QUESTIONS_BY_ROWS">
+                <values>
+                    <value response="A">
+                        <point x="1965.0" y="565.0"/>
+                    </value>
+                </values>
+            </question>
+            <question multiple="false" question="Question023" rejectMultiple="false" type="QUESTIONS_BY_ROWS">
+                <values>
+                    <value response="A">
+                        <point x="1957.0" y="2646.0"/>
+                    </value>
+                </values>
+            </question>
+            <question multiple="false" question="Question020" rejectMultiple="false" type="QUESTIONS_BY_ROWS">
+                <values>
+                    <value response="A">
+                        <point x="1958.0" y="2362.0"/>
+                    </value>
+                </values>
+            </question>
+            <question multiple="false" question="Question021" rejectMultiple="false" type="QUESTIONS_BY_ROWS">
+                <values>
+                    <value response="A">
+                        <point x="1958.0" y="2457.0"/>
+                    </value>
+                </values>
+            </question>
+            <question multiple="false" question="Question004" rejectMultiple="false" type="QUESTIONS_BY_ROWS">
+                <values>
+                    <value response="A">
+                        <point x="1963.0" y="849.0"/>
+                    </value>
+                </values>
+            </question>
+            <question multiple="false" question="Question026" rejectMultiple="false" type="QUESTIONS_BY_ROWS">
+                <values>
+                    <value response="A">
+                        <point x="1956.0" y="2929.0"/>
+                    </value>
+                </values>
+            </question>
+            <question multiple="false" question="Question005" rejectMultiple="false" type="QUESTIONS_BY_ROWS">
+                <values>
+                    <value response="A">
+                        <point x="1963.0" y="944.0"/>
+                    </value>
+                </values>
+            </question>
+            <question multiple="false" question="Question002" rejectMultiple="false" type="QUESTIONS_BY_ROWS">
+                <values>
+                    <value response="A">
+                        <point x="1964.0" y="660.0"/>
+                    </value>
+                </values>
+            </question>
+            <question multiple="false" question="Question024" rejectMultiple="false" type="QUESTIONS_BY_ROWS">
+                <values>
+                    <value response="A">
+                        <point x="1957.0" y="2740.0"/>
+                    </value>
+                </values>
+            </question>
+            <question multiple="false" question="Question003" rejectMultiple="false" type="QUESTIONS_BY_ROWS">
+                <values>
+                    <value response="A">
+                        <point x="1964.0" y="755.0"/>
+                    </value>
+                </values>
+            </question>
+            <question multiple="false" question="Question025" rejectMultiple="false" type="QUESTIONS_BY_ROWS">
+                <values>
+                    <value response="A">
+                        <point x="1956.0" y="2835.0"/>
+                    </value>
+                </values>
+            </question>
+            <question multiple="false" question="Question008" rejectMultiple="false" type="QUESTIONS_BY_ROWS">
+                <values>
+                    <value response="A">
+                        <point x="1962.0" y="1227.0"/>
+                    </value>
+                </values>
+            </question>
+            <question multiple="false" question="Question009" rejectMultiple="false" type="QUESTIONS_BY_ROWS">
+                <values>
+                    <value response="A">
+                        <point x="1962.0" y="1322.0"/>
+                    </value>
+                </values>
+            </question>
+            <question multiple="false" question="Question006" rejectMultiple="false" type="QUESTIONS_BY_ROWS">
+                <values>
+                    <value response="A">
+                        <point x="1963.0" y="1038.0"/>
+                    </value>
+                </values>
+            </question>
+            <question multiple="false" question="Question007" rejectMultiple="false" type="QUESTIONS_BY_ROWS">
+                <values>
+                    <value response="A">
+                        <point x="1962.0" y="1133.0"/>
+                    </value>
+                </values>
+            </question>
+            <question multiple="false" question="Question011" rejectMultiple="false" type="QUESTIONS_BY_ROWS">
+                <values>
+                    <value response="A">
+                        <point x="1961.0" y="1511.0"/>
+                    </value>
+                </values>
+            </question>
+            <question multiple="false" question="Question012" rejectMultiple="false" type="QUESTIONS_BY_ROWS">
+                <values>
+                    <value response="A">
+                        <point x="1961.0" y="1606.0"/>
+                    </value>
+                </values>
+            </question>
+            <question multiple="false" question="Question010" rejectMultiple="false" type="QUESTIONS_BY_ROWS">
+                <values>
+                    <value response="A">
+                        <point x="1961.0" y="1416.0"/>
+                    </value>
+                </values>
+            </question>
+            <question multiple="false" question="Question015" rejectMultiple="false" type="QUESTIONS_BY_ROWS">
+                <values>
+                    <value response="A">
+                        <point x="1960.0" y="1889.0"/>
+                    </value>
+                </values>
+            </question>
+            <question multiple="false" question="Question016" rejectMultiple="false" type="QUESTIONS_BY_ROWS">
+                <values>
+                    <value response="A">
+                        <point x="1959.0" y="1984.0"/>
+                    </value>
+                </values>
+            </question>
+            <question multiple="false" question="Question013" rejectMultiple="false" type="QUESTIONS_BY_ROWS">
+                <values>
+                    <value response="A">
+                        <point x="1960.0" y="1700.0"/>
+                    </value>
+                </values>
+            </question>
+            <question multiple="false" question="Question014" rejectMultiple="false" type="QUESTIONS_BY_ROWS">
+                <values>
+                    <value response="A">
+                        <point x="1960.0" y="1795.0"/>
+                    </value>
+                </values>
+            </question>
+            <question multiple="false" question="Question019" rejectMultiple="false" type="QUESTIONS_BY_ROWS">
+                <values>
+                    <value response="A">
+                        <point x="1958.0" y="2267.0"/>
+                    </value>
+                </values>
+            </question>
+            <question multiple="false" question="Question017" rejectMultiple="false" type="QUESTIONS_BY_ROWS">
+                <values>
+                    <value response="A">
+                        <point x="1959.0" y="2078.0"/>
+                    </value>
+                </values>
+            </question>
+            <question multiple="false" question="Question018" rejectMultiple="false" type="QUESTIONS_BY_ROWS">
+                <values>
+                    <value response="A">
+                        <point x="1959.0" y="2173.0"/>
+                    </value>
+                </values>
+            </question>
+        </group>
+    </fields>
+</template>

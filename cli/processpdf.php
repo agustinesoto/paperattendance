@@ -1,98 +1,174 @@
 <?php
-// This file is part of Moodle - http://moodle.org/
-//
-// Moodle is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// Moodle is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
-
-/**
- *
-*
-* @package    local
-* @subpackage paperattendance
-* @copyright  2016 Hans Jeria (hansjeria@gmail.coml) 					
-* @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
-*/
-
 define('CLI_SCRIPT', true);
-require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php');
-require_once($CFG->dirroot . '/local/paperattendance/locallib.php');
-require_once ($CFG->libdir . '/clilib.php'); 
+require_once dirname(dirname(dirname(dirname(__FILE__)))) . '/config.php';
+global $CFG, $DB;
+require_once "$CFG->dirroot/local/paperattendance/locallib.php";
+require_once "$CFG->dirroot/lib/pdflib.php";
+require_once "$CFG->dirroot/mod/assign/feedback/editpdf/fpdi/fpdi.php";
+require_once "$CFG->dirroot/mod/assign/feedback/editpdf/fpdi/fpdi_bridge.php";
 
-global $DB;
+echo "\n== Processing PDFs ==\n";
+$pdfTime = time();
 
-// Now get cli options
-list($options, $unrecognized) = cli_get_params(
-		array('help'=>false),
-        array('h'=>'help')
-		);
-if($unrecognized) {
-    $unrecognized = implode("\n  ", $unrecognized);
-    cli_error(get_string('cliunknowoption', 'admin', $unrecognized));
-}
-// Text to the paperattendance console
-if($options['help']) {
-	$help =
-	// Todo: localize - to be translated later when everything is finished
-	"Process pdf located at folder unread on moodle file system.
-	Options:
-	-h, --help            Print out this help
-	Example:
-	\$sudo /usr/bin/php /local/paperattendance/cli/processpdf.php";
-	echo $help;
-	die();
-}
-//heading
-cli_heading('Paper Attendance pdf processing'); // TODO: localize
-echo "\nSearching for unread pdfs\n";
-echo "\nStarting at ".date("F j, Y, G:i:s")."\n";
-
-$initialtime = time();
-$read = 0;
 $found = 0;
+$sqlunreadpdfs =
+    "SELECT  id, filename AS name, uploaderid AS userid
+		    FROM {paperattendance_unprocessed}
+            ORDER BY lastmodified ASC";
 
-// Sql that brings the unread pdfs names
-$sqlunreadpdfs = "SELECT  id, pdf AS name, courseid
-	FROM {paperattendance_session}
-	WHERE status = ?
-	ORDER BY lastmodified ASC";
-
-// Parameters for the previous query
-$params = array(PAPERATTENDANCE_STATUS_UNREAD);
-
-// Read the pdfs if there is any unread, with readpdf function
-if($resources = $DB->get_records_sql($sqlunreadpdfs, $params)){
-	$path = $CFG -> dataroot. "/temp/local/paperattendance/unread";
-	foreach($resources as $pdf){
-		$found++;
-		$process = paperattendance_readpdf($path, $pdf-> name, $pdf->courseid);
-		if($process){
-			$read++;
-			$pdf->status = 1;
-			$DB->update_record("paperattendance_session", $pdf);
-		}
-	}
-	
-	echo $found." PDF found. \n";
-	echo $read." PDF processed. \n";
-	
-	// Displays the time required to complete the process
-	$finaltime = time();
-	$executiontime = $finaltime - $initialtime;
-	
-	echo "Execution time: ".$executiontime." seconds. \n";
-}else{
-	echo $found." pdfs found. \n";
+$resources = $DB->get_records_sql($sqlunreadpdfs, array());
+if (!$resources) {
+    echo "No PDFs to process found\n";
+    return;
 }
 
-exit(0);
+$path = "$CFG->dataroot/temp/local/paperattendance/unread";
+
+$pdfnum = count($resources);
+echo ("Found $pdfnum PDFs to process\n\n");
+
+if (!file_exists("$path/jpgs")) {
+    mkdir("$path/jpgs", 0777, true);
+}
+
+$pagesWithErrors = array();
+$countprocessed = 0;
+
+foreach ($resources as $pdf) {
+    $filename = $pdf->name;
+    $uploaderobj = $DB->get_record("user", array("id" => $pdf->userid));
+
+    echo ("Processing PDF $filename\n");
+
+    /**
+     * Create JPGs
+     * We use a slightly roundabout method of splitting the PDF into single page ones
+     * This is done to avoid the absurd memory usage of Imagick when reading large files
+     */
+    //clean the directory
+    \paperattendance_recursiveremovedirectory("$path/jpgs");
+
+    //count pages
+    $pages = new \FPDI();
+    $pagecount = $pages->setSourceFile("$path/$filename");
+    $pages->close();
+    unset($pages);
+
+    echo "$pagecount pages found\n";
+    for ($i = 1; $i <= $pagecount; $i++) {
+        echo "\nProcessing page $i\n";
+        //Split a single page
+        $new_pdf = new \FPDI();
+        $new_pdf->setPrintHeader(false);
+        $new_pdf->setPrintFooter(false);
+        $new_pdf->AddPage();
+        $new_pdf->setSourceFile("$path/$filename");
+        $new_pdf->useTemplate($new_pdf->importPage($i));
+        $new_pdf->Output("$path/jpgs/temp.pdf", "F");
+        $new_pdf->close();
+
+        //Export the page as PNG
+        $image = new \Imagick();
+        $image->setResolution(300, 300);
+        $image->readImage("$path/jpgs/temp.pdf");
+        $image->setImageFormat('jpeg');
+        $image->setImageCompression(\Imagick::COMPRESSION_JPEG);
+        $image->setImageCompressionQuality(100);
+
+        if ($image->getImageAlphaChannel()) {
+            $image->setImageAlphaChannel(12);
+            $image->setImageBackgroundColor('white');
+        }
+        $image->writeImage("$path/jpgs/$i.jpeg");
+        $image->destroy();
+
+        /*
+        //crop image
+        //this cropping barely works, dont recommend it
+        //when it works successfully the template 2 will likely crash and drop to the template 1 which is worse
+        $image = imagecreatefrompng("$path/jpgs/$i.png");
+        $cropped = imagecropauto($image, IMG_CROP_DEFAULT);
+        if ($cropped != false) {
+            imagedestroy($image);
+            $image = $cropped;
+            imagepng($image, "$path/jpgs/$i.png");
+        }*/
+
+        //process the PDF with an arbitrary number of templates
+        //any new templates add here
+        //the template 1 might crash less but its significantly less precise.
+        $templates = ["template-2.xtmpl", "template-1.xtmpl"];
+        $formscanner_jar = "$CFG->dirroot/local/paperattendance/formscanner-1.1.4-bin/lib/formscanner-main-1.1.4.jar";
+        $formscanner_path = "$path/jpgs/";
+
+        $success = false;
+
+        foreach ($templates as $template) {
+            //set the template
+            $formscanner_template = "$CFG->dirroot/local/paperattendance/formscanner-1.1.4-bin/$template";
+
+            $command = "timeout 30 java -jar $formscanner_jar $formscanner_template $formscanner_path";
+
+            $lastline = exec($command, $output, $return_var);
+            echo "$command\n";
+            print_r($output);
+            echo "$return_var\n";
+
+            if ($return_var == 0) {
+                $success = true;
+                echo "Success scanning with template: $template\n";
+                break;
+            } else {
+                echo "Failure with template: $template\n";
+            }
+        }
+
+        //if success read the CSV which in turn will write everything into the DB and sync with Omega
+        if ($success) {
+            echo "Success running OMR\n";
+            $arraypaperattendance_read_csv = array();
+            $arraypaperattendance_read_csv = \paperattendance_read_csv(glob("{$path}/jpgs/*.csv")[0], $path, $filename, $uploaderobj);
+            $processed = $arraypaperattendance_read_csv[0];
+            if ($arraypaperattendance_read_csv[1] != null) {
+                $pagesWithErrors[$arraypaperattendance_read_csv[1]->pagenumber] = $arraypaperattendance_read_csv[1];
+            }
+            $countprocessed++;
+        } else {
+            echo "Failure running OMR\n";
+            $sessionpageid = \paperattendance_save_current_pdf_page_to_session($i, null, null, $filename, 0, $uploaderobj->id, time());
+
+            $errorpage = new \stdClass();
+            $errorpage->pageid = $sessionpageid;
+            $errorpage->pagenumber = $i;
+            $pagesWithErrors[$errorpage->pagenumber] = $errorpage;
+        }
+
+        unlink("$path/jpgs/$i.jpeg");
+    }
+    unlink("$path/jpgs/temp.pdf");
+
+    $DB->delete_records("paperattendance_unprocessed", array('id' => $pdf->id));
+}
+
+//if errors happened while processing send mails
+if (count($pagesWithErrors) > 0) {
+    if (count($pagesWithErrors) > 1) {
+        ksort($pagesWithErrors);
+    }
+    //send mail to uploader
+    \paperattendance_sendMail($pagesWithErrors, null, $uploaderobj->id, $uploaderobj->id, null, "NotNull", "nonprocesspdf", null);
+
+    //send mail to admins
+    $admins = get_admins();
+    foreach ($admins as $admin) {
+        \paperattendance_sendMail($pagesWithErrors, null, $admin->id, $admin->id, null, "NotNull", "nonprocesspdf", null);
+    }
+    echo ("end pages with errors var dump\n");
+}
+
+echo "$pdfnum PDF found\n";
+echo "$countprocessed pages processed\n";
+
+// Displays the time required to complete the process
+$executiontime = time() - $pdfTime;
+echo "Processed PDFs in $executiontime seconds\n\n";

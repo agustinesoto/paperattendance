@@ -169,7 +169,7 @@ if( $isteacher || is_siteadmin($USER)) {
     				$f1 = substr($newpdfname, 0 , 2);
     				$f2 = substr($newpdfname, 2, 2);
     				$filepath = $f1."/".$f2."/".$newpdfname;
-    				$pages = $pdfname->pagenum + 1;
+    				$pages = $pdfname->pagenum;
     				//$originalpdf = $CFG -> dataroot. "/temp/local/paperattendance/unread/".$pdfname->pdfname;
     				$originalpdf = $CFG -> dataroot. "/filedir/".$filepath;
     				
@@ -238,9 +238,8 @@ if( $isteacher || is_siteadmin($USER)) {
 				$attendance->status = 1;
 				$attendance->lastmodified = time();
 				$DB->update_record("paperattendance_presence",$attendance);
-				if(paperattendance_checktoken($CFG->paperattendance_omegatoken)){
-					paperattendance_omegaupdateattendance(1, $presence->omegaid);
-				}
+				
+				paperattendance_omegaupdateattendance(1, $presence->omegaid);
 			}
 			
 			$goback = new moodle_url("/local/paperattendance/discussion.php", array(

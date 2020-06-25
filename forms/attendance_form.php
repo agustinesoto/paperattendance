@@ -48,6 +48,10 @@ class paperattendance_attendance_form extends moodleform {
 		}else {
 			$existsession = true;
 		}
+
+		//localization, used below
+		$student = get_string("student", "local_paperattendance");
+		$currentAssistance = get_string("currentassistance", "local_paperattendance");
 		
 		//create de list of students with checkboxs
 		$mform->addElement('header', 'nameforyourheaderelement', get_string('takeattendance', 'local_paperattendance'));
@@ -59,9 +63,9 @@ class paperattendance_attendance_form extends moodleform {
 		$mform->addElement('html', '<tr>');
 		$mform->addElement('html', '<th>#');
 		$mform->addElement('html', '</th>');
-		$mform->addElement('html', '<th>Alumno');
+		$mform->addElement('html', "<th>$student");
 		$mform->addElement('html', '</th>');
-		$mform->addElement('html', '<th>Asistencia actual');
+		$mform->addElement('html', "<th>$currentAssistance");
 		$mform->addElement('html', '</th>');
 		$mform->addElement('html', '</tr>');
 		$mform->addElement('html', '</thead>');

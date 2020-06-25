@@ -183,51 +183,51 @@ if($action == "add"){
 	}
 }
 
-if($action == "download" && isset($attendancepdffile)){
-
-	$button = html_writer::nonempty_tag(
-			"div",
-			$OUTPUT->single_button($urlprint, get_string('printgoback', 'local_paperattendance')),
-			array("align" => "left"
-			));
-
-	$url = moodle_url::make_pluginfile_url($context->id, 'local_paperattendance', 'draft', 0, '/', "paperattendance_".$courseid."_".$timepdf.".pdf");
-	$viewerpdf = html_writer::nonempty_tag("embed", " ", array(
-			"src" => $url,
-			"style" => "height:75vh; width:60vw"
-	));
-}
-
 echo $OUTPUT->header();
 
 if($action == "add"){
 
 	$PAGE->set_heading($pagetitle);
 
-	echo html_writer::nonempty_tag("h2", $course->shortname." - ".$course->fullname);
+	echo html_writer::nonempty_tag("h2", "$course->shortname - $course->fullname");
 	$addform->display();
 }
+
 // it's the download action when the attendancepdffile is created correctly
 if($action == "download" && isset($attendancepdffile)){
+	$downloadText = get_string("downloadprint", "local_paperattendance");
+	$backText = get_string("printgoback", "local_paperattendance");
+	$printerText = get_string("printersettings", "local_paperattendance");
+	$url = moodle_url::make_pluginfile_url(
+		$context->id, 
+		'local_paperattendance', 
+		'draft', 
+		0, 
+		'/',
+		"paperattendance_$courseid\e_$timepdf.pdf"
+	);
+	$viewerpdf = html_writer::nonempty_tag(
+		"embed", 
+		" ", 
+		array(
+			"src" => $url,
+			"style" => "height:100vh; width:100%"
+		)
+	);
 
-	
-	echo html_writer::div('<button style="margin-left:1%" type="button" class="btn btn-primary print">'.get_string("downloadprint", "local_paperattendance").'</button>');
-	// Back button
-	echo $button;
-	// Preview PDF
-	echo $viewerpdf;
+	echo "
+	$printerText
+	<div>
+		<a href='$urlprint' class='btn btn-secondary'> $backText </a>
+		<a href='$url' target='_blank' rel='noopener noreferrer' class='btn btn-primary'> $downloadText </a>
+	</div>
+	<br>
+	$viewerpdf
+	";
 }
 
 echo $OUTPUT->footer();
 ?>
-<script>
-$( document ).ready(function() {
-	$( ".print" ).on( "click", function() {
-		var w = window.open('<?php echo $url ;?>');
-		w.print();
-	});
-});
-</script>
 
 <script>
 $( document ).ready(function() {
@@ -332,17 +332,17 @@ function omegamodulescheck(datetwo, when){
 	 $( "form input:checkbox" ).prop( "checked", false);
 	$.ajax({
 	    type: 'POST',
-	    url: 'ajax/ajaxquerys.php',
+	    url: 'ajax/getmodules.php',
 	    data: {
-		      'action' : 'curlgetmoduloshorario',
 		      'omegaid' : '<?php echo ($course -> idnumber); ?>',	
 	    	  'diasemana': dayofweek,
 	    	  'courseid' : <?php echo $courseid; ?>,
 	    	  'category' : <?php echo $category; ?>
 	    	},
-	    success: function (response) {
+	    success: function (data) {
 
-	    	var data = $.parseJSON(response);  
+			//console.log(response);
+	    	//var data = $.parseJSON(response);  
 	       	$.each(data, function(index, datos) {
 				var horainicio = data[index].horaInicio;
 		    	var split = horainicio.split(':');
