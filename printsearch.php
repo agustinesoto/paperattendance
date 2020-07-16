@@ -234,7 +234,7 @@ $carttable->id = "carttable";
 
 //reminder for printer settings
 $formmodal = 
-'<div class="modal fade bs-example-modal-lg" id="formModal" tabindex="-1" role="dialog" aria-labelledby="formModalLabel" style="display: none; width:80%; margin-left:-45%">
+'<div class="modal fade bs-example-modal-lg" id="formModal" tabindex="-1" role="dialog" aria-labelledby="formModalLabel" style="display: none; width:80%">
 	<div class="modal-dialog modal-lg" role="document">
 		<div class="modal-content">
 			<div class="modal-header">

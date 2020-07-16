@@ -226,6 +226,12 @@ if ($action == "view") {
 
 }
 if ($action == "edit") {
+	/*
+	Honestly, this is a clusterfuck.
+	You get to editing by clicking "edit" on a pdf on the missing pages list
+	Here you fill the main fields, then when you click "confirm" javascript hides everything and creates new fields
+	it would be much nicer to just have an extra action
+	*/
 	if ($sesspageid == null) {
 		print_error(get_string("sessdoesnotexist", "local_attendance"));
 		$action = "view";
@@ -300,15 +306,15 @@ if ($action == "edit") {
 			/*Inputs of the form to edit a missing page plus the modals help buttons*/
 				
 			//Input for the Shortname of the course like : 2113-V-ECO121-1-1-2017
-			$inputs = html_writer::div('<label for="course">'.get_string("courseshortname", "local_paperattendance").'</label><input type="text" class="form-control" id="course" placeholder="2113-V-ECO121-1-1-2017"><button id="sn" type="button" class="btn btn-info btn-xs" data-toggle="modal" data-target="#shortnamemodal">?</button>',"form-group", array("style"=>"float:left; margin-left:10%"));
+			$inputs = html_writer::div('<label for="course">'.get_string("courseshortname", "local_paperattendance").'</label><input type="text" class="form-control" id="course" placeholder="2113-V-ECO121-1-1-2017"><button id="sn" type="button" class="btn btn-info btn-xs" data-toggle="modal" data-target="#shortnamemodal">?</button>',"form-group-input", array("style"=>"float:left; margin-left:10%"));
 			//Input for the Date of the list like: 01-08-2017
-			$inputs .= html_writer::div('<label for="date">'.get_string("datemiss", "local_paperattendance").'</label><input type="text" class="form-control" id="date" placeholder="01-08-2017"><button id="d" type="button" class="btn btn-info btn-xs" data-toggle="modal" data-target="#datemodal">?</button>',"form-group", array("style"=>"float:left; margin-left:10%"));
+			$inputs .= html_writer::div('<label for="date">'.get_string("datemiss", "local_paperattendance").'</label><input type="text" class="form-control" id="date" placeholder="01-08-2017"><button id="d" type="button" class="btn btn-info btn-xs" data-toggle="modal" data-target="#datemodal">?</button>',"form-group-input", array("style"=>"float:left; margin-left:10%"));
 			//Input for the time of the module of the session like: 16:30
-			$inputs .= html_writer::div('<label for="module">'.get_string("modulehourmiss", "local_paperattendance").'</label><input type="text" class="form-control" id="module" placeholder="16:30"><button id="m" type="button" class="btn btn-info btn-xs" data-toggle="modal" data-target="#modulemodal">?</button>',"form-group", array("style"=>"float:left; margin-left:10%"));
+			$inputs .= html_writer::div('<label for="module">'.get_string("modulehourmiss", "local_paperattendance").'</label><input type="text" class="form-control" id="module" placeholder="16:30"><button id="m" type="button" class="btn btn-info btn-xs" data-toggle="modal" data-target="#modulemodal">?</button>',"form-group-input", array("style"=>"float:left; margin-left:10%"));
 			//Input for the list begin number like: 27
-			$inputs .= html_writer::div('<label for="begin">'.get_string("listbeginmiss", "local_paperattendance").'</label><input type="text" class="form-control" id="begin" placeholder="27"><button id="b" type="button" class="btn btn-info btn-xs" data-toggle="modal" data-target="#beginmodal">?</button>',"form-group", array("style"=>"float:left; margin-left:10%"));
+			$inputs .= html_writer::div('<label for="begin">'.get_string("listbeginmiss", "local_paperattendance").'</label><input type="text" class="form-control" id="begin" placeholder="27"><button id="b" type="button" class="btn btn-info btn-xs" data-toggle="modal" data-target="#beginmodal">?</button>',"form-group-input", array("style"=>"float:left; margin-left:10%"));
 			//Input fot the submit button of the form
-			$inputs .= html_writer::div('<button type="submit" id="confirm" class="btn btn-default">'.get_string("continue", "local_paperattendance").'</button>',"form-group", array("style"=>"float:right; margin-right:5%; margin-top:3%;"));
+			$inputs .= html_writer::div('<button type="submit" id="confirm" class="btn btn-default">'.get_string("continue", "local_paperattendance").'</button>',"form-group-input", array("style"=>"float:right; margin-left:5%; margin-top:3%;"));
 				
 			//We now create de four help modals
 			$shortnamemodal = '<div class="modal fade" id="shortnamemodal" role="dialog" style="width: 50vw; z-index: -10;">
@@ -364,10 +370,10 @@ if ($action == "edit") {
 							    </div>
 							  </div>';
 				
-			$inputs .= html_writer::div($shortnamemodal, "form-group");
-			$inputs .= html_writer::div($datemodal, "form-group");
-			$inputs .= html_writer::div($modulemodal, "form-group");
-			$inputs .= html_writer::div($beginmodal, "form-group");
+			$inputs .= html_writer::div($shortnamemodal, "form-group-input");
+			$inputs .= html_writer::div($datemodal, "form-group-input");
+			$inputs .= html_writer::div($modulemodal, "form-group-input");
+			$inputs .= html_writer::div($beginmodal, "form-group-input");
 		}
 		else {
 			print_error(get_string("missingpagesdoesnotexist", "local_paperattendance"));
@@ -382,18 +388,9 @@ if ($action == "edit") {
 	echo $OUTPUT->header();
 	echo $OUTPUT->heading(get_string("missingpagestitle", "local_paperattendance"));
 
-	//Here we agregate some css style for the placeholders form
-	echo html_writer::div('<style>
-							.form-control::-webkit-input-placeholder { color: lightgrey; }  /* WebKit, Blink, Edge */
-							.form-control:-moz-placeholder { color: lightgrey; }  /* Mozilla Firefox 4 to 18 */
-							.form-control::-moz-placeholder { color: lightgrey; }  /* Mozilla Firefox 19+ */
-							.form-control:-ms-input-placeholder { color: lightgrey; }  /* Internet Explorer 10-11 */
-							.form-control::-ms-input-placeholder { color: lightgrey; }  /* Microsoft Edge *
-							</style>');
-	//echo html_writer::div(get_string("missingpageshelp","local_paperattendance"),"alert alert-info", array("role"=>"alert", "id"=>"alerthelp"));
   	$pdfarea = html_writer::div($viewerpdf,"col-md-12", array( "id"=>"pdfviewer"));
   	$inputarea = html_writer::div($inputs,"col-sm-12 row", array( "id"=>"inputs"));
- 	echo html_writer::div($inputarea.$pdfarea, "form-group");
+ 	echo html_writer::div($inputarea.$pdfarea, "form-group-input");
  	
  	//Add back button 
  	$backurl = new moodle_url("/local/paperattendance/missingpages.php", array(
@@ -551,7 +548,7 @@ $( "#confirm" ).on( "click", function() {
 			        	        	console.log(537);	
 			        	        	$("#backbutton").empty();
 
-                                    $(".form-group").addClass('row');
+                                    $(".form-group-input").addClass('row');
 
 			    					$("#inputs").empty();
 			    					$("#inputs").removeClass("row");
@@ -575,7 +572,7 @@ $( "#confirm" ).on( "click", function() {
 			    			        });
 
 			    			        $("#inputs").append("</tbody></table>");
-                                    $(".form-group").append('<div class="col-md-12" align="center" id="savebutton"><button class="btn btn-info savestudentsattendance" style="margin-bottom:5%; margin-top:5%;">Guardar Asistencia</button></div>');
+                                    $(".form-group-input").append('<div class="col-md-12" align="center" id="savebutton"><button class="btn btn-info savestudentsattendance" style="margin-bottom:5%; margin-top:5%;">Guardar Asistencia</button></div>');
 
 			    		    		$("#backbutton").append(backbutton);
 
