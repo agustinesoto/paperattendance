@@ -979,7 +979,7 @@ function paperattendance_sendMail($attendanceid, $courseid, $teacherid, $uploade
 	$teacher = $DB->get_record("user", array("id"=> $teacherid));
 	$userfrom = core_user::get_noreply_user();
 	$userfrom->maildisplay = true;
-	$eventdata = new stdClass();
+	$eventdata = new \core\message\message();
     if ($case == "processpdf" || $case == "nonprocesspdf"){
     	switch($case){
     		case "processpdf":
