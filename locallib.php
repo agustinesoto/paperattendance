@@ -1805,7 +1805,15 @@ function paperattendance_curl($url, $fields, $log = true)
         curl_setopt($curl, CURLOPT_POST, true);
         curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($fields));
         curl_setopt($curl, CURLOPT_HTTPHEADER, array("Content-Type: application/json"));
+        curl_setopt($curl, CURLOPT_TIMEOUT, 200);
+        curl_setopt($curl, CURLOPT_FAILONERROR, true); // Required for HTTP error codes to be reported via our call to curl_error($ch)
         $result = curl_exec($curl);
+
+        if(curl_errno($curl)){
+            /* comment for prevent json parse error ajax/savestudentsattendance.php*/
+            //mtrace("## Error CURL " . curl_error($curl) . " ##");
+        }
+
         curl_close($curl);
 
         if ($result && $result != 0 && $result != "0") {
