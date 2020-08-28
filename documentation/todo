@@ -1,5 +1,4 @@
 -improve file deletion (in particular lost pdfs are not deleted when deleted)
--move pdf log to file instead of DB
+-move pdf log to separate log instead of moodle cron log
 -fix problem with saving missing pages
--save missing pages button replicated in remui
 -something with missing pages?

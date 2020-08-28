@@ -302,3 +302,7 @@ $string['professoreditortext']="Rol Id Profesor";
 
 $string['professornoeditor']="Rol Id Ayudante Corrector";
 $string['professornoeditortext']="Rol Id Ayudante Corrector (profesornoeditor)";
+
+//processpdf cronlog
+$string['processpdf_log_path'] = "Ruta del log del procesamiento PDF";
+$string['processpdf_log_path_description'] = "Asegurese de el usuario que corre PHP tenga permiso de escritura";

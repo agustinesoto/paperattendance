@@ -1,4 +1,10 @@
 <?php
+
+//Beware, this code is duplicted on classes/task/processpdf.php ad-hoc task
+//Please replicate your changes to one on the other.
+//TODO: Create a processpdf function and just call it from the different execution methods
+//I encourage the deletion of the cron CLIs though.
+
 define('CLI_SCRIPT', true);
 require_once dirname(dirname(dirname(dirname(__FILE__)))) . '/config.php';
 global $CFG, $DB;
@@ -7,7 +13,9 @@ require_once "$CFG->dirroot/lib/pdflib.php";
 require_once "$CFG->dirroot/mod/assign/feedback/editpdf/fpdi/fpdi.php";
 require_once "$CFG->dirroot/mod/assign/feedback/editpdf/fpdi/fpdi_bridge.php";
 
-echo "\n== Processing PDFs ==\n";
+mtrace("\n== Processing PDFs ==\n");
+mtrace("WARNING: This CLI is deprecated and untested, prefer the ad-hoc task or run at your own risk\n");
+
 $pdfTime = time();
 
 $found = 0;
@@ -18,14 +26,14 @@ $sqlunreadpdfs =
 
 $resources = $DB->get_records_sql($sqlunreadpdfs, array());
 if (!$resources) {
-    echo "No PDFs to process found\n";
+    mtrace( "No PDFs to process found\n");
     return;
 }
 
 $path = "$CFG->dataroot/temp/local/paperattendance/unread";
 
 $pdfnum = count($resources);
-echo ("Found $pdfnum PDFs to process\n\n");
+mtrace( "Found $pdfnum PDFs to process\n\n");
 
 if (!file_exists("$path/jpgs")) {
     mkdir("$path/jpgs", 0777, true);
@@ -38,7 +46,7 @@ foreach ($resources as $pdf) {
     $filename = $pdf->name;
     $uploaderobj = $DB->get_record("user", array("id" => $pdf->userid));
 
-    echo ("Processing PDF $filename\n");
+    mtrace("Processing PDF $filename\n");
 
     /**
      * Create JPGs
@@ -54,9 +62,9 @@ foreach ($resources as $pdf) {
     $pages->close();
     unset($pages);
 
-    echo "$pagecount pages found\n";
+    mtrace("$pagecount pages found\n");
     for ($i = 1; $i <= $pagecount; $i++) {
-        echo "\nProcessing page $i\n";
+        mtrace( "\nProcessing page $i\n");
         //Split a single page
         $new_pdf = new \FPDI();
         $new_pdf->setPrintHeader(false);
@@ -110,22 +118,22 @@ foreach ($resources as $pdf) {
             $command = "timeout 30 java -jar $formscanner_jar $formscanner_template $formscanner_path";
 
             $lastline = exec($command, $output, $return_var);
-            echo "$command\n";
+            mtrace("$command\n");
             print_r($output);
-            echo "$return_var\n";
+            mtrace("$return_var\n");
 
             if ($return_var == 0) {
                 $success = true;
-                echo "Success scanning with template: $template\n";
+                mtrace("Success scanning with template: $template\n");
                 break;
             } else {
-                echo "Failure with template: $template\n";
+                mtrace("Failure with template: $template\n");
             }
         }
 
         //if success read the CSV which in turn will write everything into the DB and sync with Omega
         if ($success) {
-            echo "Success running OMR\n";
+            mtrace("Success running OMR\n");
             $arraypaperattendance_read_csv = array();
             $arraypaperattendance_read_csv = \paperattendance_read_csv(glob("{$path}/jpgs/*.csv")[0], $path, $filename, $uploaderobj);
             $processed = $arraypaperattendance_read_csv[0];
@@ -134,7 +142,7 @@ foreach ($resources as $pdf) {
             }
             $countprocessed++;
         } else {
-            echo "Failure running OMR\n";
+            mtrace("Failure running OMR\n");
             $sessionpageid = \paperattendance_save_current_pdf_page_to_session($i, null, null, $filename, 0, $uploaderobj->id, time());
 
             $errorpage = new \stdClass();
@@ -163,12 +171,12 @@ if (count($pagesWithErrors) > 0) {
     foreach ($admins as $admin) {
         \paperattendance_sendMail($pagesWithErrors, null, $admin->id, $admin->id, null, "NotNull", "nonprocesspdf", null);
     }
-    echo ("end pages with errors var dump\n");
+    mtrace("end pages with errors var dump\n");
 }
 
-echo "$pdfnum PDF found\n";
-echo "$countprocessed pages processed\n";
+mtrace("$pdfnum PDF found\n");
+mtrace("$countprocessed pages processed\n");
 
 // Displays the time required to complete the process
 $executiontime = time() - $pdfTime;
-echo "Processed PDFs in $executiontime seconds\n\n";
+mtrace("Processed PDFs in $executiontime seconds\n\n");
