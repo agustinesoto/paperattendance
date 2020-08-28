@@ -36,7 +36,10 @@ class processpdf extends \core\task\adhoc_task
 		if (!$resources) {
 			mtrace("No PDFs to process found");
 			return;
-		}
+        }
+        
+        $date = date(DATE_RFC2822);
+        fwrite($log_file, "==Procesing PDFs==\nDate: $date\n");
 
 		$path = "$CFG->dataroot/temp/local/paperattendance/unread";
 
@@ -354,6 +357,7 @@ class processpdf extends \core\task\adhoc_task
 
 		// Displays the time required to complete the process
 		$executiontime = time() - $pdfTime;
-		mtrace("Processed PDFs in $executiontime seconds\n\n");
+        mtrace("Processed PDFs in $executiontime seconds\n\n");
+        fwrite($log_file, "$pdfnum PDFs found\n$countprocessed pages processed\nProcessed PDFs in $executiontime seconds\n\n==PDF processing done==\n\n");
 	}
 }
