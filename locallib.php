@@ -34,7 +34,7 @@ define('PAPERATTENDANCE_STATUS_SYNC', 2); 		//already synced with omega
 */
 function paperattendance_create_qr_image($qrstring , $path){
 		global $CFG;
-		require_once ($CFG->dirroot . '/local/paperattendance/phpqrcode/phpqrcode.php');
+		require_once("$CFG->dirroot/local/paperattendance/lib/phpqrcode/phpqrcode.php");
 
 		if (!file_exists($path)) {
 			mkdir($path, 0777, true);

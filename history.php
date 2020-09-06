@@ -24,16 +24,16 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 //Belongs to plugin PaperAttendance
-require_once (dirname(dirname(dirname(__FILE__)))."/config.php");
-require_once ($CFG->dirroot."/local/paperattendance/forms/history_form.php");
-require_once ($CFG->dirroot."/local/paperattendance/forms/addstudent_form.php");
-require_once ($CFG->dirroot."/local/paperattendance/forms/reviewattendance_form.php");
-require_once ($CFG->dirroot . '/local/paperattendance/locallib.php');
-require_once ($CFG->dirroot . "/repository/lib.php");
-require_once ($CFG->libdir . '/pdflib.php');
-require_once ($CFG->dirroot . '/mod/assign/feedback/editpdf/fpdi/fpdi.php');
-require_once ($CFG->dirroot . "/mod/assign/feedback/editpdf/fpdi/fpdi_bridge.php");
-require_once ($CFG->dirroot . "/mod/assign/feedback/editpdf/fpdi/fpdi.php");
+require_once(dirname(dirname(dirname(__FILE__)))."/config.php");
+require_once("$CFG->dirroot/local/paperattendance/forms/history_form.php");
+require_once("$CFG->dirroot/local/paperattendance/forms/addstudent_form.php");
+require_once("$CFG->dirroot/local/paperattendance/forms/reviewattendance_form.php");
+require_once("$CFG->dirroot/local/paperattendance/locallib.php");
+require_once("$CFG->dirroot/repository/lib.php");
+require_once("$CFG->libdir/pdflib.php");
+require_once("$CFG->dirroot/local/paperattendance/lib/fpdi/fpdi.php");
+require_once("$CFG->dirroot/local/paperattendance/lib/fpdi/fpdi_bridge.php");
+require_once("$CFG->dirroot/local/paperattendance/lib/fpdi/fpdi.php");
 global $DB, $PAGE, $OUTPUT, $USER, $CFG;
 //Possible actions -> view, scan or students attendance . Standard is view mode
 $action = optional_param("action", "view", PARAM_TEXT);
