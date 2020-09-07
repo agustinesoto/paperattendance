@@ -207,7 +207,7 @@ function paperattendance_draw_student_list($pdf, $logofilepath, $course, $studen
 	$teachertrimmedtext = trim_text($teacherstring,30);
 	$top += 4;
 	$pdf->SetXY($left, $top);
-	$pdf->Write(1, core_text::strtoupper(get_string('teacher', 'mod_emarking') . ': ' . $teachertrimmedtext));
+	$pdf->Write(1, core_text::strtoupper(get_string('teacher', 'local_paperattendance') . ': ' . $teachertrimmedtext));
 	// Write requestor.
 	$requestortrimmedtext = trim_text($requestorinfo->firstname." ".$requestorinfo->lastname,30);
 	$top += 4;

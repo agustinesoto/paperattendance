@@ -139,7 +139,7 @@ $modulesquery = "SELECT *
 				FROM {paperattendance_module}
 				ORDER BY initialtime ASC";
 $modules = $DB->get_records_sql($modulesquery);
-$modulesselect = "<select class='selectpicker' multiple><option value='no'>".get_string("selectmodules", "local_paperattendance")."</option>";
+$modulesselect = "<select class='modulepicker' multiple><option value='no'>".get_string("selectmodules", "local_paperattendance")."</option>";
 foreach ($modules as $module){
 	$modulesselect .= "<option value='".$module->id."*".$module->initialtime."*".$module->endtime."'>".$module->initialtime."</option>";
 }
@@ -341,10 +341,10 @@ $( document ).ready(function() {
 				    var selectedmodules = [];   
 					jQuery('#carttable').append("<tr class='cart-tr' courseid="+courseid+"><td>"+arr['course']+"</td><td>"+arr['description']+"</td><td><input class='datepicker' type='date' size='10' value='"+today+"' courseid='"+courseid+"'></td><td>"+modulesselect+"</td><td>"+arr['requestor']+"</td><td><i class='icon icon-remove' courseid='"+courseid+"'></i></td></tr>");
 					if(!arr["modules"]){
-						jQuery('.cart-tr[courseid='+courseid+']').find('.selectpicker option[value="no"]').attr("selected", "selected");
+						jQuery('.cart-tr[courseid='+courseid+']').find('.modulepicker option[value="no"]').attr("selected", "selected");
 					}
 					else{
-						jQuery('.cart-tr[courseid='+courseid+']').find('.selectpicker option').each(function (i){
+						jQuery('.cart-tr[courseid='+courseid+']').find('.modulepicker option').each(function (i){
 							for(j=0;j<arr["modules"].length;j++)
 								if(arr["modules"][j]["horaInicio"] == $(this).text()+":00"){
 									$(this).attr("selected", "selected");
@@ -418,7 +418,7 @@ $( document ).ready(function() {
 	    updatelistsdate($(this).val(), cid);
 	});
 	//When a modules select change, lists array should be updated, if each list has at least one module, then the print button is enable
-	$( document ).on( "change", ".selectpicker", function() {
+	$( document ).on( "change", ".modulepicker", function() {
 		var cid = $(this).closest("tr").attr("courseid");
 		var mods = new Array();
 		$("option:selected", this).each(function(i){
@@ -497,7 +497,7 @@ $( document ).ready(function() {
 	//This function is to check modules from omega
 	function omegamodulescheck(datetwo, courseid){
 		dayofweek = datetwo.getDay();
-		var modulesoptions = jQuery('.cart-tr[courseid='+courseid+']').find('.selectpicker option');
+		var modulesoptions = jQuery('.cart-tr[courseid='+courseid+']').find('.modulepicker option');
 		modulesoptions.prop( "selected", false);
 		$.ajax({
 		    type: 'POST',
@@ -509,7 +509,7 @@ $( document ).ready(function() {
 		    success: function (response) {
 		    	var arr = response;
 		    	if(arr["modules"] == false){
-		    		jQuery('.cart-tr[courseid='+courseid+']').find('.selectpicker option[value="no"]').prop("selected", true);
+		    		jQuery('.cart-tr[courseid='+courseid+']').find('.modulepicker option[value="no"]').prop("selected", true);
 		    		updatelistsmodules(null, courseid);
 		    		enableprintbutton();
 			    }
@@ -562,7 +562,7 @@ $( document ).ready(function() {
 	//This function is to enable the print button when every list has at least one module selected
 	function enableprintbutton(){
 		var count=0;
-		$(".selectpicker option:selected").each(function(i){
+		$(".modulepicker option:selected").each(function(i){
 			if($(this).val() == "no")
 				count++;
 		});
