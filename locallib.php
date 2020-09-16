@@ -301,7 +301,7 @@ function paperattendance_draw_student_list($pdf, $logofilepath, $course, $studen
 			$pdf->Write(1, core_text::strtoupper(get_string('course') . ': ' . $coursetrimmedtext));
 			$topprovisional += 4;
 			$pdf->SetXY($leftprovisional, $topprovisional);
-			$pdf->Write(1, core_text::strtoupper(get_string('teacher', 'mod_emarking') . ': ' . $teachertrimmedtext));
+			$pdf->Write(1, core_text::strtoupper(get_string('teacher', 'local_paperattendance') . ': ' . $teachertrimmedtext));
 			// Write requestor.
 			$topprovisional += 4;
 			$pdf->SetXY($leftprovisional, $topprovisional);

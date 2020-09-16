@@ -128,9 +128,12 @@ class processpdf extends \core\task\adhoc_task
 
 					$command = "timeout 30 java -jar $formscanner_jar $formscanner_template $formscanner_path 2>> $CFG->paperattendance_processpdflogpath";
 
+					fwrite($log_file, "Running:\n");
 					exec($command, $output, $return_var);
 
 					fwrite($log_file, "$command\n");
+					fwrite($log_file, "Output: $output\n");
+					fwrite($log_file, "Return: $return_var\n");
 
 					if ($return_var == 0) {
 						$success = true;

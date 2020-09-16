@@ -26,6 +26,7 @@
 
 require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
 require_once("$CFG->dirroot/local/paperattendance/locallib.php");
+require_once("$CFG->dirroot/local/paperattendance/forms/response_form.php");
 require_once("$CFG->dirroot/repository/lib.php");
 require_once("$CFG->libdir/pdflib.php");
 require_once("$CFG->dirroot/local/paperattendance/lib/fpdi/fpdi.php");
