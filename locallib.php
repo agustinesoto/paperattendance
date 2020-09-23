@@ -1716,7 +1716,7 @@ function paperattendance_omegacreateattendance($courseid, $arrayalumnos, $sessid
 				//check if omegaid already exists
 				if($DB->record_exists("paperattendance_presence", array("omegaid" => $omegasessionid)))
 				{
-					echo "Fatal Error: Omega ID already exists!\n";
+					//echo "Fatal Error: Omega ID already exists!\n";
 				}
                	//save student sync
                	$sqlsyncstate = "UPDATE {paperattendance_presence} SET omegasync = ?, omegaid = ? WHERE sessionid  = ? AND userid = ?";
