@@ -187,7 +187,7 @@ $PAGE->requires->jquery_plugin ( 'ui' );
 $PAGE->requires->jquery_plugin ( 'ui-css' );
 $PAGE->requires->js( new moodle_url('https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js') );
 $PAGE->requires->css( new moodle_url('https://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css') );
-$PAGE->requires->css( new moodle_url('printsearch.css'));
+$PAGE->requires->css( new moodle_url('css/printsearch.css'));
 
 
 $coursecount = $page*$perpage+1;
@@ -211,8 +211,9 @@ foreach($courses as $course){
 }
 echo $OUTPUT->header();
 echo html_writer::div(get_string("searchprinthelp","local_paperattendance"),"alert alert-info", array("role"=>"alert"));
-$filterinput = html_writer::empty_tag("input", array( "id"=>"filter", "type"=>"text", "style"=>"float:left; width:25%"));
-$cartbutton = html_writer::nonempty_tag("button", get_string("listscart","local_paperattendance"),  array( "id"=>"cartbutton", "style"=>"float:right; margin-right:6%"));
+$filterinput = html_writer::empty_tag("input", array( "id"=>"filter", "type"=>"text"));
+$cartbutton = html_writer::nonempty_tag("button", get_string("listscart","local_paperattendance"),  array("id"=>"cartbutton", "class"=>"btn btn-default"));
+
 echo html_writer::div($filterinput.$cartbutton, "topbarmenu");
 
 if ($ncourses>0){
@@ -238,8 +239,8 @@ $formmodal =
 	<div class="modal-dialog modal-lg" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 				<h4 class="modal-title" id="formModalLabel">Carrito de listas</h4>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 			</div>
 			<div class="modal-body" style="height:70vh">
 				'.html_writer::table($carttable).'
@@ -258,8 +259,8 @@ $pdfmodal = "
 	<div class='modal-dialog modal-lg' role='document'>
 		<div class='modal-content'>
 			<div class='modal-header'>
-				<button type='button' class='close' data-dismiss='modal' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
 				<h4 class='modal-title' id='pdfModalLabel'>Listas pdf</h4>
+				<button type='button' class='close' data-dismiss='modal' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
 			</div>
 			<div class='modal-body'>
 				<div class='pdflists'></div>

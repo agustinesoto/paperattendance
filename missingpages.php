@@ -121,6 +121,8 @@ $PAGE->set_pagelayout('standard');
 $PAGE->requires->jquery();
 $PAGE->requires->jquery_plugin ( 'ui' );
 $PAGE->requires->jquery_plugin ( 'ui-css' );
+$PAGE->requires->css( new moodle_url('css/missingpages.css'));
+
 if($countmissing==0){
 	//print_error(get_string('nothingmissing', 'local_paperattendance'));
 	$PAGE->set_title(get_string("viewmissing", "local_paperattendance"));
@@ -232,6 +234,19 @@ if ($action == "edit") {
 	Here you fill the main fields, then when you click "confirm" javascript hides everything and creates new fields
 	it would be much nicer to just have an extra action
 	*/
+
+	//define the back button here to echo inside the if($seespageid == null) scope
+	//we need to have it defined out here so it can be echoed into the javascript on the bottom of this file
+ 	$backurl = new moodle_url("/local/paperattendance/missingpages.php", array(
+ 			"action" => "view"
+ 	));
+ 	$viewbackbutton = html_writer::nonempty_tag(
+ 			"div",
+ 			$OUTPUT->single_button($backurl, get_string('back', 'local_paperattendance')),
+			array("class"=>"form-group-input", "id"=>"backbutton")
+		);
+
+
 	if ($sesspageid == null) {
 		print_error(get_string("sessdoesnotexist", "local_attendance"));
 		$action = "view";
@@ -306,15 +321,19 @@ if ($action == "edit") {
 			/*Inputs of the form to edit a missing page plus the modals help buttons*/
 				
 			//Input for the Shortname of the course like : 2113-V-ECO121-1-1-2017
-			$inputs = html_writer::div('<label for="course">'.get_string("courseshortname", "local_paperattendance").'</label><input type="text" class="form-control" id="course" placeholder="2113-V-ECO121-1-1-2017"><button id="sn" type="button" class="btn btn-info btn-xs" data-toggle="modal" data-target="#shortnamemodal">?</button>',"form-group-input", array("style"=>"float:left; margin-left:10%"));
+			$inputs = html_writer::div('<label for="course">'.get_string("courseshortname", "local_paperattendance").'</label><input type="text" class="form-control" id="course" placeholder="2113-V-ECO121-1-1-2017"><button id="sn" type="button" class="btn btn-info btn-xs" data-toggle="modal" data-target="#shortnamemodal">?</button>',"form-group-input");
 			//Input for the Date of the list like: 01-08-2017
-			$inputs .= html_writer::div('<label for="date">'.get_string("datemiss", "local_paperattendance").'</label><input type="text" class="form-control" id="date" placeholder="01-08-2017"><button id="d" type="button" class="btn btn-info btn-xs" data-toggle="modal" data-target="#datemodal">?</button>',"form-group-input", array("style"=>"float:left; margin-left:10%"));
+			$inputs .= html_writer::div('<label for="date">'.get_string("datemiss", "local_paperattendance").'</label><input type="text" class="form-control" id="date" placeholder="01-08-2017"><button id="d" type="button" class="btn btn-info btn-xs" data-toggle="modal" data-target="#datemodal">?</button>',"form-group-input");
 			//Input for the time of the module of the session like: 16:30
-			$inputs .= html_writer::div('<label for="module">'.get_string("modulehourmiss", "local_paperattendance").'</label><input type="text" class="form-control" id="module" placeholder="16:30"><button id="m" type="button" class="btn btn-info btn-xs" data-toggle="modal" data-target="#modulemodal">?</button>',"form-group-input", array("style"=>"float:left; margin-left:10%"));
+			$inputs .= html_writer::div('<label for="module">'.get_string("modulehourmiss", "local_paperattendance").'</label><input type="text" class="form-control" id="module" placeholder="16:30"><button id="m" type="button" class="btn btn-info btn-xs" data-toggle="modal" data-target="#modulemodal">?</button>',"form-group-input");
 			//Input for the list begin number like: 27
-			$inputs .= html_writer::div('<label for="begin">'.get_string("listbeginmiss", "local_paperattendance").'</label><input type="text" class="form-control" id="begin" placeholder="27"><button id="b" type="button" class="btn btn-info btn-xs" data-toggle="modal" data-target="#beginmodal">?</button>',"form-group-input", array("style"=>"float:left; margin-left:10%"));
+			$inputs .= html_writer::div('<label for="begin">'.get_string("listbeginmiss", "local_paperattendance").'</label><input type="text" class="form-control" id="begin" placeholder="27"><button id="b" type="button" class="btn btn-info btn-xs" data-toggle="modal" data-target="#beginmodal">?</button>',"form-group-input");
 			//Input fot the submit button of the form
-			$inputs .= html_writer::div('<button type="submit" id="confirm" class="btn btn-default">'.get_string("continue", "local_paperattendance").'</button>',"form-group-input", array("style"=>"float:right; margin-left:5%; margin-top:3%;"));
+			$inputs .= "<div id='buttons'>";
+			$inputs .= html_writer::div('<button type="submit" id="confirm" class="btn btn-default">'.get_string("continue", "local_paperattendance").'</button>',"form-group-input");
+			//add the back button
+			$inputs .= $viewbackbutton;
+			$inputs .= "</div>";
 				
 			//We now create de four help modals
 			$shortnamemodal = '<div class="modal fade" id="shortnamemodal" role="dialog" style="width: 50vw; z-index: -10;">
@@ -391,18 +410,6 @@ if ($action == "edit") {
   	$pdfarea = html_writer::div($viewerpdf,"col-md-12", array( "id"=>"pdfviewer"));
   	$inputarea = html_writer::div($inputs,"col-sm-12 row", array( "id"=>"inputs"));
  	echo html_writer::div($inputarea.$pdfarea, "form-group-input");
- 	
- 	//Add back button 
- 	$backurl = new moodle_url("/local/paperattendance/missingpages.php", array(
- 			"action" => "view"
- 	));
- 	
- 	$viewbackbutton = html_writer::nonempty_tag(
- 			"div",
- 			$OUTPUT->single_button($backurl, get_string('back', 'local_paperattendance')),
- 			array("align" => "left", "style" => "position:sticky; bottom:0", "id"=>"backbutton"
- 			));
- 	echo $viewbackbutton;
 	
 }
 //Delete the selected missing page
@@ -438,8 +445,8 @@ if($action == "scan"){
 	$viewbackbutton = html_writer::nonempty_tag(
 			"div",
 			$OUTPUT->single_button($backurl, get_string('back', 'local_paperattendance')),
-			array("align" => "left"
-			));
+			array("align" => "left", "style"=>"padding-bottom: 1vh;")
+		);
 
 	$url = moodle_url::make_pluginfile_url($contextsystem->id, 'local_paperattendance', 'draft', 0, '/', $pdfname);
 
@@ -486,9 +493,9 @@ $( "#confirm" ).on( "click", function() {
 	var date = $('#date');
 	var module = $('#module');
 	var begin = $('#begin');
-	var sesspageid = '<?php echo $sesspageid; ?>';
-	var pdfviewer = '<?php echo $viewerpdftres; ?>';
-	var backbutton = '<?php echo preg_replace("/[\r\n|\n|\r]+/", " ", $viewbackbutton); ?>';
+	var sesspageid = '<?php echo($sesspageid ?? ''); ?>';
+	var pdfviewer = '<?php echo($viewerpdftres ?? ''); ?>';
+	var backbutton = '<?php echo(preg_replace("/[\r\n|\n|\r]+/", " ", $viewbackbutton ?? '')); ?>';
 	//Validate the four fields in the form
 	if 
 	(

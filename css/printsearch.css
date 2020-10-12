@@ -12,6 +12,15 @@
     flex-grow: 1;
 }
 
+.topbarmenu {
+    padding-bottom: 1vh;
+    display: flex;
+    justify-content: space-between;
+}
+
+#filter {
+    width: 25%;
+}
 @media only screen and (min-height: 700px) {
     .pdflists {
         height: 80vh;
