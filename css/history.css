@@ -1,0 +1,12 @@
+
+#formModal .modal-content .modal-body {
+    overflow-y: auto;
+}
+
+#insertstudentmodal .modal-content {
+    width: 40vw;
+}
+
+#insertstudentmodal .modal-dialog {
+    max-width: max-content;
+}

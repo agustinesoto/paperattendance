@@ -52,8 +52,9 @@ $PAGE->requires->jquery();
 $PAGE->requires->jquery_plugin ( 'ui' );
 $PAGE->requires->jquery_plugin ( 'ui-css' );
 
-$PAGE->requires->js( new moodle_url('https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js') );
-$PAGE->requires->css( new moodle_url('https://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css') );
+$PAGE->requires->js(new moodle_url('https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js') );
+$PAGE->requires->css(new moodle_url('https://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css') );
+$PAGE->requires->css(new moodle_url('css/history.css'));
 
 $contextsystem = context_system::instance();
 //Page pagination
@@ -287,12 +288,12 @@ if( $isteacher || is_siteadmin($USER) || has_capability('local/paperattendance:p
                 );
             }
         }
-        $insertstudentmodal= '<div class="modal fade" id="insertstudentmodal" role="dialog" style="width: 50vw; z-index: -10;">
+        $insertstudentmodal= '<div class="modal fade" id="insertstudentmodal" role="dialog">
 							    <div class="modal-dialog modal-sm">
 							      <div class="modal-content">
 									<div class="modal-header">
-          								<button type="button" class="close" data-dismiss="modal">&times;</button>
           								<h4 class="modal-title">'.get_string("insertstudentmanually", "local_paperattendance").' </h4>
+          								<button type="button" class="close" data-dismiss="modal">&times;</button>
        								</div>
 							        <div class="modal-body">';
         if($counter>0){
