@@ -18,6 +18,19 @@
     justify-content: space-between;
 }
 
+#formModal .modal-content .modal-body {
+    overflow-y: auto;
+    max-height: 400px;
+}
+
+#formModal.modal.fade.bs-example-modal-lg.show {
+    margin-left: 10%!important;
+}
+
+#formModal {
+    transition: none0s ease 0s!important;
+}
+
 #filter {
     width: 25%;
 }
