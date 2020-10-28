@@ -229,6 +229,12 @@ if($action == "download" && isset($attendancepdffile)){
 echo $OUTPUT->footer();
 ?>
 
+<style>
+.form-control-feedback {
+	display: none!important;
+}
+</style>
+
 <script>
 $( document ).ready(function() {
 var currentdate = new Date();

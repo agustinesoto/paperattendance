@@ -336,7 +336,7 @@ if ($action == "edit") {
 			$inputs .= "</div>";
 				
 			//We now create de four help modals
-			$shortnamemodal = '<div class="modal fade" id="shortnamemodal" role="dialog" style="width: 50vw; z-index: -10;">
+			$shortnamemodal = '<div class="modal fade hint" id="shortnamemodal" role="dialog">
 							    <div class="modal-dialog modal-sm">
 							      <div class="modal-content">
 							        <div class="modal-body">
@@ -349,7 +349,7 @@ if ($action == "edit") {
 							      </div>
 							    </div>
 							  </div>';
-			$datemodal = '<div class="modal fade" id="datemodal" role="dialog" style="width: 50vw; z-index: -10;">
+			$datemodal = '<div class="modal fade hint" id="datemodal" role="dialog">
 							    <div class="modal-dialog modal-sm">
 							      <div class="modal-content">
 							        <div class="modal-body">
@@ -362,7 +362,7 @@ if ($action == "edit") {
 							      </div>
 							    </div>
 							  </div>';
-			$modulemodal = '<div class="modal fade" id="modulemodal" role="dialog" style="width: 50vw; z-index: -10;">
+			$modulemodal = '<div class="modal fade hint" id="modulemodal" role="dialog">
 							    <div class="modal-dialog modal-sm">
 							      <div class="modal-content">
 							        <div class="modal-body">
@@ -375,7 +375,7 @@ if ($action == "edit") {
 							      </div>
 							    </div>
 							  </div>';
-			$beginmodal = '<div class="modal fade" id="beginmodal" role="dialog" style="width: 50vw; z-index: -10;">
+			$beginmodal = '<div class="modal fade hint" id="beginmodal" role="dialog">
 							    <div class="modal-dialog modal-sm">
 							      <div class="modal-content">
 							        <div class="modal-body">
