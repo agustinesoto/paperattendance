@@ -963,14 +963,17 @@ else{
 }
 echo $OUTPUT->footer();
 ?>
-<script type="text/javascript">
-	$( document ).on( "click", "#insertstudentmodalbtn", function() {
-		jQuery('#insertstudentmodal').css('z-index', '');
-	});
-</script>
 
 <script>
+
 $( document ).ready(function() {
+    /*
+    $('#insertstudentmodalbtn').on('click', function() {
+        setTimeout(() => {
+            $(".modal").removeClass("fade")
+        }, 300)
+    })*/
+
     /*$('.generaltable').find('th').hover(function() {
 			$( this ).find('.changeall').toggle();
 		}, function() {

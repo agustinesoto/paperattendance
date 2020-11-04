@@ -38,8 +38,6 @@ $courseid = required_param("courseid", PARAM_INT);
 $action = optional_param("action", "add", PARAM_TEXT);
 $category = optional_param('categoryid', $CFG->paperattendance_categoryid, PARAM_INT);
 
-$PAGE->requires->css( new moodle_url('css/print.css'));
-
 if($courseid > 1){
 	if($course = $DB->get_record("course", array("id" => $courseid)) ){
 		if($course->idnumber != NULL){
@@ -245,11 +243,12 @@ datetwo.setFullYear(selectyear);
 
 comparedates(currentdate, datetwo);
 
+//what is going on here is that for some reason inline css "display: inline" is being added 
+//to unwanted elements for some unknown (probably remui related) reason
+//this code selects them and removes the css after the site loads
 //this solution is absolutely horrible, we should definetly
-//find what is adding display-inline so the style never gets added in the first time
-$('.form-control-feedback') {
-	$('.form-control-feedback').css("display", "");
-}
+//find what is adding display inline so the style never gets added in the first place
+$('span.form-control-feedback').css("display", "");
 
 $('#id_sessiondate_day').change(function() {
 	  var selected = $('#id_sessiondate_day option:selected').val();
