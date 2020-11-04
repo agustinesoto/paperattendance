@@ -38,6 +38,8 @@ $courseid = required_param("courseid", PARAM_INT);
 $action = optional_param("action", "add", PARAM_TEXT);
 $category = optional_param('categoryid', $CFG->paperattendance_categoryid, PARAM_INT);
 
+$PAGE->requires->css( new moodle_url('css/print.css'));
+
 if($courseid > 1){
 	if($course = $DB->get_record("course", array("id" => $courseid)) ){
 		if($course->idnumber != NULL){
@@ -229,12 +231,6 @@ if($action == "download" && isset($attendancepdffile)){
 echo $OUTPUT->footer();
 ?>
 
-<style>
-.form-control-feedback {
-	display: none!important;
-}
-</style>
-
 <script>
 $( document ).ready(function() {
 var currentdate = new Date();
@@ -248,6 +244,12 @@ datetwo.setMonth(selectmonth);
 datetwo.setFullYear(selectyear);
 
 comparedates(currentdate, datetwo);
+
+//this solution is absolutely horrible, we should definetly
+//find what is adding display-inline so the style never gets added in the first time
+$('.form-control-feedback') {
+	$('.form-control-feedback').css("display", "");
+}
 
 $('#id_sessiondate_day').change(function() {
 	  var selected = $('#id_sessiondate_day option:selected').val();
@@ -286,11 +288,6 @@ function comparedates(currentdate, datetwo){
 		$('.nomodulos').remove();
 		showmodules();
 		omegamodulescheck(datetwo, 'showall');
-	}
-	if (currentdate > datetwo ){
-		$('.nomodulos').remove();
-		hideallmodules();
-		$('.fgroup').first().append('<div class="nomodulos alert alert-warning">No hay módulos disponibles para la fecha seleccionada.</div>');
 	}
 	}
 
