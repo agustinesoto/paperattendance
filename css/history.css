@@ -10,3 +10,7 @@
 #insertstudentmodal .modal-dialog {
     max-width: max-content;
 }
+
+.fade.in {
+    background: rgba(0,0,0,0.15)
+}
