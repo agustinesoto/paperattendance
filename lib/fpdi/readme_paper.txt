@@ -1,0 +1,1 @@
+For best results install the commercial fpdi.php and FilterPredictor.php
