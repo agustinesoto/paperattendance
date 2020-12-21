@@ -201,5 +201,14 @@ if ($hassiteconfig) {
             4,
             PARAM_INT
         )
-    );
+	);
+	$settings->add(
+		new admin_setting_configtext(
+			'paperattendance_processpdflogpath',
+			get_string('processpdf_log_path', 'local_paperattendance'),
+			get_string('processpdf_log_path_description', 'local_paperattendance'),
+			'/var/log/moodle/processpdf.log',
+			PARAM_TEXT
+		)
+	);
 }

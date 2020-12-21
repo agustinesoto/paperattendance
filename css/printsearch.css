@@ -1,0 +1,41 @@
+.pdflists {
+    display:flex; 
+    flex-direction: column;
+}
+
+#download-button {
+    margin-bottom: 15px;
+    width: fit-content;
+}
+
+#pdf-iframe {
+    flex-grow: 1;
+}
+
+.topbarmenu {
+    padding-bottom: 1vh;
+    display: flex;
+    justify-content: space-between;
+}
+
+#formModal .modal-content .modal-body {
+    overflow-y: auto;
+    max-height: 400px;
+}
+
+#formModal.modal.fade.bs-example-modal-lg.show {
+    margin-left: 10%!important;
+}
+
+#formModal {
+    transition: none0s ease 0s!important;
+}
+
+#filter {
+    width: 25%;
+}
+@media only screen and (min-height: 700px) {
+    .pdflists {
+        height: 80vh;
+    }
+}
