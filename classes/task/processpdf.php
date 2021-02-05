@@ -13,8 +13,13 @@ class processpdf extends \core\task\adhoc_task
 		global $CFG, $DB;
 		require_once("$CFG->dirroot/local/paperattendance/locallib.php");
 		require_once("$CFG->dirroot/lib/pdflib.php");
-		require_once("$CFG->dirroot/local/paperattendance/lib/fpdi/fpdi.php");
-		require_once("$CFG->dirroot/local/paperattendance/lib/fpdi/fpdi_bridge.php");
+
+		//to avoid clashing with emarking loading fpdi we check if its already loaded to avoid loading it again
+		if(class_exists("FPDI") == false) 
+		{
+			require_once("$CFG->dirroot/local/paperattendance/lib/fpdi/fpdi.php");
+			require_once("$CFG->dirroot/local/paperattendance/lib/fpdi/fpdi_bridge.php");
+		}
 
 		if(is_writable($CFG->paperattendance_processpdflogpath) == false)
 		{
