@@ -285,7 +285,7 @@ jQuery('#formModal').modal({
 $( document ).ready(function() {
     $('#filter').focus();
     $('#carttable tbody tr').remove();
-    console.log("Aquí eliminaba tbody tr carttable");
+
     let lists = getLists();
     printCartList(lists);
 
@@ -360,7 +360,6 @@ $( document ).ready(function() {
 						});
 					}
 
-					//lists.push({"courseid":courseid, "requestorid": arr["requestorid"], "date": today, "modules": selectedmodules, "description": arr["description"]});
                     addCourse({"courseid":courseid, "requestorid": arr["requestorid"], "date": today, "modules": selectedmodules, "description": arr["description"], "course": arr['course'], "modules": arr["modules"], "requestor": arr['requestor']});
 					$('.listcart[courseid='+courseid+']').attr('clicked', 1);
 					enableprintbutton();
@@ -374,13 +373,9 @@ $( document ).ready(function() {
 			trmodal.remove();
 			jQuery(".listcart[courseid="+courseid+"]").removeClass('icon-ok').addClass('icon-plus');
 			jQuery(".listcart[courseid="+courseid+"]").attr("clicked", 0);
-			/*lists = jQuery.grep(lists, function(e){
-				return e.courseid != courseid;
-			});*/
+
             removeCourse(courseid);
 			enableprintbutton();
-
-
 		}
 	});
 	//When the quickprint icon is clicked
@@ -603,62 +598,39 @@ $( document ).ready(function() {
 	}
 
     function printCartList(lists){
-
-
         //chequeando los que están en el carro
         var $table = $("#fbody").find("tbody");
 
-
         lists.forEach(function(course){
-            console.log("Curso:"+JSON.stringify(course));
-
             //Pre selected modules
             var modulesselect = <?php echo json_encode($modulesselect);?>;
             jQuery('#carttable').append("<tr class='cart-tr' courseid="+course.courseid+"><td>"+course.course+"</td><td>"+course.description+"</td><td><input class='datepicker' type='date' size='10' value='"+today+"' courseid='"+course.courseid+"'></td><td>"+modulesselect+"</td><td>"+course.requestor+"</td><td><i class='icon icon-remove' courseid='"+course.courseid+"'></i></td></tr>");
             if(!course["modules"]){
-                console.log("No hay módulos, marcar Seeleccionar");
                 jQuery('.cart-tr[courseid='+course.courseid+']').find('.modulepicker option[value="no"]').attr("selected", "selected");
             }
             else{
-                console.log("HAY Módulos, hay q marcarlos");
                 jQuery('.cart-tr[courseid='+course.courseid+']').find('.modulepicker option').each(function (i){
 
-                    let pickerOption = $(this).text();
-
-                    console.log("Picker value: "+optionPicker);
-                    console.log("***FOREACH MODULE***");
+                    let option = $(this);
+                    let valueOption = $(this).val();
                     let modulos = course["modules"];
 
                     modulos.forEach(function(module){
-                        console.log("Module a buscar: "+JSON.stringify(module));
-                        let mod = JSON.stringify(course["modules"]);
+                        Object.entries(module).forEach(([key, value]) => {
+                            if(key == 'no'){
+                                option.attr("selected", "selected");
+                            }
+                            else if(key == valueOption){
+                                option.attr("selected", "selected");
+                            }
+                            else{
+                                console.log("No encontró el módulo");
+                            }
+                        });
                         
                     });
-                    console.log("***FOREACH MODULE***");
-
-
-                    console.log("Módulos a buscar: "+JSON.stringify(course["modules"]));
-
-                    /*for(j=0;j<course["modules"].length;j++)
-                        console.log("Módulo a buscar: "+course["modules"][j]);
-                        console.log("Módulo multipecker: "+$(this).text());
-
-
-                        if(course["modules"][j].includes($(this).text())){
-                            console.log("AL FIIIIIN");
-                        }
-
-                        if(course["modules"][1] == $(this).text()){
-                            console.log("Encontró el módulo");
-                            $(this).attr("selected", "selected");
-                        }
-                        else{
-                            console.log("No encontró el módulo");
-                        }
-                    */
                 });
             }
-
         });
 
     }
