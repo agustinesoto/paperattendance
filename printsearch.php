@@ -287,7 +287,7 @@ $( document ).ready(function() {
     $('#carttable tbody tr').remove();
 
     let lists = getLists();
-    printCartList(lists);
+    printListCart(lists);
 
 });
 </script>
@@ -462,9 +462,12 @@ $( document ).ready(function() {
 		    	},
 		    success: function (response) {
 				$('.pdflists').html(response);
+
+                //localStorage.clear();
 		    }
 		});
 	});
+
 	//This function is called to filter the table
 	function callAjax(data, path, print, categoryid) {
 		var count = 1;
@@ -594,8 +597,13 @@ $( document ).ready(function() {
 		return lists.length;
 	}
 
-    function printCartList(lists){
+    /*LocalStorage*/
+    //When this button is clicked, must clear storage
+    $( document ).on( "click", "#download-button", function() {
+        clearListCart();
+    });
 
+    function printListCart(lists){
         lists.forEach(function(course){
             //Pre selected modules
             var modulesselect = <?php echo json_encode($modulesselect);?>;
@@ -605,7 +613,6 @@ $( document ).ready(function() {
             }
             else{
                 jQuery('.cart-tr[courseid='+course.courseid+']').find('.modulepicker option').each(function (i){
-
                     let option = $(this);
                     let valueOption = $(this).val();
                     let modulos = course["modules"];
@@ -627,12 +634,8 @@ $( document ).ready(function() {
             //Change icon-plus to icon-ok (clicked course)
             jQuery(".listcart[courseid="+course.courseid+"]").removeClass('icon-plus').addClass('icon-ok');
             jQuery(".listcart[courseid="+course.courseid+"]").attr("clicked", 1);
-
         });
-
     }
-
-    /*LocalStorage*/
 
     //Function to get all lists from localstorage
     function getLists(){
@@ -661,6 +664,18 @@ $( document ).ready(function() {
     function updateLists(lists){
         localStorage.removeItem('lists');
         localStorage.setItem('lists', JSON.stringify(lists));
+    }
+    //Function to clear the storage and list cart
+    function clearListCart(){
+        let lists = getLists();
+        lists.forEach(function(course){
+            var trmodal = $('#carttable').find("tr[courseid="+course.courseid+"]");
+            trmodal.remove();
+            jQuery(".listcart[courseid="+course.courseid+"]").removeClass('icon-ok').addClass('icon-plus');
+            jQuery(".listcart[courseid="+course.courseid+"]").attr("clicked", 0);
+        });
+
+        localStorage.removeItem('lists');
     }
 		
 </script>
