@@ -443,9 +443,7 @@ $( document ).ready(function() {
 		jQuery(".listcart[courseid="+cid+"]").removeClass('icon-ok').addClass('icon-plus');
 		jQuery(".listcart[courseid="+cid+"]").attr("clicked", 0);
         removeCourse(cid);
-		/*lists = jQuery.grep(lists, function(e){
-			return e.courseid != cid;
-		});*/
+
         let lists = getLists();
 		if(countlistselements(lists) != 0){
 			enableprintbutton();
@@ -469,7 +467,6 @@ $( document ).ready(function() {
 	});
 	//This function is called to filter the table
 	function callAjax(data, path, print, categoryid) {
-		console.log("Aquí se obtiene la lista filtrada....");
 		var count = 1;
 		//$("tbody").hide();
 		$(".loader").html("<img style='display: block; margin-left: auto; margin-right: auto;' src='img/loading.gif'>");
@@ -598,8 +595,6 @@ $( document ).ready(function() {
 	}
 
     function printCartList(lists){
-        //chequeando los que están en el carro
-        var $table = $("#fbody").find("tbody");
 
         lists.forEach(function(course){
             //Pre selected modules
@@ -623,14 +618,16 @@ $( document ).ready(function() {
                             else if(key == valueOption){
                                 option.attr("selected", "selected");
                             }
-                            else{
-                                console.log("No encontró el módulo");
-                            }
                         });
                         
                     });
                 });
             }
+
+            //Change icon-plus to icon-ok (clicked course)
+            jQuery(".listcart[courseid="+course.courseid+"]").removeClass('icon-plus').addClass('icon-ok');
+            jQuery(".listcart[courseid="+course.courseid+"]").attr("clicked", 1);
+
         });
 
     }
