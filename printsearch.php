@@ -618,15 +618,14 @@ $( document ).ready(function() {
                     let modulos = course["modules"];
 
                     modulos.forEach(function(module){
-                        Object.entries(module).forEach(([key, value]) => {
+                        for(let key in module) {
                             if(key == 'no'){
                                 option.attr("selected", "selected");
                             }
                             else if(key == valueOption){
                                 option.attr("selected", "selected");
                             }
-                        });
-                        
+                        }
                     });
                 });
             }
