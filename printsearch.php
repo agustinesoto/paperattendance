@@ -607,7 +607,7 @@ $( document ).ready(function() {
         lists.forEach(function(course){
             //Pre selected modules
             var modulesselect = <?php echo json_encode($modulesselect);?>;
-            jQuery('#carttable').append("<tr class='cart-tr' courseid="+course.courseid+"><td>"+course.course+"</td><td>"+course.description+"</td><td><input class='datepicker' type='date' size='10' value='"+today+"' courseid='"+course.courseid+"'></td><td>"+modulesselect+"</td><td>"+course.requestor+"</td><td><i class='icon icon-remove' courseid='"+course.courseid+"'></i></td></tr>");
+            jQuery('#carttable').append("<tr class='cart-tr' courseid="+course.courseid+"><td>"+course.course+"</td><td>"+course.description+"</td><td><input class='datepicker' type='date' size='10' value='"+course.date+"' courseid='"+course.courseid+"'></td><td>"+modulesselect+"</td><td>"+course.requestor+"</td><td><i class='icon icon-remove' courseid='"+course.courseid+"'></i></td></tr>");
             if(!course["modules"]){
                 jQuery('.cart-tr[courseid='+course.courseid+']').find('.modulepicker option[value="no"]').attr("selected", "selected");
             }
