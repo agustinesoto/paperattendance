@@ -285,13 +285,17 @@ jQuery('#formModal').modal({
 $( document ).ready(function() {
     $('#filter').focus();
     $('#carttable tbody tr').remove();
+
+    let lists = getLists();
+    printListCart(lists);
+
 });
 </script>
 <script type="text/javascript">
 	var filter = $('#filter');
 	var $table = $("#fbody").find("tbody");
 	var $paging = $(".paging");
-	var lists = [];
+	//var lists = [];
 	//Today as default date (this is for the date inputs and to get defaultmodules)
     var today = new Date();
     var dd = today.getDate();
@@ -355,9 +359,12 @@ $( document ).ready(function() {
 								}
 						});
 					}
-					lists.push({"courseid":courseid, "requestorid": arr["requestorid"], "date": today, "modules": selectedmodules, "description": arr["description"]});
+
+                    addCourse({"courseid":courseid, "requestorid": arr["requestorid"], "date": today, "modules": selectedmodules, "description": arr["description"], "course": arr['course'], "modules": arr["modules"], "requestor": arr['requestor']});
 					$('.listcart[courseid='+courseid+']').attr('clicked', 1);
 					enableprintbutton();
+
+
 			    }
 			});
 		}
@@ -366,9 +373,8 @@ $( document ).ready(function() {
 			trmodal.remove();
 			jQuery(".listcart[courseid="+courseid+"]").removeClass('icon-ok').addClass('icon-plus');
 			jQuery(".listcart[courseid="+courseid+"]").attr("clicked", 0);
-			lists = jQuery.grep(lists, function(e){
-				return e.courseid != courseid;
-			});
+
+            removeCourse(courseid);
 			enableprintbutton();
 		}
 	});
@@ -403,6 +409,7 @@ $( document ).ready(function() {
 	//When this button is clicked, the modal must show the courses to print
 	$( document ).on( "click", "#cartbutton", function() {
 		jQuery('#formModal').modal('show');
+        let lists = getLists();
 		if(countlistselements(lists) != 0){
 			enableprintbutton();
 		}
@@ -435,15 +442,16 @@ $( document ).ready(function() {
 		tr.remove();
 		jQuery(".listcart[courseid="+cid+"]").removeClass('icon-ok').addClass('icon-plus');
 		jQuery(".listcart[courseid="+cid+"]").attr("clicked", 0);
-		lists = jQuery.grep(lists, function(e){
-			return e.courseid != cid;
-		});
+        removeCourse(cid);
+
+        let lists = getLists();
 		if(countlistselements(lists) != 0){
 			enableprintbutton();
 		}
 	});
 	//If print button is clicked, then the pdf with all lists is generated
 	$( document ).on( "click", ".printbutton", function() {
+        let lists = getLists();
 		jQuery('#pdfModal').modal('show'); 
 		$('.pdflists').html('<center><img src="img/loading.gif"></center>');
 		$.ajax({
@@ -454,12 +462,14 @@ $( document ).ready(function() {
 		    	},
 		    success: function (response) {
 				$('.pdflists').html(response);
+
+                //localStorage.clear();
 		    }
 		});
 	});
+
 	//This function is called to filter the table
 	function callAjax(data, path, print, categoryid) {
-		console.log(lists);
 		var count = 1;
 		//$("tbody").hide();
 		$(".loader").html("<img style='display: block; margin-left: auto; margin-right: auto;' src='img/loading.gif'>");
@@ -474,6 +484,7 @@ $( document ).ready(function() {
 		    	},
 		    success: function (response) {
 		    	$(".ajaxtr").remove();
+                let lists = getLists();
 		        $.each(response, function(i, field){
 			        var carticon = "<td><i class='icon icon-plus listcart' clicked='0' courseid='"+field['id']+"'></i></td>";
 					$.each(lists, function(i, list){
@@ -532,6 +543,7 @@ $( document ).ready(function() {
 	}
     //This function is to update the lists array with some new selected module
 	function updatelistsmodules(values, courseid){
+        let lists = getLists();
 		if(values == null){
 			for(i=0; i<lists.length; i++){
 				if(lists[i].courseid == courseid){
@@ -551,14 +563,17 @@ $( document ).ready(function() {
 				}
 			}
 		}
+        updateLists(lists);
 	}
     //This function is to update the lists array with some new selected date
 	function updatelistsdate(value, courseid){
+        let lists = getLists();
 		for(i=0; i<lists.length; i++){
 			if(lists[i].courseid == courseid){
 				lists[i].date = value;
 			}
 		}
+        updateLists(lists);
 	}
 	//This function is to enable the print button when every list has at least one module selected
 	function enableprintbutton(){
@@ -581,5 +596,85 @@ $( document ).ready(function() {
 
 		return lists.length;
 	}
+
+    /*LocalStorage*/
+    //When this button is clicked, must clear storage
+    $( document ).on( "click", "#download-button", function() {
+        clearListCart();
+    });
+
+    function printListCart(lists){
+        lists.forEach(function(course){
+            //Pre selected modules
+            var modulesselect = <?php echo json_encode($modulesselect);?>;
+            jQuery('#carttable').append("<tr class='cart-tr' courseid="+course.courseid+"><td>"+course.course+"</td><td>"+course.description+"</td><td><input class='datepicker' type='date' size='10' value='"+course.date+"' courseid='"+course.courseid+"'></td><td>"+modulesselect+"</td><td>"+course.requestor+"</td><td><i class='icon icon-remove' courseid='"+course.courseid+"'></i></td></tr>");
+            if(!course["modules"]){
+                jQuery('.cart-tr[courseid='+course.courseid+']').find('.modulepicker option[value="no"]').attr("selected", "selected");
+            }
+            else{
+                jQuery('.cart-tr[courseid='+course.courseid+']').find('.modulepicker option').each(function (i){
+                    let option = $(this);
+                    let valueOption = $(this).val();
+                    let modulos = course["modules"];
+
+                    modulos.forEach(function(module){
+                        for(let key in module) {
+                            if(key == 'no'){
+                                option.attr("selected", "selected");
+                            }
+                            else if(key == valueOption){
+                                option.attr("selected", "selected");
+                            }
+                        }
+                    });
+                });
+            }
+
+            //Change icon-plus to icon-ok (clicked course)
+            jQuery(".listcart[courseid="+course.courseid+"]").removeClass('icon-plus').addClass('icon-ok');
+            jQuery(".listcart[courseid="+course.courseid+"]").attr("clicked", 1);
+        });
+    }
+
+    //Function to get all lists from localstorage
+    function getLists(){
+        let lists = [];
+        if(localStorage.getItem('lists')){
+            lists = JSON.parse(localStorage.getItem('lists'));
+        }
+        return lists;
+    }
+    //Function to add a course in localstorage 'lists'
+    function addCourse(courseObject){
+        let lists = getLists();
+        //check if course is in the list
+        if(!lists.some(course => course.courseid === courseObject.courseid)){
+            lists.push(courseObject);
+            localStorage.setItem('lists', JSON.stringify(lists));
+        }
+    }
+    //Function to remove a course from localstorage 'lists'
+    function removeCourse(courseid){
+        let storageLists = JSON.parse(localStorage.getItem('lists'));
+        let lists = storageLists.filter(course => course.courseid !== courseid );
+        localStorage.setItem('lists', JSON.stringify(lists));
+    }
+    //Function to update the lists item
+    function updateLists(lists){
+        localStorage.removeItem('lists');
+        localStorage.setItem('lists', JSON.stringify(lists));
+    }
+    //Function to clear the storage and list cart
+    function clearListCart(){
+        let lists = getLists();
+        lists.forEach(function(course){
+            var trmodal = $('#carttable').find("tr[courseid="+course.courseid+"]");
+            trmodal.remove();
+            jQuery(".listcart[courseid="+course.courseid+"]").removeClass('icon-ok').addClass('icon-plus');
+            jQuery(".listcart[courseid="+course.courseid+"]").attr("clicked", 0);
+        });
+
+        localStorage.removeItem('lists');
+    }
 		
 </script>
