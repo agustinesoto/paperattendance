@@ -49,9 +49,9 @@ $string['hashtag']="#";
 $string['student']="Student";
 $string['mail']="Mail";
 $string['attendance']="Attendance";
-$string['setting']="Settings";
-$string['nonselectedstudent']="Non selected student";
-$string['nonexiststudent']="Non exist student";
+$string['changepresence']="Change presence";
+$string['nonselectedstudent']="No selected student";
+$string['nonexiststudent']="Student doesn't exist";
 $string['date']="Date";
 $string['time']="Time";
 $string['scan']="Scan";
@@ -62,7 +62,7 @@ $string['see_digital']="Digital Attendance";
 $string['seestudents']="See students";
 $string['historytitle']="Attendance History";
 $string['historyheading']="Attendance History";
-$string['nonexistintingrecords']="Non existing records";
+$string['nonexistintingrecords']="No existing records";
 $string['back']="Back";
 $string['download']="Download";
 $string['downloadassistance']="Download assistance";
@@ -98,7 +98,7 @@ $string['omegasync']="Omega";
 $string['synchronized']="Synchronized";
 $string['unsynchronized']="Unsynchronized";
 $string['module']="Module";
-$string['nonprocessingattendance']="Attendance non processed yet";
+$string['nonprocessingattendance']="Attendance not processed yet";
 $string['insertby']="Insert by";
 $string['insertstudentinfo']="Insert the student info";
 $string['insertstudentmanually']="Insert student";
@@ -192,6 +192,7 @@ $string['attendancealreadytaken'] = "Assistance has already been taken in the cu
 $string['waitnextmodule'] = "To be able to take assistance you must wait for the <strong>next module</strong> to start.";
 $string['attendancesaved'] = "Attendance saved correctly.";
 $string['alertinfodigitalattendance'] = "<strong>Attention!</strong> You can not take the attendance for the current module after it has finished.";
+$string['totalmissing']="Missing pages";
 
 
 //messages
@@ -257,6 +258,24 @@ $string['categoryid']="Category Id";
 $string['categoryidtext']="Pregrado's category value: 1 for Webcursos-d / 406 for Webcursos Production";
 $string['minutesdelay']="Minutes of digital delay";
 $string['minutesdelaytext']="Maximum of extra minutes to be able to take digital assistance after completing the module. (0 - 19)";
+$string['student']="Student";
+$string['currentassistance']="Current Assistance";
+$string['setting']="Settings";
+
+$string['printersettings'] = "	
+<div>
+    <p> Rememeber the printer and scanner settings: </p>
+	<ul>
+		<li> Resolution: 600ppi </li>
+		<li> Colors: Grayscale </li>
+        <li> Size: Letter </li>
+        <li> Don't let the students mark the sheet, the teacher must mark it </li>
+        <li> <strong> Do not mark outside of the margins </strong> </li>
+        <li> Make sure the sheet is aligned during scanning </li>
+        <li> Keep the sheet in good shape </li>
+    </ul>
+</div>
+";
 
 // Task
 $string['taskprocesspdf']="Process PDFs";
@@ -283,3 +302,7 @@ $string['professoreditortext']="Rol Id Professor";
 
 $string['professornoeditor']="Role Id Assistant Corrector";
 $string['professornoeditortext']="Role Id Assistant Corrector (profesornoeditor)";
+
+//processpdf cronlog
+$string['processpdf_log_path'] = "Path of PDF processing log";
+$string['processpdf_log_path_description'] = "Ensure that the php user has write access to the location";

@@ -60,16 +60,6 @@ if ($hassiteconfig) {
 					PARAM_TEXT
 			)
 	);
-	//grayscale
-	$settings->add(
-			new admin_setting_configtext(
-					'paperattendance_grayscale',
-					get_string('grayscale', 'local_paperattendance'),
-					get_string('grayscaletext', 'local_paperattendance'),
-					'63500',
-					PARAM_INT
-					)
-			);
 	//minuteslate
 	$settings->add(
 			new admin_setting_configtext(
@@ -160,36 +150,6 @@ if ($hassiteconfig) {
 					PARAM_INT
 					)
 			);
-	//Location of the formscanner .jar
-	$settings->add(
-			new admin_setting_configtext(
-					'paperattendance_formscannerjarlocation',
-					get_string('formscannerjarlocation', 'local_paperattendance'),
-					get_string('formscannerjarlocationtext', 'local_paperattendance'),
-					'/Datos/formscanner/formscanner-1.1.3-bin/lib/formscanner-main-1.1.3.jar',
-					PARAM_TEXT
-					)
-			);
-	//Location of the template .xtmpl for formscanner
-	$settings->add(
-			new admin_setting_configtext(
-					'paperattendance_formscannertemplatelocation',
-					get_string('formscannertemplatelocation', 'local_paperattendance'),
-					get_string('formscannertemplatelocationtext', 'local_paperattendance'),
-					'/Datos/formscanner/template.xtmpl',
-					PARAM_TEXT
-					)
-			);
-	//Location of the folder containing the images to be processed by formscanner
-	$settings->add(
-			new admin_setting_configtext(
-					'paperattendance_formscannerfolderlocation',
-					get_string('formscannerfolderlocation', 'local_paperattendance'),
-					get_string('formscannerfolderlocationtext', 'local_paperattendance'),
-					'/data/data/moodledata/temp/local/paperattendance/unread/jpgs/processing/',
-					PARAM_TEXT
-					)
-			);
 	//Categoryid
 	$settings->add(
 			new admin_setting_configtext(
@@ -210,7 +170,6 @@ if ($hassiteconfig) {
 					PARAM_INT
 					)
 			);
-
     //Student role Parameter
     $settings->add(
         new admin_setting_configtext(
@@ -242,5 +201,14 @@ if ($hassiteconfig) {
             4,
             PARAM_INT
         )
-    );
+	);
+	$settings->add(
+		new admin_setting_configtext(
+			'paperattendance_processpdflogpath',
+			get_string('processpdf_log_path', 'local_paperattendance'),
+			get_string('processpdf_log_path_description', 'local_paperattendance'),
+			'/var/log/moodle/processpdf.log',
+			PARAM_TEXT
+		)
+	);
 }

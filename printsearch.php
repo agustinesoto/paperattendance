@@ -139,7 +139,7 @@ $modulesquery = "SELECT *
 				FROM {paperattendance_module}
 				ORDER BY initialtime ASC";
 $modules = $DB->get_records_sql($modulesquery);
-$modulesselect = "<select class='selectpicker' multiple><option value='no'>".get_string("selectmodules", "local_paperattendance")."</option>";
+$modulesselect = "<select class='modulepicker' multiple><option value='no'>".get_string("selectmodules", "local_paperattendance")."</option>";
 foreach ($modules as $module){
 	$modulesselect .= "<option value='".$module->id."*".$module->initialtime."*".$module->endtime."'>".$module->initialtime."</option>";
 }
@@ -187,6 +187,8 @@ $PAGE->requires->jquery_plugin ( 'ui' );
 $PAGE->requires->jquery_plugin ( 'ui-css' );
 $PAGE->requires->js( new moodle_url('https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js') );
 $PAGE->requires->css( new moodle_url('https://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css') );
+$PAGE->requires->css( new moodle_url('css/printsearch.css'));
+
 
 $coursecount = $page*$perpage+1;
 foreach($courses as $course){
@@ -209,8 +211,9 @@ foreach($courses as $course){
 }
 echo $OUTPUT->header();
 echo html_writer::div(get_string("searchprinthelp","local_paperattendance"),"alert alert-info", array("role"=>"alert"));
-$filterinput = html_writer::empty_tag("input", array( "id"=>"filter", "type"=>"text", "style"=>"float:left; width:25%"));
-$cartbutton = html_writer::nonempty_tag("button", get_string("listscart","local_paperattendance"),  array( "id"=>"cartbutton", "style"=>"float:right; margin-right:6%"));
+$filterinput = html_writer::empty_tag("input", array( "id"=>"filter", "type"=>"text"));
+$cartbutton = html_writer::nonempty_tag("button", get_string("listscart","local_paperattendance"),  array("id"=>"cartbutton", "class"=>"btn btn-default"));
+
 echo html_writer::div($filterinput.$cartbutton, "topbarmenu");
 
 if ($ncourses>0){
@@ -230,42 +233,48 @@ $carttable->head = array(
 );
 $carttable->id = "carttable";
 
-$formmodal = '<div class="modal fade bs-example-modal-lg" id="formModal" tabindex="-1" role="dialog" aria-labelledby="formModalLabel" style="display: none; width:80%; margin-left:-45%">
-			  <div class="modal-dialog modal-lg" role="document">
-			    	<div class="modal-content">
-			    		<div class="modal-header">
-			        		<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-			        		<h4 class="modal-title" id="formModalLabel">Carrito de listas</h4>
-			      		</div>
-		      		<div class="modal-body" style="height:70vh">
-						'.html_writer::table($carttable).'
-		      		</div>
-		      		<div class="modal-footer">
-    	       	    	<button type="button" class="btn btn-info printbutton" data-dismiss="modal">Imprimir</button>
-			       		<button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
-		      		</div>
-	      		</div>
-	  		</div>
-		</div>';
+//reminder for printer settings
+$formmodal = 
+'<div class="modal fade bs-example-modal-lg" id="formModal" tabindex="-1" role="dialog" aria-labelledby="formModalLabel" style="display: none; width:80%">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title" id="formModalLabel">Carrito de listas</h4>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+			</div>
+			<div class="modal-body" style="height:70vh">
+				'.html_writer::table($carttable).'
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-info printbutton" data-dismiss="modal">Imprimir</button>
+				<button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+			</div>
+		</div>
+	</div>
+</div>'
+;
 
-$pdfmodal = '<div class="modal fade bs-example-modal-lg" id="pdfModal" tabindex="-1" role="dialog" aria-labelledby="pdfModalLabel" style="display: none;">
-			  <div class="modal-dialog modal-lg" role="document">
-			    	<div class="modal-content">
-			    		<div class="modal-header">
-			        		<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-			        		<h4 class="modal-title" id="pdfModalLabel">Listas pdf</h4>
-			      		</div>
-		      		<div class="modal-body pdflists" style="height:70vh">
-		      		</div>
-	      		</div>
-	  		</div>
-		</div>';
+$pdfmodal = "
+<div class='modal fade bs-example-modal-lg' id='pdfModal' tabindex='-1' role='dialog' aria-labelledby='pdfModalLabel' style='display: none;'>
+	<div class='modal-dialog modal-lg' role='document'>
+		<div class='modal-content'>
+			<div class='modal-header'>
+				<h4 class='modal-title' id='pdfModalLabel'>Listas pdf</h4>
+				<button type='button' class='close' data-dismiss='modal' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
+			</div>
+			<div class='modal-body'>
+				<div class='pdflists'></div>
+			</div>
+		</div>
+	</div>
+</div>
+";
+
 
 echo html_writer::div($formmodal, "modaldiv");
 echo html_writer::div($pdfmodal, "modaldiv");
 
 echo $OUTPUT->footer();
-
 
 ?>
 <script>
@@ -320,9 +329,8 @@ $( document ).ready(function() {
 		    //Get data to print
 			$.ajax({
 			    type: 'GET',
-			    url: 'ajax/ajaxquerys.php',
+			    url: 'ajax/cartlist.php',
 			    data: {
-				      'action' : 'cartlist',
 				      'courseid' : courseid,
 				      'teacherid' : that.closest("tr").find(".teacher").attr("teacherid"),
 				      'diasemana' : day
@@ -334,10 +342,10 @@ $( document ).ready(function() {
 				    var selectedmodules = [];   
 					jQuery('#carttable').append("<tr class='cart-tr' courseid="+courseid+"><td>"+arr['course']+"</td><td>"+arr['description']+"</td><td><input class='datepicker' type='date' size='10' value='"+today+"' courseid='"+courseid+"'></td><td>"+modulesselect+"</td><td>"+arr['requestor']+"</td><td><i class='icon icon-remove' courseid='"+courseid+"'></i></td></tr>");
 					if(!arr["modules"]){
-						jQuery('.cart-tr[courseid='+courseid+']').find('.selectpicker option[value="no"]').attr("selected", "selected");
+						jQuery('.cart-tr[courseid='+courseid+']').find('.modulepicker option[value="no"]').attr("selected", "selected");
 					}
 					else{
-						jQuery('.cart-tr[courseid='+courseid+']').find('.selectpicker option').each(function (i){
+						jQuery('.cart-tr[courseid='+courseid+']').find('.modulepicker option').each(function (i){
 							for(j=0;j<arr["modules"].length;j++)
 								if(arr["modules"][j]["horaInicio"] == $(this).text()+":00"){
 									$(this).attr("selected", "selected");
@@ -411,7 +419,7 @@ $( document ).ready(function() {
 	    updatelistsdate($(this).val(), cid);
 	});
 	//When a modules select change, lists array should be updated, if each list has at least one module, then the print button is enable
-	$( document ).on( "change", ".selectpicker", function() {
+	$( document ).on( "change", ".modulepicker", function() {
 		var cid = $(this).closest("tr").attr("courseid");
 		var mods = new Array();
 		$("option:selected", this).each(function(i){
@@ -458,9 +466,8 @@ $( document ).ready(function() {
 		$(".loader").show();
 		$.ajax({
 		    type: 'GET',
-		    url: 'ajax/ajaxquerys.php',
+		    url: 'ajax/getcourses.php',
 		    data: {
-			      'action' : 'getcourses',
 			      'result' : data,
 			      'path' : path,
 			      'category' : categoryid
@@ -491,20 +498,19 @@ $( document ).ready(function() {
 	//This function is to check modules from omega
 	function omegamodulescheck(datetwo, courseid){
 		dayofweek = datetwo.getDay();
-		var modulesoptions = jQuery('.cart-tr[courseid='+courseid+']').find('.selectpicker option');
+		var modulesoptions = jQuery('.cart-tr[courseid='+courseid+']').find('.modulepicker option');
 		modulesoptions.prop( "selected", false);
 		$.ajax({
 		    type: 'POST',
-		    url: 'ajax/ajaxquerys.php',
+		    url: 'ajax/cartlist.php',
 		    data: {
-			      'action' : 'cartlist',
 			      'courseid' : courseid,	
 		    	  'diasemana': dayofweek
 		    	},
 		    success: function (response) {
 		    	var arr = response;
 		    	if(arr["modules"] == false){
-		    		jQuery('.cart-tr[courseid='+courseid+']').find('.selectpicker option[value="no"]').prop("selected", true);
+		    		jQuery('.cart-tr[courseid='+courseid+']').find('.modulepicker option[value="no"]').prop("selected", true);
 		    		updatelistsmodules(null, courseid);
 		    		enableprintbutton();
 			    }
@@ -557,7 +563,7 @@ $( document ).ready(function() {
 	//This function is to enable the print button when every list has at least one module selected
 	function enableprintbutton(){
 		var count=0;
-		$(".selectpicker option:selected").each(function(i){
+		$(".modulepicker option:selected").each(function(i){
 			if($(this).val() == "no")
 				count++;
 		});

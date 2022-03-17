@@ -25,16 +25,15 @@
 */
 //Belongs to plugin PaperAttendance
 
-require_once (dirname(dirname(dirname(__FILE__)))."/config.php");
-require_once($CFG->dirroot . '/local/paperattendance/locallib.php');
-require_once ($CFG->dirroot."/local/paperattendance/forms/response_form.php");
+require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
+require_once("$CFG->dirroot/local/paperattendance/locallib.php");
 
 //libraries for FPDI
-require_once ($CFG->dirroot . "/repository/lib.php");
-require_once ($CFG->libdir . '/pdflib.php');
-require_once ($CFG->dirroot . '/mod/assign/feedback/editpdf/fpdi/fpdi.php');
-require_once ($CFG->dirroot . "/mod/assign/feedback/editpdf/fpdi/fpdi_bridge.php");
-require_once ($CFG->dirroot . "/mod/assign/feedback/editpdf/fpdi/fpdi.php");
+require_once("$CFG->dirroot/repository/lib.php");
+require_once("$CFG->libdir/pdflib.php");
+require_once("$CFG->dirroot/local/paperattendance/lib/fpdi/fpdi.php");
+require_once("$CFG->dirroot/local/paperattendance/lib/fpdi/fpdi_bridge.php");
+require_once("$CFG->dirroot/local/paperattendance/forms/response_form.php");
 
 global $DB, $PAGE, $OUTPUT, $USER, $CFG;
 
@@ -61,6 +60,7 @@ $PAGE->navbar->add(get_string('discussiontitle', 'local_paperattendance'), new m
 
 
 $contextsystem = context_system::instance();
+
 
 /*if(!has_capability('local/paperattendance:printsecre', $contextsystem)){
 	print_error("ACCESS DENIED");
@@ -169,7 +169,7 @@ if( $isteacher || is_siteadmin($USER)) {
     				$f1 = substr($newpdfname, 0 , 2);
     				$f2 = substr($newpdfname, 2, 2);
     				$filepath = $f1."/".$f2."/".$newpdfname;
-    				$pages = $pdfname->pagenum + 1;
+    				$pages = $pdfname->pagenum;
     				//$originalpdf = $CFG -> dataroot. "/temp/local/paperattendance/unread/".$pdfname->pdfname;
     				$originalpdf = $CFG -> dataroot. "/filedir/".$filepath;
     				
@@ -238,9 +238,8 @@ if( $isteacher || is_siteadmin($USER)) {
 				$attendance->status = 1;
 				$attendance->lastmodified = time();
 				$DB->update_record("paperattendance_presence",$attendance);
-				if(paperattendance_checktoken($CFG->paperattendance_omegatoken)){
-					paperattendance_omegaupdateattendance(1, $presence->omegaid);
-				}
+				
+				paperattendance_omegaupdateattendance(1, $presence->omegaid);
 			}
 			
 			$goback = new moodle_url("/local/paperattendance/discussion.php", array(

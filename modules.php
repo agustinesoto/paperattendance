@@ -194,7 +194,6 @@ if ($action == "edit") {
 			$url = new moodle_url('/local/paperattendance/modules.php');
 			redirect($url);
 		}
-
 	}
 	
 	$PAGE->set_title(get_string("editmodule", "local_paperattendance"));

@@ -1,0 +1,11 @@
+-[LISTO] Corregir Ortografia
+-En modal del PDF en busqueda de impresiones
+    -[LISTO] Queda cortado en pantallas pequeñas
+    -[LISTO] No se adapta al abrir la pestaña de la derecha [Se adapta si se pone persistentemente en la derecha]
+    -[LISTO] PDF muy cerca del final de la pagina en busqueda de impresiones
+    -[LISTO] Separar boton "imprimir" del PDF en busqueda de impresiones 
+-[LISTO] En paginas perdidas eliminar notificacion que dice "rellenar campos"
+-Se subio un PDF vacio y marco alumnos presentes [No se pudo replicar, aunque creo que un numero de errores es inevitable en el OMR]
+-Al subir lista escaneada aparece pagina en blanco [No se pudo replicar, la pagina blanca probablemente viene de algun error que no se mostro al estar desactivado el debug]
+
+Extra: se reagregaron CLIs de omegasync.php y processpdf.php

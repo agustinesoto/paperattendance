@@ -651,7 +651,7 @@ function xmldb_local_paperattendance_upgrade($oldversion) {
 	    upgrade_plugin_savepoint(true, 2018122601, 'local', 'paperattendance');
 	}
 
-    if ($oldversion < 2019112700) {
+    if ($oldversion < 2020012204) {
 
         // Define table paperattendance_missingpages to be created.
         $table = new xmldb_table('paperattendance_missingpages');
@@ -671,7 +671,7 @@ function xmldb_local_paperattendance_upgrade($oldversion) {
         }
 
         // Paperattendance savepoint reached.
-        upgrade_plugin_savepoint(true, 2019112700, 'local', 'paperattendance');
+        upgrade_plugin_savepoint(true, 2020012204, 'local', 'paperattendance');
     }
 
 	return true;

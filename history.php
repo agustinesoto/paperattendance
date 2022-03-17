@@ -24,16 +24,16 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 //Belongs to plugin PaperAttendance
-require_once (dirname(dirname(dirname(__FILE__)))."/config.php");
-require_once ($CFG->dirroot."/local/paperattendance/forms/history_form.php");
-require_once ($CFG->dirroot."/local/paperattendance/forms/addstudent_form.php");
-require_once ($CFG->dirroot."/local/paperattendance/forms/reviewattendance_form.php");
-require_once ($CFG->dirroot . '/local/paperattendance/locallib.php');
-require_once ($CFG->dirroot . "/repository/lib.php");
-require_once ($CFG->libdir . '/pdflib.php');
-require_once ($CFG->dirroot . '/mod/assign/feedback/editpdf/fpdi/fpdi.php');
-require_once ($CFG->dirroot . "/mod/assign/feedback/editpdf/fpdi/fpdi_bridge.php");
-require_once ($CFG->dirroot . "/mod/assign/feedback/editpdf/fpdi/fpdi.php");
+require_once(dirname(dirname(dirname(__FILE__)))."/config.php");
+require_once("$CFG->dirroot/local/paperattendance/forms/history_form.php");
+require_once("$CFG->dirroot/local/paperattendance/forms/addstudent_form.php");
+require_once("$CFG->dirroot/local/paperattendance/forms/reviewattendance_form.php");
+require_once("$CFG->dirroot/local/paperattendance/locallib.php");
+require_once("$CFG->dirroot/repository/lib.php");
+require_once("$CFG->libdir/pdflib.php");
+require_once("$CFG->dirroot/local/paperattendance/lib/fpdi/fpdi.php");
+require_once("$CFG->dirroot/local/paperattendance/lib/fpdi/fpdi_bridge.php");
+require_once("$CFG->dirroot/local/paperattendance/lib/fpdi/fpdi.php");
 global $DB, $PAGE, $OUTPUT, $USER, $CFG;
 //Possible actions -> view, scan or students attendance . Standard is view mode
 $action = optional_param("action", "view", PARAM_TEXT);
@@ -52,8 +52,9 @@ $PAGE->requires->jquery();
 $PAGE->requires->jquery_plugin ( 'ui' );
 $PAGE->requires->jquery_plugin ( 'ui-css' );
 
-$PAGE->requires->js( new moodle_url('https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js') );
-$PAGE->requires->css( new moodle_url('https://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css') );
+$PAGE->requires->js(new moodle_url('https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js') );
+$PAGE->requires->css(new moodle_url('https://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css') );
+$PAGE->requires->css(new moodle_url('css/history.css'));
 
 $contextsystem = context_system::instance();
 //Page pagination
@@ -147,7 +148,7 @@ if( $isteacher || is_siteadmin($USER) || has_capability('local/paperattendance:p
                 get_string('student', 'local_paperattendance'),
                 get_string('mail', 'local_paperattendance'),
                 $changeallattendance.$tableheadattendance,
-                get_string('setting', 'local_paperattendance'),
+                get_string('changepresence', 'local_paperattendance'),
                 get_string('omegasync', 'local_paperattendance')
             );
             
@@ -287,12 +288,12 @@ if( $isteacher || is_siteadmin($USER) || has_capability('local/paperattendance:p
                 );
             }
         }
-        $insertstudentmodal= '<div class="modal fade" id="insertstudentmodal" role="dialog" style="width: 50vw; z-index: -10;">
+        $insertstudentmodal= '<div class="modal fade" id="insertstudentmodal" role="dialog">
 							    <div class="modal-dialog modal-sm">
 							      <div class="modal-content">
 									<div class="modal-header">
-          								<button type="button" class="close" data-dismiss="modal">&times;</button>
           								<h4 class="modal-title">'.get_string("insertstudentmanually", "local_paperattendance").' </h4>
+          								<button type="button" class="close" data-dismiss="modal">&times;</button>
        								</div>
 							        <div class="modal-body">';
         if($counter>0){
@@ -357,10 +358,7 @@ if( $isteacher || is_siteadmin($USER) || has_capability('local/paperattendance:p
                     $modifieduserid = $attendance -> userid;
                     $omegaid = $attendance -> omegaid;
                     
-                    $curl = curl_init();
-                    
                     $url =  $CFG->paperattendance_omegaupdateattendanceurl;
-                    $token =  $CFG->paperattendance_omegatoken;
                     if($data->status == 1){
                         $status = "true";
                     }
@@ -369,18 +367,11 @@ if( $isteacher || is_siteadmin($USER) || has_capability('local/paperattendance:p
                     }
                     
                     $fields = array (
-                        "token" => $token,
                         "asistenciaId" => $omegaid,
                         "asistencia" => $status
                     );
-                    
-                    curl_setopt($curl, CURLOPT_URL, $url);
-                    curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
-                    curl_setopt($curl, CURLOPT_POST, TRUE);
-                    curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($fields));
-                    curl_setopt($curl, CURLOPT_HTTPHEADER, array("Content-Type: application/json"));
-                    $result = curl_exec ($curl);
-                    curl_close ($curl);
+
+                    paperattendance_curl($url, $fields);
                     
                     $backurl = new moodle_url("/local/paperattendance/history.php", array(
                         "action" => "studentsattendance",
@@ -436,7 +427,7 @@ if( $isteacher || is_siteadmin($USER) || has_capability('local/paperattendance:p
                 $f1 = substr($newpdfname, 0 , 2);
                 $f2 = substr($newpdfname, 2, 2);
                 $filepath = $f1."/".$f2."/".$newpdfname;
-                $pages = $pdfname->pagenum + 1;
+                $pages = $pdfname->pagenum;
                 //$originalpdf = $CFG -> dataroot. "/temp/local/paperattendance/unread/".$pdfname->pdfname;
                 $originalpdf = $CFG -> dataroot. "/filedir/".$filepath;
                 
@@ -476,7 +467,8 @@ if( $isteacher || is_siteadmin($USER) || has_capability('local/paperattendance:p
         ));
         unlink($attendancepdffile);
     }
-    // Lists all records in the database
+
+    //show sessions
     if ($action == "view"){
         $getattendances = "SELECT s.id,
 						   sm.date,
@@ -492,6 +484,7 @@ if( $isteacher || is_siteadmin($USER) || has_capability('local/paperattendance:p
 						   WHERE s.courseid = ?
 						   ORDER BY sm.date DESC, m.name DESC";
         $attendances = $DB->get_records_sql($getattendances, array($courseid));
+
         $attendancestable = new html_table();
         //we check if we have attendances for the selected course
         if (count($attendances) > 0){
@@ -530,18 +523,8 @@ if( $isteacher || is_siteadmin($USER) || has_capability('local/paperattendance:p
             );
             //A mere counter for the number of records
             $counter = 1;
-            foreach ($attendances as $attendance){
-                /*
-                 //Query to get attendance percentage
-                 $percentagequery = "SELECT TRUNCATE((COUNT(*)/(SELECT COUNT(*)
-                 FROM {paperattendance_presence} AS p
-                 INNER JOIN {paperattendance_session} AS s ON (s.id = p.sessionid)
-                 WHERE p.sessionid = ?)*100),0) AS percentage
-                 FROM {paperattendance_presence} AS p
-                 INNER JOIN {paperattendance_session} AS s ON (s.id = p.sessionid)
-                 WHERE p.sessionid = ? AND p.status = 1";
-                 $percentage = $DB->get_record_sql($percentagequery, array($attendance->id, $attendance->id));
-                 */
+            foreach ($attendances as $attendance)
+            {
                 //Query to get the real attendance (without desmatriculated students)
                 $enrolincludes = explode("," ,$CFG->paperattendance_enrolmethod);
                 list ( $sqlin, $param1 ) = $DB->get_in_or_equal ( $enrolincludes );
@@ -784,6 +767,7 @@ if( $isteacher || is_siteadmin($USER) || has_capability('local/paperattendance:p
     }
 }
 //Ends Teacher's view
+
 //Begins Student's view
 else if ($isstudent) {
     //breadcrumb for navigation
@@ -793,7 +777,8 @@ else if ($isstudent) {
     $PAGE->navbar->add(get_string('pluginname', 'local_paperattendance'));
     $PAGE->navbar->add(get_string('historytitle', 'local_paperattendance'), new moodle_url("/local/paperattendance/history.php", array("courseid" => $courseid)));
     // Lists all records in the database
-    if ($action == "view"){
+    if ($action == "view")
+    {
         //icons
         $urlicon = new moodle_url("#");
         $synchronizedicon = new pix_icon(" i/duration", get_string('pending', 'local_paperattendance'));
@@ -978,27 +963,23 @@ else{
 }
 echo $OUTPUT->footer();
 ?>
-<script type="text/javascript">
-	$( document ).on( "click", "#insertstudentmodalbtn", function() {
-		jQuery('#insertstudentmodal').css('z-index', '');
-	});
-</script>
 
 <script>
+
 $( document ).ready(function() {
-	
-	//$('.generaltable').find('tr').hover(function() {
-		//	$( this ).find('.presencehover').toggle();
-		//}, function() {
-			//$( this ).find('.presencehover').toggle();
-		//}
-	//);
-	$('.generaltable').find('th').hover(function() {
+    /*
+    $('#insertstudentmodalbtn').on('click', function() {
+        setTimeout(() => {
+            $(".modal").removeClass("fade")
+        }, 300)
+    })*/
+
+    /*$('.generaltable').find('th').hover(function() {
 			$( this ).find('.changeall').toggle();
 		}, function() {
 			$( this ).find('.changeall').toggle();
 		}
-	);
+	);*/
 	$('.presencehover').on( "click", function() {
 		var div = $(this);
 		var studentpresence = div.attr("setstudentpresence"); 
@@ -1017,13 +998,13 @@ $( document ).ready(function() {
 		}
 		$.ajax({
 		    type: 'GET',
-		    url: 'ajax/ajaxquerys.php',
+		    url: 'ajax/changestudentpresence.php',
 		    data: {
-			      'action' : 'changestudentpresence',
 			      'setstudentpresence' : studentpresence,
 			      'presenceid' : presenceid
 		    	},
 		    success: function (response) {
+                console.log(response);
 				div.html(settext);
 				div.attr("setstudentpresence", setpresence);
 				div.parent().parent().find('.icon').first().attr({
@@ -1060,9 +1041,8 @@ $( document ).ready(function() {
 		//ajax to ajaxquerys with 2 arrays, one with the info session and the other with every studen presence id an email
 		$.ajax({
 		    type: 'POST',
-		    url: 'ajax/ajaxquerys.php',
+		    url: 'ajax/changeallpresence.php',
 		    data: {
-			      'action' : 'changeallpresence',
 			      'sessinfo' : JSON.stringify(sessinfo),
 			      'studentspresenceinfo' : JSON.stringify(studentspresenceinfo)
 		    	},
@@ -1130,9 +1110,8 @@ $( document ).ready(function() {
 			//ajax to ajaxquerys with 2 arrays, one with the info session and the other with every studentid an email
 			$.ajax({
 			    type: 'POST',
-			    url: 'ajax/ajaxquerys.php',
+			    url: 'ajax/saveinsertstudent.php',
 			    data: {
-				      'action' : 'saveinsertstudent',
 				      'sessinfo' : JSON.stringify(sessinfo),
 				      'studentsattendance' : JSON.stringify(studentsattendance)
 			    	},

@@ -1,0 +1,4 @@
+-improve file deletion (in particular lost pdfs are not deleted when deleted)
+-move pdf log to separate log instead of moodle cron log
+-fix problem with saving missing pages
+-something with missing pages?

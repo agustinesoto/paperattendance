@@ -1,0 +1,24 @@
+#inputs {
+    justify-content: space-between;
+}
+
+#buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: space-evenly;
+}
+
+/*Hint Modal */
+
+.hint {
+    margin-top: 5vh;
+}
+.hint .modal-content {
+    width: max-content;
+}
+
+.hint .modal-dialog {
+    margin: auto;
+    max-width: max-content;
+}

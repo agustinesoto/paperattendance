@@ -21,11 +21,11 @@
 * @copyright  2017 Cristóbal Silva (cristobal.isilvap@gmail.com)
 * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 */
-require_once (dirname(dirname(dirname(__FILE__))) . "/config.php");
-require_once ($CFG->libdir . '/pdflib.php');
-require_once ($CFG->dirroot . '/mod/assign/feedback/editpdf/fpdi/fpdi.php');
-require_once ($CFG->dirroot . "/mod/assign/feedback/editpdf/fpdi/fpdi_bridge.php");
-require_once ("locallib.php");
+require_once(dirname(dirname(dirname(__FILE__))) . "/config.php");
+require_once("$CFG->libdir/pdflib.php");
+require_once("$CFG->dirroot/local/paperattendance/lib/fpdi/fpdi.php");
+require_once("$CFG->dirroot/local/paperattendance/lib/fpdi/fpdi_bridge.php");
+require_once("locallib.php");
 
 global $DB, $PAGE, $OUTPUT, $USER, $CFG;
 
@@ -109,7 +109,13 @@ $fileinfo = $fs->create_file_from_pathname($file_record, $attendancepdffile);
 $url = moodle_url::make_pluginfile_url($context->id, 'local_paperattendance', 'draft', 0, '/', "paperattendance_".$timepdf.".pdf");
 $viewerpdf = html_writer::nonempty_tag("iframe", " ", array(
 		"id" => "pdf-iframe",
-		"src" => $url,
-		"style" => "height:100%; width:100%"
+		"src" => $url
 ));
-echo $viewerpdf;
+$reminder = get_string("printersettings", "local_paperattendance");
+$downloadText = get_string("downloadprint", "local_paperattendance");
+
+echo ("
+    $reminder
+	<a href='$url' id='download-button' target='_blank' rel='noopener noreferrer' class='btn btn-primary'> $downloadText </a>
+    $viewerpdf
+");

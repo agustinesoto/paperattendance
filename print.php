@@ -22,12 +22,12 @@
 * @copyright  2016 Jorge Cabané (jcabane@alumnos.uai.cl)
 * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 */
-require_once (dirname(dirname(dirname(__FILE__))) . "/config.php");
-require_once ($CFG->dirroot . "/local/paperattendance/forms/print_form.php");
-require_once ($CFG->libdir . '/pdflib.php');
-require_once ($CFG->dirroot . '/mod/assign/feedback/editpdf/fpdi/fpdi.php');
-require_once ($CFG->dirroot . "/mod/assign/feedback/editpdf/fpdi/fpdi_bridge.php");
-require_once ("locallib.php");
+require_once(dirname(dirname(dirname(__FILE__))) . "/config.php");
+require_once("$CFG->dirroot/local/paperattendance/forms/print_form.php");
+require_once("$CFG->libdir/pdflib.php");
+require_once("$CFG->dirroot/local/paperattendance/lib/fpdi/fpdi.php");
+require_once("$CFG->dirroot/local/paperattendance/lib/fpdi/fpdi_bridge.php");
+require_once("locallib.php");
 global $DB, $PAGE, $OUTPUT, $USER, $CFG;
 require_login();
 if (isguestuser()) {
@@ -183,51 +183,51 @@ if($action == "add"){
 	}
 }
 
-if($action == "download" && isset($attendancepdffile)){
-
-	$button = html_writer::nonempty_tag(
-			"div",
-			$OUTPUT->single_button($urlprint, get_string('printgoback', 'local_paperattendance')),
-			array("align" => "left"
-			));
-
-	$url = moodle_url::make_pluginfile_url($context->id, 'local_paperattendance', 'draft', 0, '/', "paperattendance_".$courseid."_".$timepdf.".pdf");
-	$viewerpdf = html_writer::nonempty_tag("embed", " ", array(
-			"src" => $url,
-			"style" => "height:75vh; width:60vw"
-	));
-}
-
 echo $OUTPUT->header();
 
 if($action == "add"){
 
 	$PAGE->set_heading($pagetitle);
 
-	echo html_writer::nonempty_tag("h2", $course->shortname." - ".$course->fullname);
+	echo html_writer::nonempty_tag("h2", "$course->shortname - $course->fullname");
 	$addform->display();
 }
+
 // it's the download action when the attendancepdffile is created correctly
 if($action == "download" && isset($attendancepdffile)){
+	$downloadText = get_string("downloadprint", "local_paperattendance");
+	$backText = get_string("printgoback", "local_paperattendance");
+	$printerText = get_string("printersettings", "local_paperattendance");
+	$url = moodle_url::make_pluginfile_url(
+		$context->id, 
+		'local_paperattendance', 
+		'draft', 
+		0, 
+		'/',
+		"paperattendance_$courseid\e_$timepdf.pdf"
+	);
+	$viewerpdf = html_writer::nonempty_tag(
+		"embed", 
+		" ", 
+		array(
+			"src" => $url,
+			"style" => "height:100vh; width:100%"
+		)
+	);
 
-	
-	echo html_writer::div('<button style="margin-left:1%" type="button" class="btn btn-primary print">'.get_string("downloadprint", "local_paperattendance").'</button>');
-	// Back button
-	echo $button;
-	// Preview PDF
-	echo $viewerpdf;
+	echo "
+	$printerText
+	<div>
+		<a href='$urlprint' class='btn btn-secondary'> $backText </a>
+		<a href='$url' target='_blank' rel='noopener noreferrer' class='btn btn-primary'> $downloadText </a>
+	</div>
+	<br>
+	$viewerpdf
+	";
 }
 
 echo $OUTPUT->footer();
 ?>
-<script>
-$( document ).ready(function() {
-	$( ".print" ).on( "click", function() {
-		var w = window.open('<?php echo $url ;?>');
-		w.print();
-	});
-});
-</script>
 
 <script>
 $( document ).ready(function() {
@@ -242,6 +242,13 @@ datetwo.setMonth(selectmonth);
 datetwo.setFullYear(selectyear);
 
 comparedates(currentdate, datetwo);
+
+//what is going on here is that for some reason inline css "display: inline" is being added 
+//to unwanted elements for some unknown (probably remui related) reason
+//this code selects them and removes the css after the site loads
+//this solution is absolutely horrible, we should definetly
+//find what is adding display inline so the style never gets added in the first place
+$('span.form-control-feedback').css("display", "");
 
 $('#id_sessiondate_day').change(function() {
 	  var selected = $('#id_sessiondate_day option:selected').val();
@@ -280,11 +287,6 @@ function comparedates(currentdate, datetwo){
 		$('.nomodulos').remove();
 		showmodules();
 		omegamodulescheck(datetwo, 'showall');
-	}
-	if (currentdate > datetwo ){
-		$('.nomodulos').remove();
-		hideallmodules();
-		$('.fgroup').first().append('<div class="nomodulos alert alert-warning">No hay módulos disponibles para la fecha seleccionada.</div>');
 	}
 	}
 
@@ -332,17 +334,17 @@ function omegamodulescheck(datetwo, when){
 	 $( "form input:checkbox" ).prop( "checked", false);
 	$.ajax({
 	    type: 'POST',
-	    url: 'ajax/ajaxquerys.php',
+	    url: 'ajax/getmodules.php',
 	    data: {
-		      'action' : 'curlgetmoduloshorario',
 		      'omegaid' : '<?php echo ($course -> idnumber); ?>',	
 	    	  'diasemana': dayofweek,
 	    	  'courseid' : <?php echo $courseid; ?>,
 	    	  'category' : <?php echo $category; ?>
 	    	},
-	    success: function (response) {
+	    success: function (data) {
 
-	    	var data = $.parseJSON(response);  
+			//console.log(response);
+	    	//var data = $.parseJSON(response);  
 	       	$.each(data, function(index, datos) {
 				var horainicio = data[index].horaInicio;
 		    	var split = horainicio.split(':');

@@ -49,7 +49,7 @@ $string['hashtag']="#";
 $string['student']="Alumno";
 $string['mail']="Correo";
 $string['attendance']="Asistencia";
-$string['setting']="Ajustes";
+$string['changepresence']="Cambiar asistencia";
 $string['nonselectedstudent']="Estudiante no seleccionado";
 $string['nonexiststudent']="Estudiante no existe";
 $string['date']="Fecha";
@@ -192,6 +192,8 @@ $string['attendancealreadytaken'] = "Ya se ha tomado asistencia en el modulo act
 $string['waitnextmodule'] = "Para poder tomar asistencia debe esperar a que comience el <strong>módulo siguiente</strong>.";
 $string['attendancesaved'] = "Asistencia guardada correctamente.";
 $string['alertinfodigitalattendance'] = "<strong>¡Atención!</strong> No podrá pasar asistencia para el módulo actual después que este haya finalizado.";
+$string['setting']="Configuracion";
+$string['totalmissing']="Total páginas perdidas";
 
 
 //messages
@@ -257,6 +259,23 @@ $string['categoryid']="Id de Catergoría";
 $string['categoryidtext']="Valor categoría de pregrado: 1 para Webcursos-d / 406 para Webcursos Producción";
 $string['minutesdelay']="Minutos de retraso digital";
 $string['minutesdelaytext']="Máximo de minutos extras para poder tomar asistencia digital luego de terminar el módulo. (0 - 19)";
+$string['student']="Alumno";
+$string['currentassistance']="Asistencia Actual";
+
+$string['printersettings'] = "	
+<div>
+    <p> Recuerde la configuración de la impresora y escaner: </p>
+	<ul>
+		<li> Resolución: 600ppi </li>
+        <li> Colores: Escala de grises </li>
+        <li> Tamaño: Carta </li>
+        <li> No pase la hoja a los alumnos, el profesor debe marcar la hoja </li>
+        <li> <strong> No marque afuera de los márgenes </strong> </li>
+        <li> Asegúrese de que la hoja este <strong> bien alineada </strong> durante el escaneo </li>
+        <li> Asegúrese de que la hoja este en buen estado </li>
+    </ul>
+</div>
+";
 
 // Task
 $string['taskprocesspdf']="Procesar PDFs";
@@ -283,3 +302,7 @@ $string['professoreditortext']="Rol Id Profesor";
 
 $string['professornoeditor']="Rol Id Ayudante Corrector";
 $string['professornoeditortext']="Rol Id Ayudante Corrector (profesornoeditor)";
+
+//processpdf cronlog
+$string['processpdf_log_path'] = "Ruta del log del procesamiento PDF";
+$string['processpdf_log_path_description'] = "Asegurese de el usuario que corre PHP tenga permiso de escritura";
