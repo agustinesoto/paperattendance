@@ -100,18 +100,18 @@ class paperattendance_attendance_form extends moodleform {
  				//		   	   		<div class="bar bar-success" style="width: '.$percentagestudentpresent.';">'.$percentagestudentpresent.'</div>
   				//			     	<div class="bar bar-danger" style="width: '.$percentagestudentabsent.';">'.$percentagestudentabsent.'</div>
 				//	    		</div>';
-				$progressbar = '<div class="progress progress-striped active" style="width: 60%;">';
+				$progressbar = '<div class="progress" style="width: 60%; height: 22px">';
 				if ($percentagestudentpresent > 90){
-					$progressbar .= '<div class="bar bar-success" style="width: '.$percentagestudentpresent.';">'.$percentagestudentpresent.'</div>
-  							     	<div class="bar bar-danger" style="width: '.$percentagestudentabsent.';"></div>';
+					$progressbar .= '<div class="progress-bar progress-bar-striped progress-bar-animated bg-success" style="width: '.$percentagestudentpresent.';">'.$percentagestudentpresent.'</div>
+  							     	 <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger" style="width: '.$percentagestudentabsent.';"></div>';
 				}
 				else if ($percentagestudentabsent > 90){
-					$progressbar .= '<div class="bar bar-success" style="width: '.$percentagestudentpresent.';"></div>
-  							     	<div class="bar bar-danger" style="width: '.$percentagestudentabsent.';">'.$percentagestudentabsent.'</div>';
+					$progressbar .= '<div class="progress-bar progress-bar-striped progress-bar-animated bg-success" style="width: '.$percentagestudentpresent.';"></div>
+  							     	<div class="progress-bar progress-bar-striped progress-bar-animated bg-danger" style="width: '.$percentagestudentabsent.';">'.$percentagestudentabsent.'</div>';
 				}
 				else {
-					$progressbar .= '<div class="bar bar-success" style="width: '.$percentagestudentpresent.';">'.$percentagestudentpresent.'</div>
-  							     	<div class="bar bar-danger" style="width: '.$percentagestudentabsent.';">'.$percentagestudentabsent.'</div>';
+					$progressbar .= '<div class="progress-bar progress-bar-striped progress-bar-animated bg-success" style="width: '.$percentagestudentpresent.';">'.$percentagestudentpresent.'</div>
+  							     	<div class="progress-bar progress-bar-striped progress-bar-animated bg-danger" style="width: '.$percentagestudentabsent.';">'.$percentagestudentabsent.'</div>';
 				}
 				$progressbar .= '</td>';
 				$mform->addElement('html', $progressbar);

@@ -26,15 +26,15 @@
 */
 //Pertenece al plugin PaperAttendance
 require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
-require_once($CFG->dirroot . '/local/paperattendance/forms/upload_form.php');
-require_once($CFG->dirroot . '/local/paperattendance/locallib.php');
-require_once ($CFG->dirroot . "/repository/lib.php");
-require_once ($CFG->libdir . '/pdflib.php');
-require_once ($CFG->dirroot . '/mod/assign/feedback/editpdf/fpdi/fpdi.php');
-require_once ($CFG->dirroot . "/mod/assign/feedback/editpdf/fpdi/fpdi_bridge.php");
-//require_once ($CFG->dirroot . "/mod/emarking/lib/openbub/ans_pdf_open.php");
-require_once ($CFG->dirroot . "/mod/assign/feedback/editpdf/fpdi/fpdi.php");
-require_once ($CFG->dirroot . '/local/paperattendance/phpdecoder/QrReader.php');
+require_once("$CFG->dirroot/local/paperattendance/forms/upload_form.php");
+require_once("$CFG->dirroot/local/paperattendance/locallib.php");
+require_once("$CFG->dirroot/repository/lib.php");
+require_once("$CFG->libdir/pdflib.php");
+require_once("$CFG->dirroot/local/paperattendance/lib/fpdi/fpdi.php");
+require_once("$CFG->dirroot/local/paperattendance/lib/fpdi/fpdi_bridge.php");
+require_once("$CFG->dirroot/local/paperattendance/lib/fpdi/fpdi.php");
+require_once("$CFG->dirroot/local/paperattendance/lib/phpdecoder/QrReader.php");
+
 global $DB, $OUTPUT, $USER;
 // User must be logged in.
 require_login();

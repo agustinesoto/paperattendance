@@ -11,10 +11,15 @@ class processpdf extends \core\task\adhoc_task
 	public function execute()
 	{
 		global $CFG, $DB;
-		require_once "$CFG->dirroot/local/paperattendance/locallib.php";
-		require_once "$CFG->dirroot/lib/pdflib.php";
-		require_once "$CFG->dirroot/mod/assign/feedback/editpdf/fpdi/fpdi.php";
-		require_once "$CFG->dirroot/mod/assign/feedback/editpdf/fpdi/fpdi_bridge.php";
+		require_once("$CFG->dirroot/local/paperattendance/locallib.php");
+		require_once("$CFG->dirroot/lib/pdflib.php");
+
+		//to avoid clashing with emarking loading fpdi we check if its already loaded to avoid loading it again
+		if(class_exists("FPDI") == false) 
+		{
+			require_once("$CFG->dirroot/local/paperattendance/lib/fpdi/fpdi.php");
+			require_once("$CFG->dirroot/local/paperattendance/lib/fpdi/fpdi_bridge.php");
+		}
 
 		if(is_writable($CFG->paperattendance_processpdflogpath) == false)
 		{
@@ -117,20 +122,23 @@ class processpdf extends \core\task\adhoc_task
 				//any new templates add here
 				//the template 1 might crash less but its significantly less precise.
 				$templates = ["template-2.xtmpl", "template-1.xtmpl"];
-				$formscanner_jar = "$CFG->dirroot/local/paperattendance/formscanner-1.1.4-bin/lib/formscanner-main-1.1.4.jar";
+				$formscanner_jar = "$CFG->dirroot/local/paperattendance/lib/formscanner-1.1.4-bin/lib/formscanner-main-1.1.4.jar";
 				$formscanner_path = "$path/jpgs/";
 
 				$success = false;
 
 				foreach ($templates as $template) {
 					//set the template
-					$formscanner_template = "$CFG->dirroot/local/paperattendance/formscanner-1.1.4-bin/$template";
+					$formscanner_template = "$CFG->dirroot/local/paperattendance/lib/formscanner-1.1.4-bin/$template";
 
 					$command = "timeout 30 java -jar $formscanner_jar $formscanner_template $formscanner_path 2>> $CFG->paperattendance_processpdflogpath";
 
+					fwrite($log_file, "Running:\n");
 					exec($command, $output, $return_var);
 
 					fwrite($log_file, "$command\n");
+					fwrite($log_file, "Output: $output\n");
+					fwrite($log_file, "Return: $return_var\n");
 
 					if ($return_var == 0) {
 						$success = true;

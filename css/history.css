@@ -1,0 +1,20 @@
+
+#formModal .modal-content .modal-body {
+    overflow-y: auto;
+}
+
+#insertstudentmodal .modal-content {
+    width: 40vw;
+}
+
+#insertstudentmodal .modal-dialog {
+    max-width: max-content;
+}
+
+.in {
+    background: rgba(0,0,0,0.25)
+}
+
+.fade {
+    background: rgba(0,0,0,0.25)
+}

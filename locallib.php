@@ -34,7 +34,7 @@ define('PAPERATTENDANCE_STATUS_SYNC', 2); 		//already synced with omega
 */
 function paperattendance_create_qr_image($qrstring , $path){
 		global $CFG;
-		require_once ($CFG->dirroot . '/local/paperattendance/phpqrcode/phpqrcode.php');
+		require_once("$CFG->dirroot/local/paperattendance/lib/phpqrcode/phpqrcode.php");
 
 		if (!file_exists($path)) {
 			mkdir($path, 0777, true);
@@ -207,7 +207,7 @@ function paperattendance_draw_student_list($pdf, $logofilepath, $course, $studen
 	$teachertrimmedtext = trim_text($teacherstring,30);
 	$top += 4;
 	$pdf->SetXY($left, $top);
-	$pdf->Write(1, core_text::strtoupper(get_string('teacher', 'mod_emarking') . ': ' . $teachertrimmedtext));
+	$pdf->Write(1, core_text::strtoupper(get_string('teacher', 'local_paperattendance') . ': ' . $teachertrimmedtext));
 	// Write requestor.
 	$requestortrimmedtext = trim_text($requestorinfo->firstname." ".$requestorinfo->lastname,30);
 	$top += 4;
@@ -301,7 +301,7 @@ function paperattendance_draw_student_list($pdf, $logofilepath, $course, $studen
 			$pdf->Write(1, core_text::strtoupper(get_string('course') . ': ' . $coursetrimmedtext));
 			$topprovisional += 4;
 			$pdf->SetXY($leftprovisional, $topprovisional);
-			$pdf->Write(1, core_text::strtoupper(get_string('teacher', 'mod_emarking') . ': ' . $teachertrimmedtext));
+			$pdf->Write(1, core_text::strtoupper(get_string('teacher', 'local_paperattendance') . ': ' . $teachertrimmedtext));
 			// Write requestor.
 			$topprovisional += 4;
 			$pdf->SetXY($leftprovisional, $topprovisional);
@@ -1716,7 +1716,7 @@ function paperattendance_omegacreateattendance($courseid, $arrayalumnos, $sessid
 				//check if omegaid already exists
 				if($DB->record_exists("paperattendance_presence", array("omegaid" => $omegasessionid)))
 				{
-					echo "Fatal Error: Omega ID already exists!\n";
+					//echo "Fatal Error: Omega ID already exists!\n";
 				}
                	//save student sync
                	$sqlsyncstate = "UPDATE {paperattendance_presence} SET omegasync = ?, omegaid = ? WHERE sessionid  = ? AND userid = ?";
