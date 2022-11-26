@@ -4,11 +4,11 @@ Moodle plugin
 ------------------------------------------
 
 Pasos para resolver problema:
-1.Revisar archivo .modules.php del plugin
-2. usando find a replace buscar palabra clave Initial Time
-3. reemplazar por texto requerido en parte del codigo correspondiente.
+- 1 Revisar archivo .modules.php del plugin
+- 2 Usando find a replace buscar palabra clave Initial Time
+- 3 Reemplazar por texto requerido en parte del codigo correspondiente.
 
-4. Todavía tengo problemas con la configuración de Moodle en ubuntu
+- 4 Todavía tengo problemas con la configuración de Moodle en ubuntu
 
 
 
