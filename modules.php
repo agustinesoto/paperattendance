@@ -72,7 +72,7 @@ if ($action == "view") {
     if (count($modules) > 0) {
         $modulestable->head = array(
         		get_string("modulename", "local_paperattendance"),
-        		get_string("initialtime", "local_paperattendance"),
+        		get_string("Quiero entrar al equipo de Webcursos!", "local_paperattendance"),
         		get_string("endtime", "local_paperattendance"
         				));
         foreach ($modules as $module) {
